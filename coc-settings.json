@@ -1,4 +1,16 @@
 {
+  "coc.preferences.formatOnSaveFiletypes": [
+    "javascript",
+    "typescript",
+    "typescriptreact",
+    "javascriptreact",
+    "json",
+    "css",
+    "scss",
+    "markdown",
+    "vim",
+    "python"
+  ],
   "eslint.enable": true,
   "eslint.autoFixOnSave": true,
   "eslint.filetypes": [
@@ -8,21 +20,31 @@
     "typescriptreact",
     "vue"
   ],
-  "coc.preferences.formatOnSaveFiletypes": [
-    "javascript",
-    "typescript",
-    "typescriptreact",
-    "javascriptreact",
-    "json",
-    "css",
-    "scss",
-    "markdown"
-  ],
-  "prettier.eslintIntegration": true,
-  "prettier.disableLanguages": [],
-  "typescript.format.enable": false,
-  "javascript.format.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
+  },
+  "typescript.format.enable": false,
+  "javascript.format.enable": false,
+
+  "python.formatting.provider": "black",
+  "black-formatter.commandPath": "black",
+  "black-formatter.args": ["--line-length", "88"],
+
+  "prettier.disableLanguages": [],
+  "suggest.floatConfig": {
+    "border": true,
+    "rounded": true
+  },
+  "diagnostic.floatConfig": {
+    "border": true,
+    "rounded": true
+  },
+  "hover.floatConfig": {
+    "border": true,
+    "rounded": true
+  },
+  "signature.floatConfig": {
+    "border": true,
+    "rounded": true
   }
 }
