@@ -29,7 +29,7 @@ if noice then
             },
         },
         presets = {
-            bottom_search = true, 
+            bottom_search = false, 
             command_palette = true,
             long_message_to_split = true,
             inc_rename = false,
@@ -37,6 +37,7 @@ if noice then
         messages = {
             enabled = true,
             view = "notify",
+            view_search = "cmdline_popup",
         },
         popupmenu = {
             enabled = true,

@@ -1,4 +1,6 @@
 " ============================================================================
+" 1. BASIC SETTINGS
+" ============================================================================
 set number
 set nolist
 set relativenumber
@@ -11,6 +13,9 @@ set mouse=a
 set encoding=UTF-8
 set cursorline
 set noautochdir
+set nobackup
+set nowb
+set noswapfile
 let mapleader = " "
 set termguicolors
 set hidden
@@ -24,14 +29,12 @@ filetype plugin indent on
 au CursorHold,CursorHoldI * checktime
 au FocusGained,BufEnter * :checktime
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
-
 " ============================================================================
 " 2. PLUGIN MANAGEMENT
 " ============================================================================
 call plug#begin(stdpath('data') . '/plugged')
 
 Plug 'folke/tokyonight.nvim'
-Plug 'navarasu/onedark.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
@@ -40,7 +43,6 @@ Plug 'folke/noice.nvim'
 Plug 'MunifTanjim/nui.nvim'
 Plug 'rcarriga/nvim-notify'
 Plug 'shellRaining/hlchunk.nvim'
-Plug 'ap/vim-css-color'
 Plug 'nvim-telescope/telescope-file-browser.nvim'
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 
@@ -70,8 +72,9 @@ Plug 'folke/ts-comments.nvim'
 
 Plug 'nvim-mini/mini.animate', { 'branch': 'stable' }
 Plug 'folke/edgy.nvim'
+Plug 'MeanderingProgrammer/render-markdown.nvim'
+Plug 'lewis6991/gitsigns.nvim'
 call plug#end()
-
 " ============================================================================
 " 3. UI & KEYBINDINGS
 " ============================================================================
@@ -99,7 +102,6 @@ nnoremap <silent> <leader>to :FloatermNew<CR>
 nnoremap <silent> <leader>tt :FloatermToggle<CR>
 tnoremap <silent> <leader>tt <C-\><C-n>:FloatermToggle<CR>
 nnoremap <silent> <leader>gl :FloatermNew! --position=bottomright --height=0.95 --width=0.7 --title='GitLog' git lg<CR>
-
 " ============================================================================
 " 4. COC & COPILOT LOGIC
 " ============================================================================
@@ -138,7 +140,6 @@ let g:coc_snippet_next = '<tab>'
 let g:coc_snippet_prev = '<s-tab>'
 imap <C-j> <Plug>(coc-snippets-expand-jump)
 xmap <leader>x  <Plug>(coc-convert-snippet)
-
 " ============================================================================
 " 5. Todo COMMENTS HIGHLIGHTING
 " ============================================================================
@@ -147,15 +148,16 @@ nnoremap <leader>xq :TodoQuickFix<CR>
 
 runtime! plugged/nvim-treesitter/plugin/nvim-treesitter.lua
 runtime! plugged/nvim-treesitter-textobjects/plugin/nvim-treesitter-textobjects.vim
-"===========================================================================
+" ============================================================================
 " 6. ADDITIONAL SETTINGS
 " ============================================================================
 nnoremap <C-Up> :resize +2<CR>
 nnoremap <C-Down> :resize -2<CR>
 nnoremap <C-Left> :vertical resize -2<CR>
 nnoremap <C-Right> :vertical resize +2<CR>
-
-" bufferline
+" ============================================================================
+" 7. BUFFERLINE SETTINGS & KEYBINDINGS
+" ============================================================================
 nnoremap <silent> <C-p> :BufferLineTogglePin<CR>
 nnoremap <silent> <Tab> :BufferLineCycleNext<CR>
 nnoremap <silent> <S-Tab> :BufferLineCyclePrev<CR>
@@ -163,9 +165,8 @@ nnoremap <silent> <leader>bc :bdelete<CR>
 nnoremap <silent> <leader>be :BufferLineMoveNext<CR>
 nnoremap <silent> <leader>bq :BufferLineMovePrev<CR>
 " ============================================================================
-" 7. LUA CONFIGURATIONS
+" 8. LUA CONFIGURATIONS
 " ============================================================================
-
 lua << EOF
 
 local M = require("helper.utils")
@@ -173,6 +174,11 @@ local M = require("helper.utils")
 local lualine = M.safe_require("lualine")
 if lualine then
     lualine.setup()
+end
+
+local markdown = M.safe_require("render-markdown")
+if markdown then
+	markdown.setup()
 end
 
 EOF
