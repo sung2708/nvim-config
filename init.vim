@@ -85,9 +85,6 @@ nnoremap <C-Down> :resize -2<CR>
 nnoremap <C-Left> :vertical resize -2<CR>
 nnoremap <C-Right> :vertical resize +2<CR>
 
-tnoremap <Esc> <C-\><C-n>
-tnoremap jk <C-\><C-n>
-
 " ============================================================================
 " 2. PLUGIN MANAGEMENT
 " ============================================================================
@@ -226,6 +223,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
         vim.b.autopairs_enabled = 0
     end,
 })
+
 
 EOF
 
