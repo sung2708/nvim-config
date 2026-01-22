@@ -2,33 +2,92 @@
 " 1. BASIC SETTINGS
 " ============================================================================
 set number
-set nolist
 set relativenumber
+set cursorline
+set cursorcolumn
+set termguicolors
+set signcolumn=yes
+set laststatus=3
+set scrolloff=4
+set nolist
+set mouse=a
+
 set autoindent
+set smartindent
+set expandtab
 set tabstop=4
 set shiftwidth=4
-set smarttab
 set softtabstop=4
-set mouse=a
+set smarttab
+
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+
 set encoding=UTF-8
-set cursorline
-set noautochdir
-set nobackup
-set nowb
-set noswapfile
-let mapleader = " "
-set termguicolors
 set hidden
-set updatetime=300
+set updatetime=200
+set confirm
+let mapleader = " "
+
 if has('win32')
     set clipboard=unnamed  
 else
     set clipboard=unnamedplus
 endif
+
+set nobackup
+set nowb
+set noswapfile
+set undofile
+
+set splitright
+set splitbelow
+
+set foldlevel=99
+set foldmethod=indent
+
 filetype plugin indent on
 au CursorHold,CursorHoldI * checktime
 au FocusGained,BufEnter * :checktime
+
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
+tnoremap <A-h> <C-\><C-n><C-w>h
+tnoremap <A-j> <C-\><C-n><C-w>j
+tnoremap <A-k> <C-\><C-n><C-w>k
+tnoremap <A-l> <C-\><C-n><C-w>l
+
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+vnoremap < <gv
+vnoremap > >gv
+
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap <silent> <esc> :noh<return><esc>
+
+nmap <silent> [d <Plug>(coc-diagnostic-prev)
+nmap <silent> ]d <Plug>(coc-diagnostic-next)
+nnoremap <silent> <leader>e :call CocActionAsync('doHover')<CR>
+
+nnoremap <C-Up> :resize +2<CR>
+nnoremap <C-Down> :resize -2<CR>
+nnoremap <C-Left> :vertical resize -2<CR>
+nnoremap <C-Right> :vertical resize +2<CR>
+
+tnoremap <Esc> <C-\><C-n>
+tnoremap jk <C-\><C-n>
+
 " ============================================================================
 " 2. PLUGIN MANAGEMENT
 " ============================================================================
@@ -65,7 +124,7 @@ Plug 'tpope/vim-commentary'
 Plug 'jiangmiao/auto-pairs'
 Plug 'terryma/vim-multiple-cursors'
 
-Plug 'voldikss/vim-floaterm'
+Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 
 Plug 'tpope/vim-surround'
 Plug 'folke/ts-comments.nvim'
@@ -90,19 +149,7 @@ nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <silent> <esc> :noh<return><esc>
 nnoremap <leader>fe <cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>
-
-let g:floaterm_autocmd_bufenter = 0
-let g:floaterm_wintype = 'float'
-let g:floaterm_position = 'topright'
-let g:floaterm_width = 0.6
-let g:floaterm_height = 0.8
-if has('win32') | let g:floaterm_shell = 'pwsh' | endif
-
-nnoremap <silent> <leader>to :FloatermNew<CR>
-nnoremap <silent> <leader>tt :FloatermToggle<CR>
-tnoremap <silent> <leader>tt <C-\><C-n>:FloatermToggle<CR>
-nnoremap <silent> <leader>gl :FloatermNew! --position=bottomright --height=0.95 --width=0.7 --title='GitLog' git lg<CR>
-" ============================================================================
+" ===========================================================================
 " 4. COC & COPILOT LOGIC
 " ============================================================================
 let g:coc_global_extensions = ['coc-pyright', 'coc-tsserver', 'coc-json', 'coc-html', 'coc-css', 'coc-prettier', 'coc-vimlsp']
@@ -149,14 +196,7 @@ nnoremap <leader>xq :TodoQuickFix<CR>
 runtime! plugged/nvim-treesitter/plugin/nvim-treesitter.lua
 runtime! plugged/nvim-treesitter-textobjects/plugin/nvim-treesitter-textobjects.vim
 " ============================================================================
-" 6. ADDITIONAL SETTINGS
-" ============================================================================
-nnoremap <C-Up> :resize +2<CR>
-nnoremap <C-Down> :resize -2<CR>
-nnoremap <C-Left> :vertical resize -2<CR>
-nnoremap <C-Right> :vertical resize +2<CR>
-" ============================================================================
-" 7. BUFFERLINE SETTINGS & KEYBINDINGS
+" 6. BUFFERLINE SETTINGS & KEYBINDINGS
 " ============================================================================
 nnoremap <silent> <C-p> :BufferLineTogglePin<CR>
 nnoremap <silent> <Tab> :BufferLineCycleNext<CR>

@@ -9,7 +9,8 @@
     "css",
     "scss",
     "markdown",
-    "vim"
+    "vim",
+    "python"
   ],
 
   "eslint.enable": true,
