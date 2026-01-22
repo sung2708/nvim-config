@@ -19,37 +19,41 @@ if gitsigns then
             changedelete = { text = '~' },
             untracked    = { text = '┆' },
         },
+        
         signs_staged_enable = true,
-        signcolumn = true, 
-        numhl      = false,
-        linehl     = false,
-        word_diff  = false,
+        signcolumn          = true,
+        numhl               = true,
+        linehl              = false, 
+        word_diff           = false,
+        
         watch_gitdir = {
             follow_files = true
         },
-        auto_attach = true,
+        auto_attach         = true,
         attach_to_untracked = false,
 
-        current_line_blame = false,
+        current_line_blame = true,
         current_line_blame_opts = {
             virt_text = true,
             virt_text_pos = 'eol',
-            delay = 1000,
+            delay = 500,
             ignore_whitespace = false,
             virt_text_priority = 100,
             use_focus = true,
         },
         current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
-        sign_priority = 6,
+        
+        sign_priority   = 6,
         update_debounce = 100,
         status_formatter = nil, 
         max_file_length = 40000, 
+        
         preview_config = {
+            border = 'rounded',
             style = 'minimal',
             relative = 'cursor',
             row = 0,
-            col = 1,
-            border = 'rounded',
+            col = 1
         },
 
         on_attach = function(bufnr)
@@ -65,7 +69,7 @@ if gitsigns then
                 else
                     gitsigns.nav_hunk('next')
                 end
-            end)
+            end, { desc = "Git: Next Hunk" })
 
             map('n', '[c', function()
                 if vim.wo.diff then
@@ -73,7 +77,8 @@ if gitsigns then
                 else
                     gitsigns.nav_hunk('prev')
                 end
-            end)
+            end, { desc = "Git: Prev Hunk" })
+
 
             map('n', '<leader>hs', gitsigns.stage_hunk, { desc = "Git: Stage Hunk" })
             map('n', '<leader>hr', gitsigns.reset_hunk, { desc = "Git: Reset Hunk" })
@@ -103,11 +108,10 @@ if gitsigns then
             map('n', '<leader>hQ', function() gitsigns.setqflist('all') end, { desc = "Git: Set QF List (All)" })
             map('n', '<leader>hq', gitsigns.setqflist, { desc = "Git: Set QF List (Buffer)" })
 
-            -- Toggles
             map('n', '<leader>tb', gitsigns.toggle_current_line_blame, { desc = "Git: Toggle Current Line Blame" })
             map('n', '<leader>tw', gitsigns.toggle_word_diff, { desc = "Git: Toggle Word Diff" })
-
-            -- Text object
+            map('n', '<leader>tl', gitsigns.toggle_linehl, { desc = "Git: Toggle Line Highlight" })
+            map('n', '<leader>tn', gitsigns.toggle_numhl, { desc = "Git: Toggle Number Highlight" })
             map({'o', 'x'}, 'ih', gitsigns.select_hunk, { desc = "Git: Select Hunk" })
         end
     })

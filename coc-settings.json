@@ -77,5 +77,9 @@
     "operator": "󰆕",
     "typeParameter": "󰅲",
     "default": "󰅩"
-  }
+  },
+
+  "git.addGitsigns": true,
+  "git.blame.enable": true,
+  "git.blame.location": "currentLine"
 }

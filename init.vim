@@ -221,6 +221,12 @@ if markdown then
 	markdown.setup()
 end
 
+vim.api.nvim_create_autocmd("TermOpen", {
+    callback = function()
+        vim.b.autopairs_enabled = 0
+    end,
+})
+
 EOF
 
 colorscheme catppuccin-frappe
