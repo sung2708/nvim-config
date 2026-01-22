@@ -8,8 +8,7 @@
     "css",
     "scss",
     "markdown",
-    "vim",
-    "python"
+    "vim"
   ],
 
   "eslint.enable": true,
@@ -21,6 +20,9 @@
     "typescriptreact",
     "vue"
   ],
+
+  "prettier.enable": true,
+  "prettier.statusItemText": true,
 
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
@@ -35,15 +37,15 @@
   "ruff.nativeServer": true,
   "ruff.autoFixOnSave": true,
   "ruff.formatOnSave": true,
-  "ruff.client.codeAction.showDocumentation.enable": true,
 
   "python.formatting.provider": "none",
-
-  "prettier.disableLanguages": [],
 
   "suggest.floatConfig": { "border": true, "rounded": true },
   "diagnostic.floatConfig": { "border": true, "rounded": true },
   "hover.floatConfig": { "border": true, "rounded": true },
-  "signature.floatConfig": { "border": true, "rounded": true },
+  "signature.floatConfig": {
+    "border": true,
+    "rounded": true
+  },
   "snippets.ultisnips.pythonPrompt": false
 }

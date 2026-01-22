@@ -183,4 +183,4 @@ end
 
 EOF
 
-colorscheme catppuccin-mocha
+colorscheme catppuccin-frappe
