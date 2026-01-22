@@ -126,6 +126,8 @@ Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 Plug 'tpope/vim-surround'
 Plug 'folke/ts-comments.nvim'
 
+Plug 'windwp/nvim-ts-autotag'
+
 Plug 'nvim-mini/mini.animate', { 'branch': 'stable' }
 Plug 'folke/edgy.nvim'
 Plug 'MeanderingProgrammer/render-markdown.nvim'
@@ -218,11 +220,16 @@ if markdown then
 	markdown.setup()
 end
 
-vim.api.nvim_create_autocmd("TermOpen", {
-    callback = function()
-        vim.b.autopairs_enabled = 0
-    end,
-})
+local auto_tag = M.safe_require("nvim-ts-autotag")
+if auto_tag then
+    auto_tag.setup({
+        opts = {
+            enable_close = true,
+            enable_rename = true,
+            enable_close_on_slash = false,
+        },
+    })
+end
 
 
 EOF
