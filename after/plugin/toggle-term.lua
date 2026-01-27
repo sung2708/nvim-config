@@ -24,6 +24,7 @@ if vim.fn.has("win32") == 1 then
     vim.opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s"
     vim.opt.shellquote = ""
     vim.opt.shellxquote = ""
+    vim.opt.termguicolors = true
 end
 
 -- =============================================================================
@@ -42,7 +43,7 @@ toggleterm.setup({
     shade_terminals = true,
     shading_factor = 2,
     start_in_insert = true,
-    insert_mappings = true,   -- Allow <C-\> to work in insert mode
+    insert_mappings = false,   -- Allow <C-\> to work in insert mode
     terminal_mappings = true, -- Allow <C-\> to work in terminal mode
     persist_size = true,
     persist_mode = true,
@@ -75,26 +76,6 @@ function _PYTHON_TOGGLE()
     python:toggle()
 end
 
--- Lazygit
-local lazygit = Terminal:new({
-    cmd = "lazygit",
-    dir = "git_dir",
-    direction = "float",
-    float_opts = {
-        border = "double",
-    },
-    -- Automatically enter Insert mode when opening Lazygit
-    on_open = function(term)
-        vim.cmd("startinsert!")
-        -- Map key 'q' to quickly close this buffer
-        vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-    end,
-})
-
-function _LAZYGIT_TOGGLE()
-    lazygit:toggle()
-end
-
 -- =============================================================================
 -- 5. KEYMAPS (Normal Mode)
 -- =============================================================================
@@ -102,7 +83,6 @@ local opts = { noremap = true, silent = true }
 
 -- Custom Apps
 vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
-vim.keymap.set("n", "<leader>g", _LAZYGIT_TOGGLE, { desc = "Terminal: Lazygit" })
 
 -- Toggle different directions
 vim.keymap.set("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "Terminal: Horizontal" })
