@@ -12,7 +12,12 @@
     "vim",
     "python"
   ],
-
+  "clangd.path": "C:\\Users\\t15\\scoop\\apps\\llvm\\current\\bin\\clangd.exe",
+  "clangd.arguments": [
+    "--query-driver=C:\\Users\\t15\\scoop\\apps\\llvm\\current\\bin\\clang*.exe",
+    "--header-insertion=never",
+    "--background-index"
+  ],
   "eslint.enable": true,
   "eslint.autoFixOnSave": true,
   "eslint.filetypes": [
@@ -81,5 +86,6 @@
 
   "git.addGitsigns": true,
   "git.blame.enable": true,
-  "git.blame.location": "currentLine"
+  "git.blame.location": "currentLine",
+  "clangd.path": "~\\AppData\\Local\\coc\\extensions\\coc-clangd-data\\install\\21.1.8\\clangd_21.1.8\\bin\\clangd.exe"
 }
