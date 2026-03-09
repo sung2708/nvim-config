@@ -64,16 +64,20 @@ toggleterm.setup({
 -- 4. DEFINE CUSTOM TERMINALS (Using Terminal class)
 -- =============================================================================
 local Terminal = require("toggleterm.terminal").Terminal
-
+local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
 -- Python REPL
 local python = Terminal:new({
-    cmd = "python",
+    cmd = "uv run",
     direction = "horizontal",
     hidden = true,
 })
 
 function _PYTHON_TOGGLE()
     python:toggle()
+end
+
+function _lazygit_toggle()
+  lazygit:toggle()
 end
 
 -- =============================================================================
@@ -83,6 +87,7 @@ local opts = { noremap = true, silent = true }
 
 -- Custom Apps
 vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
+vim.keymap.set("n", "<leader>g", _lazygit_toggle, {desc = "Terminal: Lazygit"})
 
 -- Toggle different directions
 vim.keymap.set("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "Terminal: Horizontal" })

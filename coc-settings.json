@@ -10,13 +10,17 @@
     "scss",
     "markdown",
     "vim",
-    "python"
+    "python",
+    "cpp",
+    "c"
   ],
-  "clangd.path": "C:\\Users\\t15\\scoop\\apps\\llvm\\current\\bin\\clangd.exe",
+  "clangd.path": "/usr/bin/clangd",
   "clangd.arguments": [
-    "--query-driver=C:\\Users\\t15\\scoop\\apps\\llvm\\current\\bin\\clang*.exe",
+    "--query-driver=/usr/bin/zig,**/zig**,**/clang*",
     "--header-insertion=never",
-    "--background-index"
+    "--background-index",
+    "--clang-tidy",
+    "--completion-style=detailed"
   ],
   "eslint.enable": true,
   "eslint.autoFixOnSave": true,
@@ -86,6 +90,5 @@
 
   "git.addGitsigns": true,
   "git.blame.enable": true,
-  "git.blame.location": "currentLine",
-  "clangd.path": "~\\AppData\\Local\\coc\\extensions\\coc-clangd-data\\install\\21.1.8\\clangd_21.1.8\\bin\\clangd.exe"
+  "git.blame.location": "currentLine"
 }
