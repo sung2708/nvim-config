@@ -1,6 +1,7 @@
 " ============================================================================
 " 1. BASIC SETTINGS
 " ============================================================================
+let g:copilot_enabled = 0
 set number
 set relativenumber
 set cursorline
@@ -155,6 +156,7 @@ let g:coc_global_extensions = ['coc-pyright', 'coc-tsserver', 'coc-json', 'coc-h
 let g:copilot_no_tab_map = v:true
 
 inoremap <silent><expr> <TAB>
+      \ copilot#Accept("\<CR>") !=# "\<CR>" ? copilot#Accept("\<TAB>") :
       \ coc#pum#visible() ? coc#_select_confirm() :
       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
       \ CheckBackspace() ? "\<TAB>" :
@@ -164,7 +166,6 @@ function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
-
 let g:coc_snippet_next = '<tab>'
 
 imap <silent><script><expr> <M-\> copilot#Accept("\<CR>")
@@ -209,6 +210,13 @@ nnoremap <silent> <leader>bq :BufferLineMovePrev<CR>
 lua << EOF
 
 local M = require("helper.utils")
+
+local catppuccin = M.safe_require("catppuccin")
+if catppuccin then
+    catppuccin.setup({
+        transparent_background = true,
+    })
+end
 
 local lualine = M.safe_require("lualine")
 if lualine then

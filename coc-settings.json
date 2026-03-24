@@ -12,7 +12,8 @@
     "vim",
     "python",
     "cpp",
-    "c"
+    "c",
+    "go"
   ],
   "clangd.path": "/usr/bin/clangd",
   "clangd.arguments": [
