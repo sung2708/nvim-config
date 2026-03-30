@@ -1,43 +1,34 @@
 local utils = require("helper.utils")
-local opencode = utils.safe_require("opencode")
-
-if not opencode then
-    return
-end
 
 ---------------------------------------------------------------------------
--- OPTIONAL SETUP (chỉ chạy nếu plugin có setup)
+-- GLOBAL CONFIG
 ---------------------------------------------------------------------------
-if type(opencode.setup) == "function" then
-    opencode.setup({
-        input = {},
-        picker = {
-            actions = {
-                opencode_send = function(...)
-                    local ok, mod = pcall(require, "opencode")
-                    if ok and mod.snacks_picker_send then
-                        return mod.snacks_picker_send(...)
-                    end
-                end,
-            },
-            win = {
-                input = {
-                    keys = {
-                        ["<a-a>"] = { "opencode_send", mode = { "n", "i" } },
+vim.g.opencode_opts = {
+    input = {},
+    picker = {
+        actions = {
+            opencode_send = function(...)
+                local ok, mod = pcall(require, "opencode")
+                if ok and mod.snacks_picker_send then
+                    return mod.snacks_picker_send(...)
+                end
+            end,
+        },
+        win = {
+            input = {
+                keys = {
+                    ["<A-a>"] = {
+                        action = "opencode_send",
+                        mode = { "n", "i" },
                     },
                 },
             },
         },
-    })
-end
+    },
+}
 
 ---------------------------------------------------------------------------
--- SYSTEM
----------------------------------------------------------------------------
-vim.o.autoread = true
-
----------------------------------------------------------------------------
--- SAFE WRAPPER
+-- SAFE REQUIRE
 ---------------------------------------------------------------------------
 local function oc()
     local ok, mod = pcall(require, "opencode")
@@ -47,66 +38,128 @@ local function oc()
 end
 
 ---------------------------------------------------------------------------
+-- SYSTEM
+---------------------------------------------------------------------------
+vim.o.autoread = true
+
+---------------------------------------------------------------------------
+-- BLOCK AUTO EDIT FROM AI
+---------------------------------------------------------------------------
+vim.api.nvim_create_autocmd("User", {
+    pattern = "OpencodeEvent:*",
+    callback = function(args)
+        local event = args.data and args.data.event
+        if not event then return end
+
+        if event.type == "file.edited" then
+            vim.schedule(function()
+                vim.cmd("undo")
+                vim.notify("Opencode attempted to edit file (blocked)", vim.log.levels.WARN)
+            end)
+        end
+    end,
+})
+
+---------------------------------------------------------------------------
 -- KEYMAPS
 ---------------------------------------------------------------------------
 
--- Ask AI
 vim.keymap.set({ "n", "x" }, "<leader>oa", function()
     local m = oc()
     if m and m.ask then
         m.ask("@this: ", { submit = true })
     end
-end, { desc = "Opencode: Ask AI" })
+end, { desc = "AI Ask" })
 
--- Actions picker
+vim.keymap.set({ "n", "x" }, "<leader>oe", function()
+    local m = oc()
+    if m and m.prompt then
+        m.prompt("explain @this")
+    end
+end, { desc = "Explain code" })
+
+vim.keymap.set("n", "<leader>of", function()
+    local m = oc()
+    if m and m.prompt then
+        m.prompt("fix @diagnostics")
+    end
+end, { desc = "Fix diagnostics" })
+
+vim.keymap.set("n", "<leader>or", function()
+    local m = oc()
+    if m and m.prompt then
+        m.prompt("review @diff")
+    end
+end, { desc = "Review changes" })
+
+vim.keymap.set({ "n", "x" }, "<leader>oo", function()
+    local m = oc()
+    if m and m.prompt then
+        m.prompt("optimize @this")
+    end
+end, { desc = "Optimize code" })
+
+vim.keymap.set("n", "<leader>ot", function()
+    local m = oc()
+    if m and m.prompt then
+        m.prompt("test @this")
+    end
+end, { desc = "Generate tests" })
+
 vim.keymap.set({ "n", "x" }, "<leader>ox", function()
     local m = oc()
     if m and m.select then
         m.select()
     end
-end, { desc = "Opencode: Actions" })
+end, { desc = "AI Actions" })
 
--- Toggle window
-local function toggle_fn()
+vim.keymap.set({ "n", "t" }, "<leader>op", function()
     local m = oc()
     if m and m.toggle then
         m.toggle()
     end
-end
+end, { desc = "Toggle AI" })
 
-vim.keymap.set({ "n", "t" }, "<leader>oo", toggle_fn, { desc = "Opencode: Toggle" })
-vim.keymap.set({ "n", "t" }, "<leader>.", toggle_fn, { desc = "Opencode: Toggle" })
-
--- Operator (add range)
 vim.keymap.set({ "n", "x" }, "go", function()
     local m = oc()
     if m and m.operator then
         return m.operator("@this ")
     end
     return ""
-end, { expr = true, desc = "Opencode: Add range" })
+end, { expr = true, desc = "Add to context" })
 
--- Add current line
 vim.keymap.set("n", "goo", function()
     local m = oc()
     if m and m.operator then
         return m.operator("@this ") .. "_"
     end
     return ""
-end, { expr = true, desc = "Opencode: Add line" })
+end, { expr = true, desc = "Add line to context" })
 
--- Scroll up
+vim.keymap.set("n", "<leader>ou", function()
+    local m = oc()
+    if m and m.command then
+        m.command("session.undo")
+    end
+end, { desc = "Undo AI action" })
+
+vim.keymap.set("n", "<leader>oU", function()
+    local m = oc()
+    if m and m.command then
+        m.command("session.redo")
+    end
+end, { desc = "Redo AI action" })
+
 vim.keymap.set("n", "<S-C-u>", function()
     local m = oc()
     if m and m.command then
         m.command("session.half.page.up")
     end
-end, { desc = "Opencode: Scroll Up" })
+end)
 
--- Scroll down
 vim.keymap.set("n", "<S-C-d>", function()
     local m = oc()
     if m and m.command then
         m.command("session.half.page.down")
     end
-end, { desc = "Opencode: Scroll Down" })
+end)
