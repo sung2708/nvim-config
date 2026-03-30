@@ -86,6 +86,8 @@ nnoremap <C-Down> :resize -2<CR>
 nnoremap <C-Left> :vertical resize -2<CR>
 nnoremap <C-Right> :vertical resize +2<CR>
 
+nnoremap gO :<C-u>CocList outline<CR>
+
 " ============================================================================
 " 2. PLUGIN MANAGEMENT
 " ============================================================================
@@ -133,6 +135,11 @@ Plug 'nvim-mini/mini.animate', { 'branch': 'stable' }
 Plug 'folke/edgy.nvim'
 Plug 'MeanderingProgrammer/render-markdown.nvim'
 Plug 'lewis6991/gitsigns.nvim'
+
+" Opencode
+Plug 'nickjvandyke/opencode.nvim'
+Plug 'folke/snacks.nvim'
+
 call plug#end()
 " ============================================================================
 " 3. UI & KEYBINDINGS
@@ -198,7 +205,7 @@ runtime! plugged/nvim-treesitter-textobjects/plugin/nvim-treesitter-textobjects.
 " ============================================================================
 " 6. BUFFERLINE SETTINGS & KEYBINDINGS
 " ============================================================================
-nnoremap <silent> <C-p> :BufferLineTogglePin<CR>
+nnoremap <silent> <leader>bp :BufferLineTogglePin<CR>
 nnoremap <silent> <Tab> :BufferLineCycleNext<CR>
 nnoremap <silent> <S-Tab> :BufferLineCyclePrev<CR>
 nnoremap <silent> <leader>bc :bdelete<CR>
@@ -220,7 +227,15 @@ end
 
 local lualine = M.safe_require("lualine")
 if lualine then
-    lualine.setup()
+    lualine.setup({
+     sections = {
+     lualine_z = {
+       {
+        require("opencode").statusline,
+                },
+            }
+        }
+     })
 end
 
 local markdown = M.safe_require("render-markdown")

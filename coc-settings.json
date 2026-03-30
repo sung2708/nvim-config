@@ -88,7 +88,12 @@
     "typeParameter": "󰅲",
     "default": "󰅩"
   },
-
+  "go.goplsOptions": {
+    "env": {
+      "PATH": "/usr/local/go/bin:/home/sungphan/go/bin:/usr/bin"
+    },
+    "completeUnimported": true
+  },
   "git.addGitsigns": true,
   "git.blame.enable": true,
   "git.blame.location": "currentLine"
