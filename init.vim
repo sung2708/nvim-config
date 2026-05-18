@@ -33,7 +33,7 @@ set confirm
 let mapleader = " "
 
 if has('win32')
-    set clipboard=unnamed  
+    set clipboard=unnamed
 else
     set clipboard=unnamedplus
 endif
@@ -104,6 +104,7 @@ Plug 'rcarriga/nvim-notify'
 Plug 'shellRaining/hlchunk.nvim'
 Plug 'nvim-telescope/telescope-file-browser.nvim'
 Plug 'nvim-telescope/telescope-ui-select.nvim'
+Plug 'shaunsingh/nord.nvim'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release','do': 'yarn install --frozen-lockfile'}
 Plug 'github/copilot.vim'
@@ -135,6 +136,7 @@ Plug 'nvim-mini/mini.animate', { 'branch': 'stable' }
 Plug 'folke/edgy.nvim'
 Plug 'MeanderingProgrammer/render-markdown.nvim'
 Plug 'lewis6991/gitsigns.nvim'
+Plug 'sphamba/smear-cursor.nvim'
 
 " Opencode
 Plug 'nickjvandyke/opencode.nvim'
@@ -254,7 +256,42 @@ if auto_tag then
     })
 end
 
+local smear = M.safe_require("smear_cursor")
+if smear then
+    smear.setup({
+        opts = {
+            smear_between_buffers = true,
+            smear_between_neighbor_lines = true,
+            scroll_buffer_space = true,
+            legacy_computing_symbols_support = false,
+
+
+            smear_insert_mode = true,
+            cursor_color = "#e690f5",
+            particles_enabled = true,
+            stiffness = 0.5,
+            trailing_stiffness = 0.2,
+            trailing_exponent = 5,
+            damping = 0.6,
+            gradient_exponent = 0,
+            gamma = 1,
+            never_draw_over_target = true,
+            hide_target_hack = true,
+            particle_spread = 1,
+            particles_per_second = 500,
+            particles_per_length = 50,
+            particle_max_lifetime = 800,
+            particle_max_initial_velocity = 20,
+            particle_velocity_from_cursor = 0.5,
+            particle_damping = 0.15,
+            particle_gravity = -50,
+            min_distance_emit_particles = 0,
+            time_interval = 7,
+        }
+    })
+end
+
 
 EOF
 
-colorscheme catppuccin-frappe
+colorscheme nord
