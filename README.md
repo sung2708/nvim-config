@@ -14,7 +14,7 @@ To use this configuration, follow these steps:
 
 1. Clone the repository to your local machine:
    ```bash
-   git clone https://github.com/sung2708/nvim-config_win.git
+   git clone https://github.com/sung2708/nvim-config.git
    ```
 2. I using vimplug as plugin manager, so make sure you have it installed. You can find the installation instructions [here](https://github.com/junegunn/vim-plug).
 3. Copy the contents of the cloned repository to your Neovim configuration directory:
