@@ -1,0 +1,100 @@
+{
+  "coc.preferences.formatOnSave": true,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "javascript",
+    "typescript",
+    "typescriptreact",
+    "javascriptreact",
+    "json",
+    "css",
+    "scss",
+    "markdown",
+    "vim",
+    "python",
+    "cpp",
+    "c",
+    "go"
+  ],
+  "clangd.path": "/usr/bin/clangd",
+  "clangd.arguments": [
+    "--query-driver=/usr/bin/zig,**/zig**,**/clang*",
+    "--header-insertion=never",
+    "--background-index",
+    "--clang-tidy",
+    "--completion-style=detailed"
+  ],
+  "eslint.enable": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.filetypes": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+
+  "prettier.enable": true,
+  "prettier.statusItemText": true,
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.ruff": true,
+    "source.organizeImports.ruff": true
+  },
+
+  "typescript.format.enable": false,
+  "javascript.format.enable": false,
+
+  "ruff.enable": true,
+  "ruff.nativeServer": true,
+  "ruff.autoFixOnSave": true,
+  "ruff.formatOnSave": true,
+
+  "python.formatting.provider": "none",
+
+  "suggest.floatConfig": { "border": true, "rounded": true },
+  "diagnostic.floatConfig": { "border": true, "rounded": true },
+  "hover.floatConfig": { "border": true, "rounded": true },
+  "signature.floatConfig": {
+    "border": true,
+    "rounded": true
+  },
+  "snippets.ultisnips.pythonPrompt": false,
+  "suggest.completionItemKindLabels": {
+    "text": "󰉿",
+    "method": "󰆧",
+    "function": "󰊕",
+    "constructor": "",
+    "field": "󰜢",
+    "variable": "󰀫",
+    "class": "󰠱",
+    "interface": "",
+    "module": "",
+    "property": "󰜢",
+    "unit": "󰑭",
+    "value": "󰎟",
+    "enum": "",
+    "keyword": "󰌋",
+    "snippet": "",
+    "color": "󰏘",
+    "file": "󰈙",
+    "reference": "󰈇",
+    "folder": "󰉋",
+    "enumMember": "",
+    "constant": "󰏿",
+    "struct": "󰙅",
+    "event": "",
+    "operator": "󰆕",
+    "typeParameter": "󰅲",
+    "default": "󰅩"
+  },
+  "go.goplsOptions": {
+    "env": {
+      "PATH": "/usr/local/go/bin:/home/sungphan/go/bin:/usr/bin"
+    },
+    "completeUnimported": true
+  },
+  "git.addGitsigns": true,
+  "git.blame.enable": true,
+  "git.blame.location": "currentLine"
+}
