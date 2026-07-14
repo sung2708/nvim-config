@@ -256,15 +256,16 @@ if auto_tag then
     })
 end
 
-local smear = M.safe_require("smear_cursor")
-if smear then
+local ok, smear = pcall(require, "smear_cursor")
+
+if ok then
     smear.setup({
         smear_between_buffers = true,
         smear_between_neighbor_lines = true,
         scroll_buffer_space = true,
         legacy_computing_symbols_support = false,
 
-        smear_insert_mode = true,
+        smear_insert_mode = false,
         cursor_color = "#b48ead",
         particles_enabled = true,
         stiffness = 0.5,
@@ -286,9 +287,27 @@ if smear then
         min_distance_emit_particles = 0,
         time_interval = 7,
     })
+
+    local group = vim.api.nvim_create_augroup("SmearInsertMode", {
+        clear = true,
+    })
+
+    vim.api.nvim_create_autocmd("InsertEnter", {
+        group = group,
+        callback = function()
+            smear.enabled = false
+        end,
+    })
+
+    vim.api.nvim_create_autocmd("InsertLeave", {
+        group = group,
+        callback = function()
+            smear.enabled = true
+        end,
+    })
 end
 
 
 EOF
 
-colorscheme nord
+colorscheme tokyonight-night 
