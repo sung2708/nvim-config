@@ -161,13 +161,13 @@ nnoremap <leader>fe <cmd>Telescope file_browser path=%:p:h select_buffer=true<cr
 " ===========================================================================
 " 4. COC & COPILOT LOGIC
 " ============================================================================
-let g:coc_global_extensions = ['coc-pyright', 'coc-tsserver', 'coc-json', 'coc-html', 'coc-css', 'coc-prettier', 'coc-vimlsp']
+let g:coc_global_extensions = ['coc-pyright', 'coc-tsserver', 'coc-json', 'coc-html', 'coc-css', 'coc-prettier', 'coc-vimlsp', 'coc-snippets']
 let g:copilot_no_tab_map = v:true
 
 inoremap <silent><expr> <TAB>
       \ copilot#Accept("\<CR>") !=# "\<CR>" ? copilot#Accept("\<TAB>") :
       \ coc#pum#visible() ? coc#_select_confirm() :
-      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ CocSnippetExpandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
       \ CheckBackspace() ? "\<TAB>" :
       \ coc#refresh()
 
@@ -175,6 +175,17 @@ function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+function! CocSnippetExpandableOrJumpable() abort
+  try
+    return coc#expandableOrJumpable()
+  catch /^Vim\%((\a\+)\)\=:E605/
+    return v:false
+  catch /coc-snippets not registered/
+    return v:false
+  endtry
+endfunction
+
 let g:coc_snippet_next = '<tab>'
 
 imap <silent><script><expr> <M-\> copilot#Accept("\<CR>")
