@@ -90,6 +90,8 @@
   "go.goplsOptions": {
     "completeUnimported": true
   },
+  //"go.goplsPath": "C:\\Users\\hd\\go\\bin\\gopls.exe",
+  //"go.checkForUpdates": "disabled",
   "git.addGitsigns": true,
   "git.blame.enable": true,
   "git.blame.location": "currentLine"

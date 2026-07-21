@@ -143,7 +143,7 @@ Plug 'MeanderingProgrammer/render-markdown.nvim'
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'tpope/vim-fugitive'
 Plug 'sindrets/diffview.nvim'
-Plug 'sphamba/smear-cursor.nvim'
+" Plug 'sphamba/smear-cursor.nvim'
 Plug 'mfussenegger/nvim-dap'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'nvim-neotest/nvim-nio'
@@ -381,6 +381,7 @@ if auto_tag then
     })
 end
 
+--[[
 local ok, smear = pcall(require, "smear_cursor")
 
 if ok then
@@ -433,6 +434,7 @@ if ok then
         callback = enable_smear_effects,
     })
 end
+]]
 
 
 EOF
