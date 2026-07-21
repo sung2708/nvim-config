@@ -135,8 +135,8 @@ local opts = { noremap = true, silent = true }
 
 -- Custom Apps
 vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
-vim.keymap.set("n", "<leader>g", _lazygit_toggle, { desc = "Terminal: Lazygit" })
-vim.keymap.set("n", "<leader>d", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
+vim.keymap.set("n", "<leader>gg", _lazygit_toggle, { desc = "Terminal: Lazygit" })
+vim.keymap.set("n", "<leader>ld", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
 
 -- Toggle different directions
 vim.keymap.set("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "Terminal: Horizontal" })

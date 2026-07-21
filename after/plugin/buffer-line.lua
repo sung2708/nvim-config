@@ -3,7 +3,6 @@ local bufferline = M.safe_require("bufferline")
 if bufferline then
 	bufferline.setup({
 		options = {
-            style_preset = bufferline.style_preset.no_italic,
             style_preset = {
                 bufferline.style_preset.no_italic,
                 bufferline.style_preset.no_bold

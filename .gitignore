@@ -1,1 +1,22 @@
-./pack
+# Local plugin/runtime installs
+pack/
+.nvim-data/
+
+# Logs and crash/debug output
+*.log
+nvim.log
+
+# Neovim swap/session/temp files
+*.swp
+*.swo
+*.tmp
+Session.vim
+
+# Local automation/editor state
+.agents/
+.codex/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini

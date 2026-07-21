@@ -2,6 +2,9 @@
 " 1. BASIC SETTINGS
 " ============================================================================
 let g:copilot_enabled = 0
+let g:nvim_config_home = expand('<sfile>:p:h')
+execute 'set runtimepath^=' . fnameescape(g:nvim_config_home)
+execute 'set packpath^=' . fnameescape(g:nvim_config_home)
 set number
 set relativenumber
 set cursorline
@@ -65,10 +68,10 @@ tnoremap <A-j> <C-\><C-n><C-w>j
 tnoremap <A-k> <C-\><C-n><C-w>k
 tnoremap <A-l> <C-\><C-n><C-w>l
 
-nnoremap <A-j> :m .+1<CR>==
-nnoremap <A-k> :m .-2<CR>==
-vnoremap <A-j> :m '>+1<CR>gv=gv
-vnoremap <A-k> :m '<-2<CR>gv=gv
+nnoremap <leader>j :m .+1<CR>==
+nnoremap <leader>k :m .-2<CR>==
+vnoremap <leader>j :m '>+1<CR>gv=gv
+vnoremap <leader>k :m '<-2<CR>gv=gv
 
 vnoremap < <gv
 vnoremap > >gv
@@ -113,12 +116,14 @@ Plug 'nvim-neo-tree/neo-tree.nvim', { 'branch': 'v3.x' }
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'folke/trouble.nvim'
 Plug 'folke/flash.nvim'
 Plug 'folke/which-key.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'ibhagwan/fzf-lua'
 
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate', 'branch': 'master'}
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate', 'branch': 'main'}
 Plug 'nvim-treesitter/nvim-treesitter-textobjects', {'branch': 'main'}
 Plug 'folke/todo-comments.nvim'
 Plug 'tpope/vim-commentary'
@@ -136,10 +141,18 @@ Plug 'nvim-mini/mini.animate', { 'branch': 'stable' }
 Plug 'folke/edgy.nvim'
 Plug 'MeanderingProgrammer/render-markdown.nvim'
 Plug 'lewis6991/gitsigns.nvim'
+Plug 'tpope/vim-fugitive'
+Plug 'sindrets/diffview.nvim'
 Plug 'sphamba/smear-cursor.nvim'
+Plug 'mfussenegger/nvim-dap'
+Plug 'rcarriga/nvim-dap-ui'
+Plug 'nvim-neotest/nvim-nio'
+Plug 'theHamsta/nvim-dap-virtual-text'
+Plug 'nvim-neotest/neotest'
+Plug 'nvim-neotest/neotest-python'
+Plug 'nvim-neotest/neotest-jest'
+Plug 'fredrikaverpil/neotest-golang'
 
-" Opencode
-Plug 'nickjvandyke/opencode.nvim'
 Plug 'folke/snacks.nvim'
 
 call plug#end()
@@ -161,7 +174,7 @@ nnoremap <leader>fe <cmd>Telescope file_browser path=%:p:h select_buffer=true<cr
 " ===========================================================================
 " 4. COC & COPILOT LOGIC
 " ============================================================================
-let g:coc_global_extensions = ['coc-pyright', 'coc-tsserver', 'coc-json', 'coc-html', 'coc-css', 'coc-prettier', 'coc-vimlsp', 'coc-snippets']
+let g:coc_global_extensions = ['coc-pyright', 'coc-tsserver', 'coc-json', 'coc-html', 'coc-css', 'coc-prettier', 'coc-vimlsp', 'coc-snippets', 'coc-eslint', '@yaegassy/coc-ruff', 'coc-clangd', 'coc-go']
 let g:copilot_no_tab_map = v:true
 
 inoremap <silent><expr> <TAB>
@@ -208,14 +221,6 @@ let g:coc_snippet_prev = '<s-tab>'
 imap <C-j> <Plug>(coc-snippets-expand-jump)
 xmap <leader>x  <Plug>(coc-convert-snippet)
 " ============================================================================
-" 5. Todo COMMENTS HIGHLIGHTING
-" ============================================================================
-nnoremap <leader>xt :TodoTelescope<CR>
-nnoremap <leader>xq :TodoQuickFix<CR>
-
-runtime! plugged/nvim-treesitter/plugin/nvim-treesitter.lua
-runtime! plugged/nvim-treesitter-textobjects/plugin/nvim-treesitter-textobjects.vim
-" ============================================================================
 " 6. BUFFERLINE SETTINGS & KEYBINDINGS
 " ============================================================================
 nnoremap <silent> <leader>bp :BufferLineTogglePin<CR>
@@ -229,6 +234,13 @@ nnoremap <silent> <leader>bq :BufferLineMovePrev<CR>
 " ============================================================================
 lua << EOF
 
+local config_home = vim.g.nvim_config_home or vim.fn.stdpath("config")
+local config_lua = config_home .. "/lua/?.lua"
+local config_lua_init = config_home .. "/lua/?/init.lua"
+if not package.path:find(config_lua, 1, true) then
+    package.path = config_lua .. ";" .. config_lua_init .. ";" .. package.path
+end
+
 local M = require("helper.utils")
 
 local catppuccin = M.safe_require("catppuccin")
@@ -241,15 +253,117 @@ end
 local lualine = M.safe_require("lualine")
 if lualine then
     lualine.setup({
-     sections = {
-     lualine_z = {
-       {
-        require("opencode").statusline,
+        options = {
+            globalstatus = true,
+        },
+        sections = {
+            lualine_c = {
+                { "filename", path = 1 },
+                {
+                    "diagnostics",
+                    sources = { "nvim_diagnostic" },
+                    symbols = { error = " ", warn = " ", info = " ", hint = "󰌵 " },
                 },
-            }
-        }
-     })
+            },
+            lualine_x = { "encoding", "fileformat", "filetype" },
+            lualine_y = { "progress" },
+            lualine_z = {
+                { "location" },
+            },
+        },
+        extensions = {
+            "fugitive",
+            "neo-tree",
+            "quickfix",
+            "toggleterm",
+            "trouble",
+        },
+        inactive_sections = {
+            lualine_c = { { "filename", path = 1 } },
+            lualine_x = { "location" },
+        },
+    })
 end
+
+local function setup_coc_diagnostic_bridge()
+    if vim.fn.exists("*CocAction") == 0 then
+        vim.api.nvim_create_autocmd("User", {
+            group = vim.api.nvim_create_augroup("CocDiagnosticBridgeBootstrap", { clear = true }),
+            pattern = "CocNvimInit",
+            callback = setup_coc_diagnostic_bridge,
+            once = true,
+        })
+        return
+    end
+
+    vim.diagnostic.config({
+        virtual_text = false,
+        signs = false,
+        underline = false,
+        update_in_insert = false,
+    })
+
+    local namespace = vim.api.nvim_create_namespace("coc_bridge")
+    local severity_map = {
+        Error = vim.diagnostic.severity.ERROR,
+        Warning = vim.diagnostic.severity.WARN,
+        Information = vim.diagnostic.severity.INFO,
+        Hint = vim.diagnostic.severity.HINT,
+    }
+
+    local function publish()
+        local ok_diagnostics, coc_diagnostics = pcall(vim.fn.CocAction, "diagnosticList")
+        if not ok_diagnostics or type(coc_diagnostics) ~= "table" then
+            return
+        end
+
+        local by_buf = {}
+        for _, item in ipairs(coc_diagnostics) do
+            local file = item.file or item.uri
+            local bufnr = file and vim.fn.bufnr(file)
+
+            if bufnr and bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+                by_buf[bufnr] = by_buf[bufnr] or {}
+
+                local lnum = tonumber(item.lnum or item.line or item.range and item.range.start and item.range.start.line) or 1
+                local col = tonumber(item.col or item.character or item.range and item.range.start and item.range.start.character) or 1
+
+                table.insert(by_buf[bufnr], {
+                    lnum = math.max(lnum - 1, 0),
+                    col = math.max(col - 1, 0),
+                    end_lnum = math.max(lnum - 1, 0),
+                    end_col = math.max(col, 0),
+                    severity = severity_map[item.severity] or vim.diagnostic.severity.INFO,
+                    message = item.message or "",
+                    source = item.source or "coc",
+                })
+            end
+        end
+
+        for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_is_loaded(bufnr) then
+                vim.diagnostic.set(namespace, bufnr, by_buf[bufnr] or {})
+            end
+        end
+    end
+
+    local group = vim.api.nvim_create_augroup("CocDiagnosticBridge", { clear = true })
+
+    vim.api.nvim_create_autocmd("User", {
+        group = group,
+        pattern = "CocDiagnosticChange",
+        callback = publish,
+    })
+
+    vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost" }, {
+        group = group,
+        callback = publish,
+    })
+
+    vim.defer_fn(publish, 500)
+end
+
+setup_coc_diagnostic_bridge()
 
 local markdown = M.safe_require("render-markdown")
 if markdown then
@@ -299,22 +413,24 @@ if ok then
         time_interval = 7,
     })
 
-    local group = vim.api.nvim_create_augroup("SmearInsertMode", {
-        clear = true,
+    local group = vim.api.nvim_create_augroup("SmearInsertMode", { clear = true })
+
+    local function disable_smear_effects()
+        smear.enabled = false
+    end
+
+    local function enable_smear_effects()
+        smear.enabled = true
+    end
+
+    vim.api.nvim_create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
+        group = group,
+        callback = disable_smear_effects,
     })
 
-    vim.api.nvim_create_autocmd("InsertEnter", {
+    vim.api.nvim_create_autocmd({ "InsertLeave", "CmdlineLeave" }, {
         group = group,
-        callback = function()
-            smear.enabled = false
-        end,
-    })
-
-    vim.api.nvim_create_autocmd("InsertLeave", {
-        group = group,
-        callback = function()
-            smear.enabled = true
-        end,
+        callback = enable_smear_effects,
     })
 end
 

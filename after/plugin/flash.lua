@@ -5,7 +5,7 @@ if flash then
     flash.setup({
         highlight = { groups = { flash = "Flash" } }
     })
-end
 
-vim.keymap.set({"n", "x", "o"}, "s", function() flash.jump() end)
-vim.keymap.set({"n", "x", "o"}, "S", function() flash.treesitter() end)
+    vim.keymap.set({"n", "x", "o"}, "s", function() flash.jump() end, { desc = "Flash: Jump" })
+    vim.keymap.set({"n", "x", "o"}, "S", function() flash.treesitter() end, { desc = "Flash: Treesitter" })
+end

@@ -1,0 +1,7 @@
+vim.keymap.set("n", "<leader>gs", "<cmd>Git<cr>", { desc = "Git: Status" })
+vim.keymap.set("n", "<leader>gc", "<cmd>Git commit<cr>", { desc = "Git: Commit" })
+vim.keymap.set("n", "<leader>gp", "<cmd>Git push<cr>", { desc = "Git: Push" })
+vim.keymap.set("n", "<leader>gl", "<cmd>Git pull<cr>", { desc = "Git: Pull" })
+vim.keymap.set("n", "<leader>gd", "<cmd>DiffviewOpen<cr>", { desc = "Git: Diff View" })
+vim.keymap.set("n", "<leader>gD", "<cmd>DiffviewClose<cr>", { desc = "Git: Close Diff View" })
+vim.keymap.set("n", "<leader>gh", "<cmd>DiffviewFileHistory<cr>", { desc = "Git: File History" })

@@ -7,4 +7,5 @@ if notify then
         render = "default",
         stages = "fade_in_slide_out",
     })
+    vim.notify = notify
 end

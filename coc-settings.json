@@ -15,9 +15,8 @@
     "c",
     "go"
   ],
-  "clangd.path": "/usr/bin/clangd",
+  "clangd.path": "clangd",
   "clangd.arguments": [
-    "--query-driver=/usr/bin/zig,**/zig**,**/clang*",
     "--header-insertion=never",
     "--background-index",
     "--clang-tidy",
@@ -89,9 +88,6 @@
     "default": "󰅩"
   },
   "go.goplsOptions": {
-    "env": {
-      "PATH": "/usr/local/go/bin:/home/sungphan/go/bin:/usr/bin"
-    },
     "completeUnimported": true
   },
   "git.addGitsigns": true,
