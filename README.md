@@ -1,108 +1,117 @@
 # SUNGP Neovim
 
-Cau hinh Neovim theo huong IDE, toi uu cho Python, Go, JavaScript/TypeScript,
-Java, C/C++ va Lua. Cau hinh dung `lazy.nvim`, native LSP, Blink completion,
-Telescope, FzfLua, Treesitter, DAP va Neotest.
+An IDE-oriented Neovim configuration for Python, Go, JavaScript/TypeScript,
+Java, C/C++, Lua, and Markdown. It uses `lazy.nvim`, native LSP, Blink
+completion, Telescope, FzfLua, Treesitter, DAP, Neotest, and a compact Snacks
+dashboard.
 
-Muc tieu cua repository:
+The configuration is designed around five goals:
 
-- Mo nhanh: plugin duoc lazy-load theo event, command, keymap hoac filetype.
-- Tim nhanh: Telescope cho giao dien day du, FzfLua cho thao tac toc do cao.
-- Code day du: LSP, completion, format, lint, debug, test va Git.
-- Da he dieu hanh: Windows, Linux va macOS dung chung mot cau hinh.
-- De bao tri: plugin spec va phan tich hop duoc tach rieng.
+- Fast startup through event, command, keymap, and filetype-based lazy loading.
+- Fast navigation with Telescope for rich workflows and FzfLua for speed.
+- Complete coding support with LSP, completion, formatting, linting, testing,
+  debugging, and Git integrations.
+- One configuration for Windows, Linux, and macOS.
+- Clear ownership boundaries between plugin specifications and integrations.
 
-## Muc luc
+## Table of Contents
 
-- [Tinh nang chinh](#tinh-nang-chinh)
-- [Yeu cau](#yeu-cau)
-- [Cai cong cu theo he dieu hanh](#cai-cong-cu-theo-he-dieu-hanh)
-- [Cai cau hinh](#cai-cau-hinh)
-- [Khoi dong lan dau](#khoi-dong-lan-dau)
-- [Phu thuoc duoc quan ly tu dong](#phu-thuoc-duoc-quan-ly-tu-dong)
-- [Ho tro theo ngon ngu](#ho-tro-theo-ngon-ngu)
-- [Cau truc cau hinh](#cau-truc-cau-hinh)
-- [Cau hinh theo he dieu hanh](#cau-hinh-theo-he-dieu-hanh)
-- [Keymap](#keymap)
-- [Tinh nang tuy chon](#tinh-nang-tuy-chon)
-- [Toi uu hieu nang](#toi-uu-hieu-nang)
-- [Bao tri va kiem tra](#bao-tri-va-kiem-tra)
-- [Xu ly loi thuong gap](#xu-ly-loi-thuong-gap)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Install System Tools](#install-system-tools)
+- [Install the Configuration](#install-the-configuration)
+- [First Start](#first-start)
+- [Managed Dependencies](#managed-dependencies)
+- [Language Support](#language-support)
+- [Configuration Layout](#configuration-layout)
+- [Operating System Behavior](#operating-system-behavior)
+- [User Interface](#user-interface)
+- [Keymaps](#keymaps)
+- [Optional Features](#optional-features)
+- [Performance](#performance)
+- [Maintenance](#maintenance)
+- [Troubleshooting](#troubleshooting)
 
-## Tinh nang chinh
+## Features
 
-| Nhom | Thanh phan |
+| Area | Components |
 | --- | --- |
-| Quan ly plugin | lazy.nvim va `lazy-lock.json` |
+| Plugin manager | lazy.nvim and `lazy-lock.json` |
 | LSP | Native `vim.lsp`, nvim-lspconfig, Mason |
 | Completion | blink.cmp, friendly-snippets, signature help |
-| Format | Conform: Ruff, Prettier, Stylua, gofumpt, goimports |
-| Lint | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck |
-| Tim kiem | Telescope, telescope-fzf-native va FzfLua |
-| Dieu huong | Flash, Neo-tree, Bufferline, Treesitter textobjects |
-| Chan doan | Trouble, Todo Comments, Lualine |
+| Formatting | Conform, Ruff, Prettier, Stylua, gofumpt, goimports |
+| Linting | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck |
+| Search | Telescope, telescope-fzf-native, FzfLua |
+| Navigation | Flash, Neo-tree, Bufferline, Treesitter textobjects |
+| Diagnostics | Trouble, Todo Comments, Lualine |
 | Git | Gitsigns, Fugitive, Diffview |
-| Debug | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
-| Test | Neotest cho Python, Go, Jest va Java |
-| Giao dien | Snacks dashboard, WhichKey, Noice, Notify, Tokyonight |
+| Debugging | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
+| Testing | Neotest for Python, Go, Jest, and Java |
+| UI | Snacks dashboard, WhichKey, Noice, Notify, Tokyonight |
+| Cursor | smear-cursor.nvim, including Insert mode |
 
-## Yeu cau
+## Requirements
 
-### Bat buoc chung
+### Core Requirements
 
-| Cong cu | Muc dich |
+| Tool | Purpose |
 | --- | --- |
-| Neovim `>= 0.11` | Dung native LSP API moi |
-| Git | Bootstrap lazy.nvim va tai plugin |
-| Mang Internet | Chi can khi bootstrap/cap nhat plugin va Mason |
-| ripgrep (`rg`) | Live grep, Todo va cac picker |
-| fd | Tim file nhanh |
-| fzf | Backend tim kiem cho FzfLua |
+| Neovim `>= 0.11` | Native LSP APIs and current plugin support |
+| Git | Bootstrap lazy.nvim and download plugins |
+| Internet access | Required only for initial installation and updates |
+| ripgrep (`rg`) | File search, live grep, Todo, Telescope, and FzfLua |
+| fzf | FzfLua backend |
 | make | Build telescope-fzf-native |
-| C compiler hoac Zig | Build parser Treesitter va fzf-native |
-| unzip, gzip, tar | Giai nen goi cai dat cua Mason |
-| curl hoac wget | Tai goi cua Mason |
+| C compiler or Zig | Build native extensions and Treesitter parsers |
+| unzip, gzip, tar | Extract packages installed by Mason |
+| curl or wget | Download packages installed by Mason |
 
-`Nerd Font` khong bat buoc de Neovim chay, nhung rat nen co. Neu terminal khong
-dung Nerd Font, icon trong WhichKey, Neo-tree, Trouble va Lualine co the hien
-thanh o vuong.
+`fd` is optional. The current Telescope and FzfLua file pickers use
+`rg --files`, but other picker configurations may still benefit from `fd`.
 
-### Theo ngon ngu
+A Nerd Font is not required for Neovim itself, but it is strongly recommended.
+Without one, icons in WhichKey, Neo-tree, Trouble, Lualine, and the dashboard
+may appear as empty squares.
 
-Chi can cai runtime cua ngon ngu ban su dung:
+### Language Runtimes
 
-| Ngon ngu | Bat buoc ben ngoai Neovim |
+Install only the runtimes for the languages you use:
+
+| Language | External requirement |
 | --- | --- |
-| Python | Python 3; `uv` la tuy chon |
+| Python | Python 3; `uv` is optional |
 | Go | Go toolchain |
-| JavaScript/TypeScript | Node.js va npm |
-| Java | JDK 21; Maven/Gradle neu project khong kem wrapper |
-| C/C++ | Clang/GCC hoac Zig |
-| Lua | Khong can runtime rieng de sua cau hinh Neovim |
+| JavaScript/TypeScript | Node.js and npm |
+| Java | JDK 21; Maven or Gradle when the project has no wrapper |
+| C/C++ | Clang, GCC, or Zig |
+| Lua | No separate runtime is required to edit Neovim configuration |
 
-Mason cai language server, formatter, linter va debug adapter. Mason khong thay
-the runtime/compiler cua du an. Vi du: Mason co the cai `gopls`, nhung van can
-Go toolchain de build va test project Go.
+Mason installs language servers, formatters, linters, and debug adapters. It
+does not replace the runtime or compiler required by a project. For example,
+Mason can install `gopls`, but the Go toolchain is still required to build and
+test Go code.
 
-### Tuy chon
+### Optional Tools
 
-| Cong cu | Khi nao can |
+| Tool | Used by |
 | --- | --- |
-| PowerShell 7 (`pwsh`) | Terminal tot hon tren Windows |
-| uv | Quan ly Python env va chay Python REPL |
-| Maven | Project Java khong co `mvnw` |
-| Gradle | Project Java khong co `gradlew` |
-| Lazygit | Dung `Space+gg` |
-| Lazydocker va Docker | Dung `Space+ld` |
-| GitHub Copilot | Goi y AI trong Insert mode |
-| xclip/xsel/wl-clipboard | System clipboard tren Linux |
+| PowerShell 7 (`pwsh`) | Improved terminal behavior on Windows |
+| fd | Alternative fast file discovery |
+| uv | Python environments and the Python REPL |
+| Maven | Java projects without `mvnw` |
+| Gradle | Java projects without `gradlew` |
+| Lazygit | `Space+gg` |
+| Lazydocker and Docker | `Space+ld` |
+| GitHub Copilot | AI suggestions in Insert mode |
+| xclip, xsel, or wl-clipboard | System clipboard integration on Linux |
 
-## Cai cong cu theo he dieu hanh
+## Install System Tools
 
 ### Windows 10/11
 
-Cau hinh duoc toi uu cho [Scoop](https://github.com/ScoopInstaller/Install).
-Mo PowerShell thuong, khong can Administrator:
+The configuration has first-class support for
+[Scoop](https://github.com/ScoopInstaller/Install). Open a regular PowerShell
+session; Administrator privileges are not required:
 
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -113,19 +122,18 @@ scoop install git neovim ripgrep fd fzf make zig nodejs python go maven unzip gz
 scoop install java/temurin21-jdk
 ```
 
-Nen cai them PowerShell 7:
+PowerShell 7 is recommended:
 
 ```powershell
 scoop install pwsh
 ```
 
-Kiem tra:
+Verify the installation:
 
 ```powershell
 nvim --version
 git --version
 rg --version
-fd --version
 fzf --version
 zig version
 node --version
@@ -135,14 +143,14 @@ java -version
 mvn --version
 ```
 
-Neu Neovim da duoc cai bang Scoop, cau hinh tu dong nhan:
+When Scoop is present, the configuration automatically detects:
 
 - `%USERPROFILE%\scoop\apps\go\current\bin`
 - `%USERPROFILE%\scoop\apps\maven\current\bin`
 - `%USERPROFILE%\scoop\apps\temurin21-jdk\current`
 
-Bien `JAVA_HOME` chi duoc gan tu dong khi chua co gia tri. Neu ban da dat
-`JAVA_HOME`, cau hinh ton trong gia tri hien co.
+`JAVA_HOME` is assigned from Scoop only when the variable is not already set.
+An existing user-defined value always takes precedence.
 
 ### Ubuntu/Debian
 
@@ -153,18 +161,18 @@ sudo apt install git ripgrep fd-find fzf make gcc g++ \
   openjdk-21-jdk maven unzip gzip curl
 ```
 
-Mot so phien ban Debian/Ubuntu dat executable la `fdfind`:
+Some Debian and Ubuntu releases install `fd` as `fdfind`:
 
 ```bash
 mkdir -p ~/.local/bin
 ln -s "$(command -v fdfind)" ~/.local/bin/fd
 ```
 
-Dam bao `~/.local/bin` nam trong `PATH`. Goi Neovim cua distro cu co the thap
-hon `0.11`; khi do cai ban moi theo
-[huong dan chinh thuc cua Neovim](https://github.com/neovim/neovim/blob/master/INSTALL.md).
+Ensure `~/.local/bin` is in `PATH`. Distribution packages may provide an older
+Neovim release. If it is below `0.11`, install a current build using the
+[official Neovim instructions](https://github.com/neovim/neovim/blob/master/INSTALL.md).
 
-Clipboard tuy chon:
+Optional clipboard packages:
 
 ```bash
 # Wayland
@@ -174,34 +182,36 @@ sudo apt install wl-clipboard
 sudo apt install xclip
 ```
 
-Neu distro khong co `openjdk-21-jdk`, cai mot JDK 21 khac va dat:
+If the distribution does not provide `openjdk-21-jdk`, install another JDK 21
+distribution and export:
 
 ```bash
-export JAVA_HOME=/duong/dan/toi/jdk-21
+export JAVA_HOME=/path/to/jdk-21
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
 ### macOS
 
-Cai Xcode Command Line Tools va Homebrew packages:
+Install Xcode Command Line Tools and Homebrew packages:
 
 ```bash
 xcode-select --install
 brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven
 ```
 
-Them JDK 21 vao shell profile:
+Add JDK 21 to the shell profile:
 
 ```bash
 export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-macOS da co `pbcopy`/`pbpaste`, nen clipboard khong can package rieng.
+macOS already provides `pbcopy` and `pbpaste`, so no separate clipboard package
+is required.
 
-## Cai cau hinh
+## Install the Configuration
 
-### 1. Sao luu cau hinh cu
+### 1. Back Up an Existing Configuration
 
 Windows PowerShell:
 
@@ -219,7 +229,7 @@ mv "${XDG_DATA_HOME:-$HOME/.local/share}/nvim" \
   "${XDG_DATA_HOME:-$HOME/.local/share}/nvim-data.backup" 2>/dev/null || true
 ```
 
-### 2. Clone repository
+### 2. Clone the Repository
 
 Windows PowerShell:
 
@@ -234,20 +244,20 @@ git clone https://github.com/sung2708/nvim-config.git \
   "${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
 ```
 
-### 3. Mo Neovim
+### 3. Open Neovim
 
 ```bash
 nvim README.md
 ```
 
-`lazy.nvim` se tu bootstrap vao thu muc data cua Neovim. Vi plugin duoc
-lazy-load, man hinh dau tien co the xuat hien truoc khi tat ca cong cu Mason
-duoc cai xong. Mo `README.md` kich hoat Treesitter va cong cu Markdown; cac
-lenh trong buoc tiep theo se tu lazy-load Mason, DAP va Neotest khi can.
+`lazy.nvim` bootstraps itself into Neovim's data directory. Because plugins
+are lazy-loaded, the dashboard may appear before Mason has finished installing
+development tools. Opening `README.md` also loads the Markdown-specific
+Treesitter and rendering integrations.
 
-## Khoi dong lan dau
+## First Start
 
-Chay lan luot trong Neovim:
+Run these commands inside Neovim:
 
 ```vim
 :Lazy sync
@@ -259,55 +269,57 @@ Chay lan luot trong Neovim:
 :checkhealth
 ```
 
-Giai thich:
+What each command does:
 
-1. `Lazy sync` cai/cap nhat plugin theo `lazy-lock.json`.
-2. `MasonToolsInstall` cai LSP, formatter, linter va Java/JS debug adapter.
-3. `TSUpdate` cai/cap nhat Treesitter parsers.
-4. Load `nvim-dap` de Mason cai debugpy, Delve va codelldb.
-5. `NeotestJava setup` tai JUnit Console cho Java test.
-6. `checkhealth` kiem tra provider, executable va plugin.
+1. `Lazy sync` installs plugins at the commits recorded in `lazy-lock.json`.
+2. `MasonToolsInstall` installs LSP servers, formatters, linters, and Java/JS
+   debug adapters.
+3. `TSUpdate` installs or updates Treesitter parsers.
+4. Loading `nvim-dap` allows Mason to install debugpy, Delve, and codelldb.
+5. `NeotestJava setup` downloads the JUnit Console required by Java tests.
+6. `checkhealth` validates providers, executables, and plugin integrations.
 
-Co the bootstrap plugin khong can giao dien:
+Plugins can also be bootstrapped without opening the UI:
 
 ```bash
 nvim --headless "+Lazy! sync" +qa
 ```
 
-Sau khi cai xong, mo mot file cua tung ngon ngu can dung. LSP va cac plugin
-filetype se chi khoi dong khi co buffer phu hop.
+After installation, open one file for each language you use. LSP servers and
+language-specific plugins start only when a matching buffer is opened.
 
-## Phu thuoc duoc quan ly tu dong
+## Managed Dependencies
 
 ### lazy.nvim
 
-`lazy.nvim` quan ly toan bo plugin. Phien ban da kiem thu duoc khoa trong
-`lazy-lock.json`; khong nen xoa lockfile neu muon cac may dung cung phien ban.
+`lazy.nvim` manages every plugin. Tested plugin commits are recorded in
+`lazy-lock.json`; keep the lockfile under version control to use identical
+versions across machines.
 
-Plugin duoc chia theo vai tro:
+Plugin specifications are grouped by responsibility:
 
-| File | Nhom plugin |
+| File | Responsibility |
 | --- | --- |
-| `lua/plugins/lsp.lua` | LSP, Mason, format va lint |
-| `lua/plugins/completion.lua` | Completion, snippet, signature |
-| `lua/plugins/treesitter.lua` | Parser va textobjects |
-| `lua/plugins/search.lua` | Telescope va FzfLua |
-| `lua/plugins/ui.lua` | Dashboard, statusline, notify, WhichKey |
-| `lua/plugins/git.lua` | Gitsigns, Fugitive, Diffview |
-| `lua/plugins/editor.lua` | Explorer, Trouble, Flash, Todo, editing |
-| `lua/plugins/debug.lua` | DAP, Neotest va cac adapter |
-| `lua/plugins/languages.lua` | Python, Go, TypeScript va Java |
+| `lua/plugins/lsp.lua` | LSP, Mason, formatting, and linting |
+| `lua/plugins/completion.lua` | Completion, snippets, and signatures |
+| `lua/plugins/treesitter.lua` | Parsers and textobjects |
+| `lua/plugins/search.lua` | Telescope and FzfLua |
+| `lua/plugins/ui.lua` | Dashboard, statusline, notifications, WhichKey |
+| `lua/plugins/git.lua` | Gitsigns, Fugitive, and Diffview |
+| `lua/plugins/editor.lua` | Explorer, Trouble, Flash, Todo, editing, cursor |
+| `lua/plugins/debug.lua` | DAP, Neotest, and adapters |
+| `lua/plugins/languages.lua` | Python, Go, TypeScript, and Java |
 
 ### Mason
 
-LSP duoc cai va enable tu dong:
+Language servers installed and enabled automatically:
 
 ```text
 clangd  cssls  eslint  gopls  html  jsonls
 lua_ls  pyright  ruff  vimls
 ```
 
-Tool duoc `mason-tool-installer` quan ly:
+Tools managed by `mason-tool-installer`:
 
 ```text
 clang-format           eslint_d             gomodifytags
@@ -318,18 +330,18 @@ markdownlint-cli2      prettier             ruff
 shellcheck             stylua              typescript-language-server
 ```
 
-DAP duoc Mason quan ly:
+Debug adapters managed through Mason:
 
 ```text
 debugpy  delve  codelldb
 ```
 
-Khong can cai nhung package tren toan he thong tru khi ban muon dung chung ben
-ngoai Neovim.
+These packages do not need to be installed globally unless they are also used
+outside Neovim.
 
 ### Treesitter
 
-Parser tu dong:
+Parsers installed automatically:
 
 ```text
 bash  c  cpp  css  go  gomod  gosum  html  javascript  java
@@ -337,24 +349,25 @@ json  lua  markdown  markdown_inline  python  query  toml
 tsx  typescript  vim  vimdoc  yaml
 ```
 
-Tren Windows, `bin/zig-cc.cmd` va `bin/zig-cxx.cmd` giup Treesitter goi Zig nhu
-C/C++ compiler. Hai file `.cmd` chi danh cho Windows; Linux/macOS tu tim
-`cc`, `clang`, `gcc`, `c++`, `clang++` hoac `g++`.
+On Windows, `bin/zig-cc.cmd` and `bin/zig-cxx.cmd` expose Zig as a C/C++
+compiler for Treesitter. These `.cmd` wrappers are Windows-only. Linux and
+macOS use `CC`/`CXX` when set, then fall back to `cc`, `clang`, `gcc`, `c++`,
+`clang++`, or `g++`.
 
-## Ho tro theo ngon ngu
+## Language Support
 
 ### Python
 
-| Vai tro | Cong cu |
+| Role | Tool |
 | --- | --- |
-| LSP/type | Pyright |
-| Lint/quick fix | Ruff LSP |
-| Format/import | Ruff |
-| Virtual environment | venv-selector.nvim |
-| Debug | debugpy |
-| Test | neotest-python |
+| LSP and types | Pyright |
+| Lint and quick fixes | Ruff LSP |
+| Formatting and imports | Ruff |
+| Virtual environments | venv-selector.nvim |
+| Debugging | debugpy |
+| Testing | neotest-python |
 
-Python interpreter cho terminal duoc chon theo thu tu:
+The Python terminal chooses an interpreter in this order:
 
 1. `uv run python`
 2. `python3`
@@ -362,57 +375,59 @@ Python interpreter cho terminal duoc chon theo thu tu:
 
 ### Go
 
-| Vai tro | Cong cu |
+| Role | Tool |
 | --- | --- |
 | LSP | gopls |
-| Format/import | gofumpt, goimports |
+| Formatting and imports | gofumpt, goimports |
 | Code generation | gopher.nvim, gomodifytags, gotests, impl, iferr |
-| Debug | Delve |
-| Test | neotest-golang |
+| Debugging | Delve |
+| Testing | neotest-golang |
 
-Tren Windows x86_64, cau hinh dat `GOARCH=amd64` neu bien nay chua ton tai.
+On Windows x86_64, the configuration sets `GOARCH=amd64` only when `GOARCH`
+does not already exist.
 
 ### JavaScript/TypeScript
 
-| Vai tro | Cong cu |
+| Role | Tool |
 | --- | --- |
 | LSP | typescript-tools.nvim |
 | Diagnostics | ESLint |
-| Format | eslint_d, Prettier |
-| Debug | js-debug-adapter |
-| Test | neotest-jest |
-| JSX/TSX tag | nvim-ts-autotag |
+| Formatting | eslint_d and Prettier |
+| Debugging | js-debug-adapter |
+| Testing | neotest-jest |
+| JSX/TSX tags | nvim-ts-autotag |
 
-`typescript-tools.nvim` quan ly TypeScript server truc tiep, nen `ts_ls` khong
-duoc enable lan thu hai.
+`typescript-tools.nvim` owns the TypeScript language server integration, so
+`ts_ls` is not enabled a second time.
 
 ### Java
 
-| Vai tro | Cong cu |
+| Role | Tool |
 | --- | --- |
-| LSP | nvim-jdtls + Eclipse JDTLS |
-| Annotation | Lombok |
-| Format | google-java-format |
-| Debug | java-debug-adapter |
-| Test | neotest-java + JUnit Console |
+| LSP | nvim-jdtls and Eclipse JDTLS |
+| Annotations | Lombok |
+| Formatting | google-java-format |
+| Debugging | java-debug-adapter |
+| Testing | neotest-java and JUnit Console |
 
-JDTLS can JDK 21 trong cau hinh nay. Project nen co mot trong cac file root:
-`.git`, `mvnw`, `pom.xml`, `gradlew`, `build.gradle` hoac `settings.gradle`.
+This configuration runs JDTLS with JDK 21. A project should contain at least
+one recognized root marker: `.git`, `mvnw`, `pom.xml`, `gradlew`,
+`build.gradle`, or `settings.gradle`.
 
-Lan dau mo project Java, JDTLS co the can them thoi gian de index va tai source.
-`neotest-java` can chay `:NeotestJava setup` mot lan tren moi thu muc data
-Neovim moi.
+The first Java project open may take longer while JDTLS indexes the workspace
+and downloads sources. Run `:NeotestJava setup` once for each new Neovim data
+directory.
 
-### Indent theo filetype
+### Filetype Indentation
 
-| Filetype | Thiet lap |
+| Filetype | Settings |
 | --- | --- |
 | Python, Lua, Java | 4 spaces |
 | JavaScript, TypeScript, JSX, TSX | 2 spaces |
-| Go | Tab, do rong hien thi 4 |
-| Markdown | Bat wrap va linebreak |
+| Go | Tabs displayed at width 4 |
+| Markdown | Wrap and linebreak enabled |
 
-## Cau truc cau hinh
+## Configuration Layout
 
 ```text
 nvim/
@@ -439,32 +454,33 @@ nvim/
 `-- README.md
 ```
 
-Vai tro:
+Responsibilities:
 
-- `init.lua`: entrypoint chinh.
-- `init.vim`: shim tuong thich neu bien `VIMINIT` cu van tro vao `init.vim`.
-- `lua/config/`: option, keymap chung, autocmd va lazy bootstrap.
-- `lua/plugins/`: khai bao plugin, dependency va dieu kien lazy-load.
-- `lua/integrations/`: setup va ket noi giua cac plugin.
-- `after/ftplugin/`: thiet lap rieng cho tung filetype.
-- `lazy-lock.json`: khoa commit cua plugin.
+- `init.lua`: primary entrypoint.
+- `init.vim`: compatibility shim for environments where `VIMINIT` still
+  points to `init.vim`.
+- `lua/config/`: global options, keymaps, autocmds, and lazy bootstrap.
+- `lua/plugins/`: plugin specifications, dependencies, and lazy-load rules.
+- `lua/integrations/`: plugin setup and cross-plugin integration.
+- `after/ftplugin/`: per-filetype options.
+- `lazy-lock.json`: pinned plugin commits.
 
-Khong can them thu cong `runtimepath` hoac `packpath`. `init.lua` da nam dung
-trong `stdpath("config")`, va lazy.nvim tu quan ly runtimepath cua plugin.
+Do not manually prepend `runtimepath` or `packpath`. The repository already
+lives in `stdpath("config")`, and lazy.nvim owns plugin runtime paths.
 
-## Cau hinh theo he dieu hanh
+## Operating System Behavior
 
-### PATH va bien moi truong
+### PATH and Environment Variables
 
 `lua/config/options.lua`:
 
-- Dung `;` de tach `PATH` tren Windows, `:` tren Linux/macOS.
-- Them `UV_PYTHON_BIN_DIR` va `UV_TOOL_BIN_DIR` neu thu muc ton tai.
-- Tu nhan Go, Maven va Temurin 21 trong Scoop tren Windows.
-- Chi dat `JAVA_HOME` neu nguoi dung chua dat.
-- Chi dat `GOARCH=amd64` tren Windows x86_64 khi `GOARCH` chua ton tai.
+- Uses `;` as the Windows `PATH` separator and `:` on Linux/macOS.
+- Adds `UV_PYTHON_BIN_DIR` and `UV_TOOL_BIN_DIR` when they exist.
+- Detects Scoop installations of Go, Maven, and Temurin 21 on Windows.
+- Sets `JAVA_HOME` only when the user has not already set it.
+- Sets `GOARCH=amd64` only on Windows x86_64 when the variable is unset.
 
-Co the dat bien truoc khi mo Neovim:
+Environment variables may be set before starting Neovim.
 
 Windows PowerShell:
 
@@ -486,404 +502,466 @@ nvim
 
 ### Clipboard
 
-- Windows: `clipboard=unnamed`.
-- Linux/macOS: `clipboard=unnamedplus`.
+- Windows uses `clipboard=unnamed`.
+- Linux and macOS use `clipboard=unnamedplus`.
 
-Kiem tra provider bang:
+Check clipboard providers with:
 
 ```vim
 :checkhealth provider
 ```
 
-### Shell va terminal
+### Shell and Terminal
 
-- Windows: uu tien `pwsh`, fallback ve Windows PowerShell.
-- Windows terminal duoc dat UTF-8 de tranh loi parse output va ky tu.
-- Linux/macOS: giu shell ma Neovim nhan tu moi truong.
+- Windows prefers `pwsh` and falls back to Windows PowerShell.
+- The Windows shell is configured for UTF-8 input and output.
+- Linux and macOS retain the shell inherited by Neovim.
 
-### Compiler Treesitter
+### Treesitter Compiler
 
-- Windows: uu tien wrapper Zig trong `bin/`.
-- Linux/macOS: ton trong `CC`/`CXX`; neu chua co thi tu tim compiler he thong.
+- Windows prefers the Zig wrappers in `bin/`.
+- Linux and macOS honor `CC` and `CXX`, then detect a system compiler.
 
-## Keymap
+## User Interface
 
-`Leader` la `Space`. `LocalLeader` la `\`.
+### Dashboard
 
-Nhan `Space` va doi mot chut de mo WhichKey. Tat ca nhom chinh co mo ta va icon.
+The Snacks dashboard displays the `SUNGP` header, shortcuts, four recent
+files, and a compact Git status section.
 
-### Nen tang
+Lualine and Bufferline are hidden while the dashboard is active so the content
+can remain vertically centered. Both are restored automatically when the
+dashboard closes or a file is opened.
 
-| Phim | Che do | Chuc nang |
+Dashboard spacing is intentionally compact:
+
+- No empty row between every shortcut.
+- Small gaps separate the header, shortcut list, recent files, and Git status.
+- Width and pane spacing are reduced to avoid an excessively wide layout.
+
+### Command Line and Completion
+
+Noice renders the centered command line. Blink supplies command completion
+after `:` and uses a separate rounded menu with horizontal content padding.
+The menu is positioned below the Noice border with a visible row of separation.
+
+### Popup Spacing
+
+- Noice content popups use rounded borders and inner padding.
+- WhichKey uses one row and two columns of padding.
+- FzfLua uses one row and two columns of internal padding.
+- Telescope adds left-side spacing to prompts and results.
+- Trouble adds top and left spacing to result views.
+- Notify uses its wrapped renderer for message padding.
+
+### Smear Cursor
+
+Smear Cursor starts with Neovim and remains enabled in Insert mode:
+
+```lua
+cursor_color = "#7DCFFF"
+smear_insert_mode = true
+vertical_bar_cursor_insert_mode = true
+```
+
+Toggle it at runtime with:
+
+```vim
+:SmearCursorToggle
+```
+
+## Keymaps
+
+`Leader` is `Space`. `LocalLeader` is `\`.
+
+Press `Space` and wait briefly to open WhichKey. All major groups include
+descriptions and icons.
+
+### Core Navigation
+
+| Key | Mode | Action |
 | --- | --- | --- |
-| `Alt+h/j/k/l` | Normal/Terminal | Chuyen cua so |
-| `Ctrl+Arrow` | Normal | Doi kich thuoc cua so |
-| `Space+j/k` | Normal/Visual | Di chuyen dong hoac vung chon |
-| `<` / `>` | Visual | Indent va giu nguyen vung chon |
-| `Ctrl+d/u` | Normal | Cuon nua trang va can giua |
-| `n` / `N` | Normal | Ket qua tim tiep/tru va can giua |
-| `Esc` | Normal | Xoa highlight tim kiem |
-| `Tab` / `Shift+Tab` | Normal | Buffer tiep/tru |
-| `Space+bc` | Normal | Dong buffer, giu bo cuc cua so |
-| `Space+bp` | Normal | Ghim/bo ghim buffer |
-| `Space+be/bq` | Normal | Di buffer sang phai/trai |
+| `Alt+h/j/k/l` | Normal/Terminal | Move between windows |
+| `Ctrl+Arrow` | Normal | Resize the current window |
+| `Space+j/k` | Normal/Visual | Move a line or selection |
+| `<` / `>` | Visual | Indent and retain the selection |
+| `Ctrl+d/u` | Normal | Half-page scroll and center |
+| `n` / `N` | Normal | Next/previous search result and center |
+| `Esc` | Normal | Clear search highlighting |
+| `Tab` / `Shift+Tab` | Normal | Next/previous buffer |
+| `Space+bc` | Normal | Close buffer while preserving layout |
+| `Space+bp` | Normal | Pin or unpin buffer |
+| `Space+be/bq` | Normal | Move buffer right/left |
 
-### Explorer va dashboard
+### Explorer and Dashboard
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Ctrl+n` | Neo-tree reveal file hien tai |
-| `Ctrl+t` | Bat/tat Neo-tree |
+| `Ctrl+n` | Reveal the current file in Neo-tree |
+| `Ctrl+t` | Toggle Neo-tree |
 | `Ctrl+f` | Focus Neo-tree |
-| `Space+sd` | Mo dashboard SUNGP |
+| `Space+sd` | Open the SUNGP dashboard |
 
-Tai dashboard:
+Dashboard keys:
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `f` | Tim file |
+| `f` | Find file |
 | `g` | Live grep |
-| `b` | Danh sach buffer |
-| `e` | File explorer |
+| `b` | List buffers |
+| `e` | Open file explorer |
 | `s` | Git status |
 | `d` | Git diff |
 | `x` | Diagnostics |
-| `t` | Tests |
-| `c` | Mo thu muc cau hinh |
-| `n` | File moi |
-| `q` | Thoat Neovim |
+| `t` | Test summary |
+| `c` | Open the configuration directory |
+| `n` | Create a new file |
+| `q` | Quit Neovim |
 
-### Tim kiem
+### Search
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Space+ff` | Tim file bang Telescope |
-| `Space+fg` | Tim noi dung bang Telescope |
-| `Space+fb` | Tim buffer bang Telescope |
-| `Space+fh` | Tim help tag |
+| `Space+ff` | Find files with Telescope |
+| `Space+fg` | Live grep with Telescope |
+| `Space+fb` | Find buffers with Telescope |
+| `Space+fh` | Search help tags |
 | `Space+fe` | Telescope file browser |
-| `Space+fF` | Tim file nhanh bang FzfLua |
-| `Space+fG` | Tim noi dung nhanh bang FzfLua |
-| `Space+fB` | Tim buffer nhanh bang FzfLua |
+| `Space+fF` | Fast file search with FzfLua |
+| `Space+fG` | Fast live grep with FzfLua |
+| `Space+fB` | Fast buffer search with FzfLua |
 
-Quy uoc: `f` chu thuong dung Telescope; bien the chu hoa dung FzfLua.
+Convention: lowercase `f` mappings use Telescope; uppercase variants use
+FzfLua.
 
-Trong cua so FzfLua:
+Inside FzfLua:
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Ctrl+d/u` | Cuon preview xuong/len |
-| `Ctrl+q` | Chon tat ca va chap nhan |
+| `Ctrl+d/u` | Scroll preview down/up |
+| `Ctrl+q` | Select all and accept |
 
-### Flash va Treesitter
+### Flash and Treesitter
 
-| Phim | Che do | Chuc nang |
+| Key | Mode | Action |
 | --- | --- | --- |
 | `s` | Normal/Visual/Operator | Flash jump |
 | `S` | Normal/Visual/Operator | Flash Treesitter |
-| `am` / `im` | Visual/Operator | Function around/inside |
-| `ac` / `ic` | Visual/Operator | Class around/inside |
-| `as` | Visual/Operator | Scope around |
-| `Space+a/A` | Normal | Doi parameter tiep/tru |
-| `]m` / `[m` | Normal/Visual/Operator | Function start tiep/tru |
-| `]M` / `[M` | Normal/Visual/Operator | Function end tiep/tru |
-| `]]` / `[[` | Normal/Visual/Operator | Class start tiep/tru |
-| `][` / `[]` | Normal/Visual/Operator | Class end tiep/tru |
-| `]o` | Normal/Visual/Operator | Loop tiep theo |
-| `]s` | Normal/Visual/Operator | Scope tiep theo |
-| `]z` | Normal/Visual/Operator | Fold tiep theo |
-| `]C` / `[C` | Normal/Visual/Operator | Conditional tiep/tru |
+| `am` / `im` | Visual/Operator | Around/inside function |
+| `ac` / `ic` | Visual/Operator | Around/inside class |
+| `as` | Visual/Operator | Around scope |
+| `Space+a/A` | Normal | Swap next/previous parameter |
+| `]m` / `[m` | Normal/Visual/Operator | Next/previous function start |
+| `]M` / `[M` | Normal/Visual/Operator | Next/previous function end |
+| `]]` / `[[` | Normal/Visual/Operator | Next/previous class start |
+| `][` / `[]` | Normal/Visual/Operator | Next/previous class end |
+| `]o` | Normal/Visual/Operator | Next loop |
+| `]s` | Normal/Visual/Operator | Next scope |
+| `]z` | Normal/Visual/Operator | Next fold |
+| `]C` / `[C` | Normal/Visual/Operator | Next/previous conditional |
 
 ### LSP
 
-Keymap LSP chi ton tai trong buffer da attach language server:
+LSP mappings are buffer-local and exist only after a language server attaches:
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `gd` | Definition qua Telescope |
-| `gy` | Type definition qua Telescope |
-| `gi` | Implementation qua Telescope |
-| `gr` | References qua FzfLua |
-| `gO` | Document symbols qua FzfLua |
+| `gd` | Definitions through Telescope |
+| `gy` | Type definitions through Telescope |
+| `gi` | Implementations through Telescope |
+| `gr` | References through FzfLua |
+| `gO` | Document symbols through FzfLua |
 | `Space+cS` | Workspace symbols |
 | `K` / `Space+e` | Hover documentation |
 | `Space+ca` | Code action |
 | `Space+rn` | Rename symbol |
-| `Space+cd` | Diagnostic tai dong |
-| `]d` / `[d` | Diagnostic tiep/tru |
-| `Space+ci` | Bat/tat inlay hints neu server ho tro |
-| `Space+cf` | Format buffer hoac vung chon |
-| `Space+cL` | Chay lint |
-| `Space+cm` | Mo Mason |
+| `Space+cd` | Line diagnostics |
+| `]d` / `[d` | Next/previous diagnostic |
+| `Space+ci` | Toggle inlay hints when supported |
+| `Space+cf` | Format buffer or selection |
+| `Space+cL` | Run lint |
+| `Space+cm` | Open Mason |
 | `Space+cs` | Trouble document symbols |
 | `Space+cl` | Trouble LSP list |
 
-Diagnostics khong cap nhat khi dang Insert mode, giup go chu on dinh hon.
+Diagnostics do not update while Insert mode is active, which keeps typing
+stable and reduces unnecessary redraws.
 
-### Completion trong Insert mode
+### Insert Completion
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Ctrl+Space` | Mo completion hoac xem documentation |
-| `Ctrl+e` | Dong completion |
-| `Ctrl+n/p` | Muc tiep/tru |
-| `Ctrl+j/k` | Muc tiep/tru hoac snippet jump |
-| `Tab` / `Shift+Tab` | Completion/snippet tiep/tru |
-| `Enter` | Chap nhan completion |
-| `Ctrl+b/f` | Cuon documentation |
-| `Ctrl+l` | Signature help |
+| `Ctrl+Space` | Show completion or documentation |
+| `Ctrl+e` | Hide completion |
+| `Ctrl+n/p` | Select next/previous item |
+| `Ctrl+j/k` | Select item or jump through snippets |
+| `Tab` / `Shift+Tab` | Completion or snippet next/previous |
+| `Enter` | Accept completion |
+| `Ctrl+b/f` | Scroll documentation |
+| `Ctrl+l` | Toggle signature help |
 
-### Completion trong command line
+### Command-Line Completion
 
-Khi nhan `:`, Blink tu hien goi y command. Tim kiem bang `/` hoac `?` van
-khong tu mo menu, nhung co the goi completion thu cong.
+Typing `:` automatically opens Blink command suggestions. `/` and `?` search
+do not open the menu automatically, but completion can still be requested
+manually.
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Tab` | Hien menu/chen muc dau, sau do chuyen muc tiep |
-| `Shift+Tab` | Chuyen ve muc truoc |
-| `Ctrl+Space` | Hien completion thu cong |
-| `Ctrl+n/p` | Muc tiep/tru |
-| `Ctrl+y` | Chap nhan muc hien tai |
-| `Ctrl+e` | Huy completion |
+| `Tab` | Show the menu or select the next item |
+| `Shift+Tab` | Select the previous item |
+| `Ctrl+Space` | Show completion manually |
+| `Ctrl+n/p` | Select next/previous item |
+| `Ctrl+y` | Accept the selected item |
+| `Ctrl+e` | Cancel completion |
 
-### Format va lint
+### Formatting and Linting
 
-| Lenh/phim | Chuc nang |
+| Command or key | Action |
 | --- | --- |
-| `Space+cf` | Format ngay |
-| `Space+cL` | Lint ngay |
-| `:FormatDisable` | Tat format-on-save toan cuc |
-| `:FormatDisable!` | Tat format-on-save buffer hien tai |
-| `:FormatEnable` | Bat lai format-on-save |
-| `:ConformInfo` | Xem formatter dang dung |
+| `Space+cf` | Format now |
+| `Space+cL` | Lint now |
+| `:FormatDisable` | Disable format-on-save globally |
+| `:FormatDisable!` | Disable format-on-save for the current buffer |
+| `:FormatEnable` | Re-enable format-on-save |
+| `:ConformInfo` | Show active formatter information |
 
-### Todo va Trouble
+### Todo and Trouble
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Space+xx` | Diagnostics toan workspace |
-| `Space+xX` | Diagnostics buffer hien tai |
+| `Space+xx` | Workspace diagnostics |
+| `Space+xX` | Current buffer diagnostics |
 | `Space+xL` | Location list |
 | `Space+xQ` | Quickfix list |
-| `]t` / `[t` | Todo tiep/tru |
-| `Space+xt` | Tat ca Todo trong Trouble |
-| `Space+xT` | Tat ca Todo trong Telescope |
-| `Space+xf` | Tat ca Todo trong FzfLua |
-| `Space+xF` | Chi TODO/FIX/FIXME trong FzfLua |
-| `Space+xR` | Chi TODO/FIX/FIXME trong Trouble |
-| `Space+xq/xl` | Todo trong quickfix/location list |
+| `]t` / `[t` | Next/previous Todo |
+| `Space+xt` | All Todos in Trouble |
+| `Space+xT` | All Todos in Telescope |
+| `Space+xf` | All Todos in FzfLua |
+| `Space+xF` | TODO/FIX/FIXME only in FzfLua |
+| `Space+xR` | TODO/FIX/FIXME only in Trouble |
+| `Space+xq/xl` | Todos in quickfix/location list |
 
-Tag duoc nhan: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:` va
+Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 `NOTE:`.
 
 ### Git
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
 | `Space+gs` | Git status |
 | `Space+gc` | Git commit |
 | `Space+gp` | Git push |
 | `Space+gl` | Git pull |
-| `Space+gd` | Mo Diffview |
-| `Space+gD` | Dong Diffview |
-| `Space+gh` | Git file history |
-| `]c` / `[c` | Hunk tiep/tru |
+| `Space+gd` | Open Diffview |
+| `Space+gD` | Close Diffview |
+| `Space+gh` | File history |
+| `]c` / `[c` | Next/previous hunk |
 | `Space+hs/hr` | Stage/reset hunk |
 | `Space+hS/hR` | Stage/reset buffer |
-| `Space+hp/hi` | Preview hunk/popup inline |
-| `Space+hb` | Blame dong hien tai |
-| `Space+hd/hD` | Diff voi index/commit truoc |
-| `Space+hq/hQ` | Hunk vao quickfix buffer/toan bo |
+| `Space+hp/hi` | Preview hunk in popup/inline |
+| `Space+hb` | Blame current line |
+| `Space+hd/hD` | Diff against index/previous commit |
+| `Space+hq/hQ` | Buffer/all hunks to quickfix |
 | `Space+tb/tw/tl/tn` | Toggle blame/word diff/line/number highlight |
-| `ih` | Chon hunk trong Visual/Operator mode |
+| `ih` | Select hunk in Visual/Operator mode |
 
-### Debug
+### Debugging
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `F5` | Continue/start |
+| `F5` | Continue or start |
 | `F10` | Step over |
 | `F11` | Step into |
 | `F12` | Step out |
 | `Space+db` | Toggle breakpoint |
-| `Space+dB` | Dat conditional breakpoint |
-| `Space+dr` | Mo debug REPL |
-| `Space+dl` | Chay lai lan debug gan nhat |
-| `Space+du` | Bat/tat DAP UI |
+| `Space+dB` | Set conditional breakpoint |
+| `Space+dr` | Open debug REPL |
+| `Space+dl` | Run the previous debug configuration |
+| `Space+du` | Toggle DAP UI |
 
-### Test
+### Testing
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Space+nt` | Chay test gan con tro |
-| `Space+nf` | Chay test trong file |
-| `Space+nT` | Chay toan bo test suite |
-| `Space+ns` | Bat/tat test summary |
-| `Space+no` | Xem output test |
-| `Space+nO` | Bat/tat output panel |
-| `Space+nw` | Bat/tat watch mode |
+| `Space+nt` | Run nearest test |
+| `Space+nf` | Run tests in the current file |
+| `Space+nT` | Run the complete test suite |
+| `Space+ns` | Toggle test summary |
+| `Space+no` | Open test output |
+| `Space+nO` | Toggle output panel |
+| `Space+nw` | Toggle watch mode |
 
-### Keymap Python
+### Python Keymaps
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Space+pv` | Chon virtual environment bang FzfLua |
-| `Space+py` | Mo Python REPL trong terminal |
+| `Space+pv` | Select a virtual environment with FzfLua |
+| `Space+py` | Open a Python REPL terminal |
 
-### Keymap Go
+### Go Keymaps
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Space+Gi` | Them `if err != nil` |
-| `Space+Gt` | Them JSON struct tags |
-| `Space+GT` | Xoa struct tags |
-| `Space+Gc` | Tao comment cho symbol |
-| `Space+Gf` | Tao test cho function |
-| `Space+GF` | Tao test cho toan file |
+| `Space+Gi` | Insert `if err != nil` |
+| `Space+Gt` | Add JSON struct tags |
+| `Space+GT` | Remove struct tags |
+| `Space+Gc` | Generate a symbol comment |
+| `Space+Gf` | Generate a function test |
+| `Space+GF` | Generate tests for the current file |
 
-### Keymap JavaScript/TypeScript
+### JavaScript/TypeScript Keymaps
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `Space+Ti` | Sap xep imports |
-| `Space+Ta` | Them imports con thieu |
-| `Space+Tu` | Xoa code/import khong dung |
-| `Space+Tf` | Sua tat ca loi co the |
-| `Space+Tr` | Doi ten file va cap nhat imports |
+| `Space+Ti` | Organize imports |
+| `Space+Ta` | Add missing imports |
+| `Space+Tu` | Remove unused code and imports |
+| `Space+Tf` | Apply all available fixes |
+| `Space+Tr` | Rename file and update imports |
 
-### Keymap Java
+### Java Keymaps
 
-| Phim | Che do | Chuc nang |
+| Key | Mode | Action |
 | --- | --- | --- |
-| `Space+Jo` | Normal | Sap xep imports |
+| `Space+Jo` | Normal | Organize imports |
 | `Space+Jv` | Normal/Visual | Extract variable |
 | `Space+Jc` | Normal/Visual | Extract constant |
 | `Space+Jm` | Visual | Extract method |
-| `Space+Jt` | Normal | Chay test gan nhat |
-| `Space+JT` | Normal | Chay tat ca test trong file |
-| `Space+Ju` | Normal | Cap nhat cau hinh Maven/Gradle |
+| `Space+Jt` | Normal | Run nearest test |
+| `Space+JT` | Normal | Run all tests in the file |
+| `Space+Ju` | Normal | Refresh Maven/Gradle project configuration |
 
 ### Terminal
 
-| Phim | Che do | Chuc nang |
+| Key | Mode | Action |
 | --- | --- | --- |
-| `Ctrl+\` | Normal/Terminal | Bat/tat terminal |
-| `Space+th` | Normal | Terminal ngang |
-| `Space+tv` | Normal | Terminal doc |
-| `Space+tf` | Normal | Terminal float |
+| `Ctrl+\` | Normal/Terminal | Toggle terminal |
+| `Space+th` | Normal | Horizontal terminal |
+| `Space+tv` | Normal | Vertical terminal |
+| `Space+tf` | Normal | Floating terminal |
 | `Space+py` | Normal | Python REPL |
-| `Space+gg` | Normal | Lazygit, can cai them |
-| `Space+ld` | Normal | Lazydocker, can cai them |
-| `Space+s` | Visual | Gui vung chon sang terminal |
-| `Esc` hoac `jk` | Terminal | Ve Normal mode |
-| `Ctrl+h/j/k/l` | Terminal | Chuyen cua so |
+| `Space+gg` | Normal | Lazygit, when installed |
+| `Space+ld` | Normal | Lazydocker, when installed |
+| `Space+s` | Visual | Send selection to terminal |
+| `Esc` or `jk` | Terminal | Return to Normal mode |
+| `Ctrl+h/j/k/l` | Terminal | Move between windows |
 
-Lenh terminal Git:
+Git terminal commands:
 
 ```vim
 :TermGitPush
 :TermGitPushF
 ```
 
-`TermGitPushF` dung force push; chi dung khi ban hieu ro lich su branch.
+`TermGitPushF` performs a force push. Use it only when the branch history and
+remote impact are understood.
 
-### Comment, surround va multiple cursors
+### Comments, Surround, and Multiple Cursors
 
-| Phim | Chuc nang |
+| Key | Action |
 | --- | --- |
-| `gcc` | Comment/uncomment dong |
-| `gc{motion}` | Comment theo motion |
-| `gc` | Comment vung chon trong Visual mode |
-| `ys{motion}{char}` | Them surround |
-| `ds{char}` | Xoa surround |
-| `cs{old}{new}` | Doi surround |
-| `S{char}` | Surround vung chon |
-| `Alt+n` | Bat dau/chon con tro cung tu tiep theo |
-| `Alt+a` | Chon tat ca cac tu giong nhau |
-| `g Alt+n` | Bat dau multiple cursors, khong gioi han bien tu |
-| `g Alt+a` | Chon tat ca, khong gioi han bien tu |
-| `Alt+p` | Multiple cursor truoc |
-| `Alt+x` | Bo qua occurrence hien tai |
-| `Esc` | Thoat multiple cursors |
+| `gcc` | Toggle line comment |
+| `gc{motion}` | Comment by motion |
+| `gc` | Comment Visual selection |
+| `ys{motion}{char}` | Add surround |
+| `ds{char}` | Delete surround |
+| `cs{old}{new}` | Change surround |
+| `S{char}` | Surround Visual selection |
+| `Alt+n` | Start/select next word occurrence |
+| `Alt+a` | Select all matching words |
+| `g Alt+n` | Start without word boundaries |
+| `g Alt+a` | Select all without word boundaries |
+| `Alt+p` | Previous multiple-cursor occurrence |
+| `Alt+x` | Skip current occurrence |
+| `Esc` | Exit multiple cursors |
 
-`Ctrl+n` duoc giu rieng cho Neo-tree, vi vay multiple cursors khong dung
-keymap mac dinh cua plugin.
+`Ctrl+n` is reserved for Neo-tree, so multiple cursors use custom mappings
+instead of the plugin defaults.
 
-## Tinh nang tuy chon
+## Optional Features
 
 ### GitHub Copilot
 
-Copilot mac dinh tat de khong tang startup va khong yeu cau dang nhap. Sua:
+Copilot is disabled by default to avoid startup work and login requirements.
+Enable it in:
 
 ```lua
 -- lua/config/init.lua
 vim.g.copilot_enabled = true
 ```
 
-Khoi dong lai Neovim, sau do:
+Restart Neovim, then run:
 
 ```vim
 :Copilot setup
 ```
 
-Trong Insert mode, dung `Alt+\` de chap nhan goi y.
+Use `Alt+\` in Insert mode to accept a suggestion.
 
 ### Catppuccin
 
-Catppuccin duoc khai bao nhung khong phai colorscheme mac dinh:
+Catppuccin is declared but is not the default colorscheme:
 
 ```vim
 :Lazy load catppuccin
 :colorscheme catppuccin
 ```
 
-Muon dung lau dai, doi colorscheme trong file UI integration thay vi goi lenh
-moi lan khoi dong.
+To keep it enabled, change the colorscheme in the UI integration instead of
+running the command after every restart.
 
-### Lazygit va Lazydocker
+### Lazygit and Lazydocker
 
-Hai terminal nay chi duoc tao khi goi keymap. Neovim van khoi dong binh thuong
-neu chua cai executable, nhung `Space+gg` hoac `Space+ld` se bao khong tim thay
-command.
+These terminals are created only when their keymaps are used. Neovim starts
+normally without either executable, but `Space+gg` or `Space+ld` will fail
+until the corresponding program is installed.
 
 ### Python uv
 
-Neu co `uv`, terminal Python uu tien `uv run python`. Hai bien sau duoc them
-vao `PATH` neu tro den thu muc ton tai:
+When `uv` is available, the Python terminal prefers `uv run python`. The
+following variables are added to `PATH` when they point to existing
+directories:
 
 ```text
 UV_PYTHON_BIN_DIR
 UV_TOOL_BIN_DIR
 ```
 
-## Toi uu hieu nang
+## Performance
 
-Cac toi uu duoc bat san:
+Enabled optimizations:
 
-- Dashboard chi load colorscheme, lazy.nvim, Snacks va devicons.
-- LSP/Blink/Mason LSP chi load voi filetype co server duoc cau hinh.
-- LazyDev chi load cho Lua; SchemaStore chi load cho JSON/JSONC.
-- Treesitter chi cai parser con thieu, chay nen sau khi buffer da mo.
-- nvim-lint chi tu load cho Markdown va shell.
-- Mason tool installer chay sau startup va chi kiem tra tu dong moi 7 ngay.
-- `checktime` chi chay khi focus lai Neovim hoac chuyen buffer.
-- Document highlight LSP khong gui request trong Insert mode.
-- Cursor line, cursor column va relative number tat trong Insert mode.
-- `lazyredraw` khong duoc bat vi co the xung dot voi Noice.
+- Startup loads only core configuration, the colorscheme, lazy.nvim, Snacks,
+  devicons, and Smear Cursor.
+- LSP and language plugins load when matching files are opened.
+- Blink loads on Insert or command-line entry.
+- LazyDev loads only for Lua; SchemaStore loads only for JSON and JSONC.
+- Treesitter installs missing parsers in the background after buffer startup.
+- nvim-lint loads only for supported filetypes.
+- Mason tool installation checks run after startup and no more than once every
+  seven days.
+- `checktime` runs only after focus returns to Neovim or the buffer changes.
+- LSP document highlights are cleared and suspended in Insert mode.
+- Cursor line, cursor column, and relative numbers are hidden in Insert mode.
+- Smear Cursor remains enabled in Insert mode by explicit user preference.
+- `lazyredraw` is not enabled because it can conflict with Noice.
+- Dashboard statusline and tabline are hidden and restored automatically.
 
-Snacks danh dau big file khi:
+Snacks marks a buffer as a big file when:
 
-- File lon hon 1 MB; hoac
-- Do dai dong trung binh lon hon 500 ky tu, thuong la file minified.
+- The file is larger than 1 MB; or
+- The average line length exceeds 500 characters, which commonly indicates a
+  minified file.
 
-Voi big file, cau hinh tat Treesitter, LSP, completion va render cua hlchunk;
-relative number, cursor line va cursor column cung duoc tat. Syntax co ban van
-duoc giu theo filetype goc de file khong tro thanh van ban hoan toan khong mau.
+For big files, the configuration disables Treesitter, LSP, completion, and
+hlchunk rendering. Relative numbers, cursor line, and cursor column are also
+disabled. Basic filetype syntax remains enabled so the file does not become
+completely unhighlighted text.
 
-## Bao tri va kiem tra
+## Maintenance
 
-### Lenh quan trong
+### Useful Commands
 
 ```vim
 :Lazy
@@ -901,33 +979,35 @@ duoc giu theo filetype goc de file khong tro thanh van ban hoan toan khong mau.
 :checkhealth nvim-treesitter
 ```
 
-### Cap nhat an toan
+### Safe Update Process
 
-1. Commit hoac sao luu `lazy-lock.json`.
-2. Chay `:Lazy sync`.
-3. Chay `:MasonUpdate` va `:TSUpdate`.
-4. Mo project Python, Go, TypeScript va Java de kiem tra LSP.
-5. Neu plugin moi gay loi, phuc hoi `lazy-lock.json` roi `:Lazy restore`.
+1. Commit or back up `lazy-lock.json`.
+2. Run `:Lazy sync`.
+3. Run `:MasonUpdate` and `:TSUpdate`.
+4. Open Python, Go, TypeScript, and Java projects and verify LSP behavior.
+5. If an update causes a regression, restore `lazy-lock.json` and run
+   `:Lazy restore`.
 
-### Kiem tra startup
+### Startup Profiling
 
 ```bash
 nvim --startuptime startup.log
 ```
 
-Trong Neovim:
+Inside Neovim:
 
 ```vim
 :Lazy profile
 ```
 
-Plugin nang duoc load theo filetype/command/keymap thay vi load het luc startup.
+Heavy plugins should load through filetypes, commands, or keymaps instead of
+all loading during startup.
 
-## Xu ly loi thuong gap
+## Troubleshooting
 
-### Neovim bat mo lai bang `:source %`
+### Neovim Works Only After `:source %`
 
-Kiem tra bien `VIMINIT`.
+Check the `VIMINIT` environment variable.
 
 Windows PowerShell:
 
@@ -941,23 +1021,25 @@ Linux/macOS:
 printf '%s\n' "$VIMINIT"
 ```
 
-Neu no tro vao config cu, xoa bien do khoi shell profile. `init.vim` trong
-repository nay chi la shim goi `init.lua`; khong can tu them `runtimepath`.
+If it points to an older configuration, remove it from the shell profile. The
+repository's `init.vim` is only a compatibility shim that loads `init.lua`;
+manual `runtimepath` or `packpath` changes are not required.
 
 ### `module 'helper.utils' not found`
 
-Dam bao repository nam dung thu muc config:
+Confirm the repository is installed directly in the Neovim configuration
+directory:
 
 ```vim
 :echo stdpath('config')
 ```
 
-Thu muc do phai chua truc tiep `init.lua` va `lua/helper/utils.lua`, khong phai
-them mot cap `nvim-config/` o ben trong.
+That directory must directly contain `init.lua` and `lua/helper/utils.lua`.
+There should not be another nested `nvim-config/` directory between them.
 
-### Treesitter bao khong co compiler
+### Treesitter Cannot Find a Compiler
 
-Kiem tra:
+Check:
 
 ```vim
 :echo executable('zig')
@@ -965,19 +1047,23 @@ Kiem tra:
 :checkhealth nvim-treesitter
 ```
 
-Windows can Zig va hai wrapper trong `bin/`. Linux/macOS can GCC/Clang, hoac
-dat `CC`/`CXX` truoc khi mo Neovim. Sau khi sua:
+Windows requires Zig and the two wrappers in `bin/`. Linux and macOS require
+GCC, Clang, or explicit `CC`/`CXX` variables. After fixing the compiler, run:
 
 ```vim
 :TSUpdate
 ```
 
-Neu van gap loi parser ABI/range, xoa parser loi trong thu muc data hoac chay
-`:TSUninstall <language>` roi `:TSInstall <language>`.
+For parser ABI or `range` errors, uninstall and reinstall the affected parser:
 
-### JDTLS khong khoi dong
+```vim
+:TSUninstall <language>
+:TSInstall <language>
+```
 
-Kiem tra:
+### JDTLS Does Not Start
+
+Check:
 
 ```vim
 :echo $JAVA_HOME
@@ -986,25 +1072,25 @@ Kiem tra:
 :Mason
 ```
 
-JDK phai la ban 21. Mo Neovim tai root project co `pom.xml`, `build.gradle`,
-`mvnw`, `gradlew` hoac `.git`.
+JDK 21 is required by this configuration. Start Neovim from a project root
+containing `pom.xml`, `build.gradle`, `mvnw`, `gradlew`, or `.git`.
 
-### Java test khong chay
+### Java Tests Do Not Run
 
-Chay:
+Run:
 
 ```vim
 :Lazy load neotest
 :NeotestJava setup
 ```
 
-Dam bao Maven/Gradle wrapper chay duoc ben ngoai Neovim. `java-test` cua
-vscode-java-test khong duoc Mason quan ly trong cau hinh nay; Java test dung
-`neotest-java` va JUnit Console de tranh xung dot dependency.
+Verify that the Maven or Gradle wrapper works outside Neovim. The
+`vscode-java-test` `java-test` package is not managed through Mason here;
+`neotest-java` and JUnit Console are used to avoid dependency conflicts.
 
-### `gopls` khong cap nhat hoac khong khoi dong
+### `gopls` Does Not Start or Update
 
-Kiem tra Go runtime va Mason:
+Check the Go runtime and Mason:
 
 ```vim
 :echo executable('go')
@@ -1012,35 +1098,63 @@ Kiem tra Go runtime va Mason:
 :Mason
 ```
 
-Sau do chay `:MasonUpdate` va khoi dong lai LSP bang `:LspRestart`.
+Then run `:MasonUpdate` and restart the server with `:LspRestart`.
 
-### Tim file/grep khong co ket qua
+### File Search or Grep Returns No Results
 
-Kiem tra:
+Check:
 
 ```vim
 :echo executable('rg')
-:echo executable('fd')
 :echo executable('fzf')
 ```
 
-Telescope live grep can `rg`; FzfLua files can `fd` hoac backend tuong duong.
+Both Telescope and FzfLua currently use `rg` for files and live grep. Ensure
+the command is available in the environment that starts Neovim.
 
-### Clipboard Linux khong hoat dong
+### Linux Clipboard Does Not Work
 
-Chay:
+Run:
 
 ```vim
 :checkhealth provider
 ```
 
-Cai `wl-clipboard` tren Wayland hoac `xclip`/`xsel` tren X11, sau do khoi dong
-lai terminal va Neovim.
+Install `wl-clipboard` on Wayland or `xclip`/`xsel` on X11, then restart the
+terminal and Neovim.
 
-## Tai lieu tham khao
+### Dashboard Is Cropped or Shifted Up
+
+The dashboard automatically hides `laststatus` and `showtabline`. If another
+plugin forces them back on, check:
+
+```vim
+:set laststatus?
+:set showtabline?
+:set filetype?
+```
+
+The dashboard buffer should use `filetype=snacks_dashboard`; its open and close
+events then hide and restore Lualine and Bufferline.
+
+### Smear Cursor Is Too Bright or Distracting
+
+Toggle it temporarily:
+
+```vim
+:SmearCursorToggle
+```
+
+To change its color or disable Insert-mode animation, edit the
+`sphamba/smear-cursor.nvim` options in `lua/plugins/editor.lua`.
+
+## References
 
 - [Neovim installation](https://github.com/neovim/neovim/blob/master/INSTALL.md)
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Mason](https://github.com/mason-org/mason.nvim)
+- [Blink completion](https://github.com/Saghen/blink.cmp)
+- [Snacks dashboard](https://github.com/folke/snacks.nvim)
+- [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)
 - [neotest-java](https://github.com/rcasia/neotest-java)
