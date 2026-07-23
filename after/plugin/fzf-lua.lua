@@ -1,7 +1,6 @@
 local M = require("helper.utils")
-local fzf_lua = M.safe_require("fzf-lua")
 
-if fzf_lua then
+M.on_plugin_load("fzf-lua", "fzf-lua", function(fzf_lua)
     fzf_lua.setup({
         winopts = {
             border = "rounded",
@@ -23,5 +22,11 @@ if fzf_lua then
             ["--layout"] = "reverse",
             ["--info"] = "inline",
         },
+        files = {
+            cmd = 'rg --files --hidden --glob "!.git/*"',
+        },
+        grep = {
+            rg_opts = '--hidden --column --line-number --no-heading --color=always --smart-case --glob "!.git/*"',
+        },
     })
-end
+end)

@@ -31,14 +31,7 @@ if snacks then
                     { icon = "󰊢 ", key = "s", desc = "Git Status", action = ":Git" },
                     { icon = "󰦓 ", key = "d", desc = "Diff View", action = ":DiffviewOpen" },
                     { icon = "󰒡 ", key = "x", desc = "Diagnostics", action = ":Trouble diagnostics toggle" },
-                    { icon = "󰙨 ", key = "t", desc = "Test Summary", action = function()
-                        local ok, neotest = pcall(require, "neotest")
-                        if ok then
-                            neotest.summary.toggle()
-                        else
-                            vim.notify("neotest is not installed", vim.log.levels.WARN)
-                        end
-                    end },
+                    { icon = "󰙨 ", key = "t", desc = "Test Summary", action = ":NeotestSummary" },
                     { icon = " ", key = "c", desc = "Config", action = ":Telescope find_files cwd=" .. vim.fn.stdpath("config") },
                     { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
                     { icon = " ", key = "q", desc = "Quit", action = ":qa" },

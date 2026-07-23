@@ -71,9 +71,12 @@ if wk then
 
         { "<leader>f", group = "Find", icon = { icon = "󰍉", color = "azure" } },
         { "<leader>fb", desc = "Find Buffers", icon = { icon = "󰈚", color = "blue" } },
+        { "<leader>fB", desc = "Fast Buffers (Fzf)", icon = { icon = "󰈚", color = "blue" } },
         { "<leader>fe", desc = "File Browser", icon = { icon = "󰉋", color = "yellow" } },
         { "<leader>ff", desc = "Find Files", icon = { icon = "󰈞", color = "azure" } },
+        { "<leader>fF", desc = "Fast Files (Fzf)", icon = { icon = "󰈞", color = "azure" } },
         { "<leader>fg", desc = "Live Grep", icon = { icon = "󰱼", color = "green" } },
+        { "<leader>fG", desc = "Fast Grep (Fzf)", icon = { icon = "󰱼", color = "green" } },
         { "<leader>fh", desc = "Help Tags", icon = { icon = "󰋖", color = "purple" } },
 
         { "<leader>g", group = "Git", icon = { icon = "󰊢", color = "orange" } },

@@ -1,6 +1,6 @@
 local M = require("helper.utils")
-local neotree = M.safe_require("neo-tree")
-if neotree then
+
+M.on_plugin_load("neo-tree.nvim", "neo-tree", function(neotree)
     neotree.setup({
         close_if_last_window = true,
         filesystem = {
@@ -8,5 +8,5 @@ if neotree then
             follow_current_file = { enabled = true },
         }
     })
-end
+end)
 

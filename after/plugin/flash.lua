@@ -1,11 +1,35 @@
 local M = require("helper.utils")
 
-local flash = M.safe_require("flash")
-if flash then
-    flash.setup({
-        highlight = { groups = { flash = "Flash" } }
-    })
+local flash_instance
 
-    vim.keymap.set({"n", "x", "o"}, "s", function() flash.jump() end, { desc = "Flash: Jump" })
-    vim.keymap.set({"n", "x", "o"}, "S", function() flash.treesitter() end, { desc = "Flash: Treesitter" })
+local function ensure_flash()
+    if flash_instance then
+        return flash_instance
+    end
+
+    if not M.load_plugins({ "flash.nvim" }) then
+        return nil
+    end
+
+    flash_instance = M.safe_require("flash")
+    if flash_instance then
+        flash_instance.setup({
+            highlight = { groups = { flash = "Flash" } },
+        })
+    end
+    return flash_instance
 end
+
+vim.keymap.set({ "n", "x", "o" }, "s", function()
+    local flash = ensure_flash()
+    if flash then
+        flash.jump()
+    end
+end, { desc = "Flash: Jump" })
+
+vim.keymap.set({ "n", "x", "o" }, "S", function()
+    local flash = ensure_flash()
+    if flash then
+        flash.treesitter()
+    end
+end, { desc = "Flash: Treesitter" })

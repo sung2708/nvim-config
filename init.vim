@@ -5,6 +5,9 @@ let g:copilot_enabled = 0
 let g:nvim_config_home = expand('<sfile>:p:h')
 execute 'set runtimepath^=' . fnameescape(g:nvim_config_home)
 execute 'set packpath^=' . fnameescape(g:nvim_config_home)
+if exists('*luaeval')
+    lua vim.loader.enable()
+endif
 set number
 set relativenumber
 set cursorline
@@ -32,6 +35,10 @@ set hlsearch
 set encoding=UTF-8
 set hidden
 set updatetime=200
+set timeoutlen=400
+set ttimeoutlen=10
+set redrawtime=1500
+set synmaxcol=400
 set confirm
 let mapleader = " "
 
@@ -53,10 +60,14 @@ set foldlevel=99
 set foldmethod=indent
 
 filetype plugin indent on
-au CursorHold,CursorHoldI * checktime
-au FocusGained,BufEnter * :checktime
 
-autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+augroup SungpCorePerformance
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold * checktime
+    autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+    autocmd InsertEnter * if &l:cursorcolumn | let b:sungp_restore_cursorcolumn = 1 | setlocal nocursorcolumn | endif | if &l:cursorline | let b:sungp_restore_cursorline = 1 | setlocal nocursorline | endif | if &l:relativenumber | let b:sungp_restore_relativenumber = 1 | setlocal norelativenumber | endif
+    autocmd InsertLeave * if get(b:, 'sungp_restore_cursorcolumn', 0) | setlocal cursorcolumn | let b:sungp_restore_cursorcolumn = 0 | endif | if get(b:, 'sungp_restore_cursorline', 0) | setlocal cursorline | let b:sungp_restore_cursorline = 0 | endif | if get(b:, 'sungp_restore_relativenumber', 0) | setlocal relativenumber | let b:sungp_restore_relativenumber = 0 | endif
+augroup END
 
 nnoremap <A-h> <C-w>h
 nnoremap <A-j> <C-w>j
@@ -101,27 +112,27 @@ Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
 Plug 'nvim-tree/nvim-web-devicons'
-Plug 'folke/noice.nvim'
+Plug 'folke/noice.nvim', { 'on': [] }
 Plug 'MunifTanjim/nui.nvim'
 Plug 'rcarriga/nvim-notify'
 Plug 'shellRaining/hlchunk.nvim'
-Plug 'nvim-telescope/telescope-file-browser.nvim'
-Plug 'nvim-telescope/telescope-ui-select.nvim'
+Plug 'nvim-telescope/telescope-file-browser.nvim', { 'on': 'Telescope' }
+Plug 'nvim-telescope/telescope-ui-select.nvim', { 'on': 'Telescope' }
 Plug 'shaunsingh/nord.nvim'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release','do': 'yarn install --frozen-lockfile'}
 Plug 'github/copilot.vim'
 
-Plug 'nvim-neo-tree/neo-tree.nvim', { 'branch': 'v3.x' }
-Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-neo-tree/neo-tree.nvim', { 'branch': 'v3.x', 'on': 'Neotree' }
+Plug 'nvim-telescope/telescope.nvim', { 'on': 'Telescope' }
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-Plug 'folke/trouble.nvim'
-Plug 'folke/flash.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'on': 'Telescope', 'do': 'make' }
+Plug 'folke/trouble.nvim', { 'on': [] }
+Plug 'folke/flash.nvim', { 'on': [] }
 Plug 'folke/which-key.nvim'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'ibhagwan/fzf-lua'
+Plug 'junegunn/fzf', { 'on': ['Files', 'Rg', 'Buffers', 'History'], 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim', { 'on': ['Files', 'Rg', 'Buffers', 'History'] }
+Plug 'ibhagwan/fzf-lua', { 'on': 'FzfLua' }
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate', 'branch': 'main'}
 Plug 'nvim-treesitter/nvim-treesitter-textobjects', {'branch': 'main'}
@@ -135,23 +146,23 @@ Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 Plug 'tpope/vim-surround'
 Plug 'folke/ts-comments.nvim'
 
-Plug 'windwp/nvim-ts-autotag'
+Plug 'windwp/nvim-ts-autotag', { 'for': ['html', 'xml', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro', 'php'] }
 
 Plug 'nvim-mini/mini.animate', { 'branch': 'stable' }
 Plug 'folke/edgy.nvim'
-Plug 'MeanderingProgrammer/render-markdown.nvim'
+Plug 'MeanderingProgrammer/render-markdown.nvim', { 'on': [] }
 Plug 'lewis6991/gitsigns.nvim'
-Plug 'tpope/vim-fugitive'
-Plug 'sindrets/diffview.nvim'
+Plug 'tpope/vim-fugitive', { 'on': ['Git', 'G', 'Gdiffsplit', 'Gvdiffsplit', 'Gwrite', 'Gread', 'Ggrep', 'Gclog'] }
+Plug 'sindrets/diffview.nvim', { 'on': ['DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory', 'DiffviewFocusFiles', 'DiffviewToggleFiles', 'DiffviewRefresh'] }
 " Plug 'sphamba/smear-cursor.nvim'
-Plug 'mfussenegger/nvim-dap'
-Plug 'rcarriga/nvim-dap-ui'
-Plug 'nvim-neotest/nvim-nio'
-Plug 'theHamsta/nvim-dap-virtual-text'
-Plug 'nvim-neotest/neotest'
-Plug 'nvim-neotest/neotest-python'
-Plug 'nvim-neotest/neotest-jest'
-Plug 'fredrikaverpil/neotest-golang'
+Plug 'mfussenegger/nvim-dap', { 'on': [] }
+Plug 'rcarriga/nvim-dap-ui', { 'on': [] }
+Plug 'nvim-neotest/nvim-nio', { 'on': [] }
+Plug 'theHamsta/nvim-dap-virtual-text', { 'on': [] }
+Plug 'nvim-neotest/neotest', { 'on': [] }
+Plug 'nvim-neotest/neotest-python', { 'on': [] }
+Plug 'nvim-neotest/neotest-jest', { 'on': [] }
+Plug 'fredrikaverpil/neotest-golang', { 'on': [] }
 
 Plug 'folke/snacks.nvim'
 
@@ -171,6 +182,11 @@ nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <silent> <esc> :noh<return><esc>
 nnoremap <leader>fe <cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>
+nnoremap <leader>fF <cmd>FzfLua files<cr>
+nnoremap <leader>fG <cmd>FzfLua live_grep<cr>
+nnoremap <leader>fB <cmd>FzfLua buffers<cr>
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
 " ===========================================================================
 " 4. COC & COPILOT LOGIC
 " ============================================================================
@@ -349,37 +365,33 @@ local function setup_coc_diagnostic_bridge()
 
     local group = vim.api.nvim_create_augroup("CocDiagnosticBridge", { clear = true })
 
+    local pending_publish = false
+    local function schedule_publish()
+        if pending_publish then
+            return
+        end
+        pending_publish = true
+        vim.defer_fn(function()
+            pending_publish = false
+            publish()
+        end, 100)
+    end
+
     vim.api.nvim_create_autocmd("User", {
         group = group,
         pattern = "CocDiagnosticChange",
-        callback = publish,
+        callback = schedule_publish,
     })
 
-    vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost" }, {
+    vim.api.nvim_create_autocmd("BufWritePost", {
         group = group,
-        callback = publish,
+        callback = schedule_publish,
     })
 
     vim.defer_fn(publish, 500)
 end
 
 setup_coc_diagnostic_bridge()
-
-local markdown = M.safe_require("render-markdown")
-if markdown then
-	markdown.setup()
-end
-
-local auto_tag = M.safe_require("nvim-ts-autotag")
-if auto_tag then
-    auto_tag.setup({
-        opts = {
-            enable_close = true,
-            enable_rename = true,
-            enable_close_on_slash = false,
-        },
-    })
-end
 
 --[[
 local ok, smear = pcall(require, "smear_cursor")

@@ -1,7 +1,11 @@
 local M = require("helper.utils")
-local noice = M.safe_require("noice")
 
-if noice then
+local function setup_noice()
+    local noice = M.safe_require("noice")
+    if not noice then
+        return
+    end
+
     noice.setup({
         cmdline = {
             enabled = true,
@@ -16,12 +20,11 @@ if noice then
                 input = { view = "cmdline_input", icon = "󰥻 " },
             },
         },
-        
         lsp = {
             progress = { enabled = false },
             signature = { enabled = false },
             hover = { enabled = false },
-            message = { enabled = true }, 
+            message = { enabled = true },
             override = {
                 ["vim.lsp.util.convert_input_to_markdown_lines"] = false,
                 ["vim.lsp.util.stylize_markdown"] = false,
@@ -29,7 +32,7 @@ if noice then
             },
         },
         presets = {
-            bottom_search = false, 
+            bottom_search = false,
             command_palette = true,
             long_message_to_split = true,
             inc_rename = false,
@@ -54,3 +57,15 @@ if noice then
         },
     })
 end
+
+vim.api.nvim_create_autocmd("VimEnter", {
+    group = vim.api.nvim_create_augroup("SungpNoiceLazy", { clear = true }),
+    once = true,
+    callback = function()
+        vim.schedule(function()
+            if M.load_plugins({ "noice.nvim" }) then
+                setup_noice()
+            end
+        end)
+    end,
+})
