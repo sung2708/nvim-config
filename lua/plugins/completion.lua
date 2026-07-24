@@ -12,7 +12,7 @@ return {
     {
         "saghen/blink.cmp",
         version = "1.*",
-        event = { "InsertEnter", "CmdlineEnter" },
+        event = { "BufReadPre", "BufNewFile", "CmdlineEnter" },
         dependencies = {
             "rafamadriz/friendly-snippets",
         },
@@ -21,15 +21,24 @@ return {
                 preset = "none",
                 ["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
                 ["<C-e>"] = { "hide", "fallback" },
+                ["<C-y>"] = { "select_and_accept", "fallback" },
                 ["<C-n>"] = { "select_next", "fallback" },
                 ["<C-p>"] = { "select_prev", "fallback" },
                 ["<Down>"] = { "select_next", "fallback" },
                 ["<Up>"] = { "select_prev", "fallback" },
-                ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+                ["<Tab>"] = {
+                    function(cmp)
+                        if cmp.is_visible() then
+                            return cmp.select_and_accept()
+                        end
+                    end,
+                    "snippet_forward",
+                    "fallback",
+                },
                 ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
                 ["<C-j>"] = { "select_next", "snippet_forward", "fallback" },
                 ["<C-k>"] = { "select_prev", "snippet_backward", "fallback" },
-                ["<CR>"] = { "accept", "fallback" },
+                ["<CR>"] = { "fallback" },
                 ["<C-b>"] = { "scroll_documentation_up", "fallback" },
                 ["<C-f>"] = { "scroll_documentation_down", "fallback" },
                 ["<C-l>"] = { "show_signature", "hide_signature", "fallback" },
@@ -38,9 +47,12 @@ return {
                 nerd_font_variant = "mono",
             },
             completion = {
+                trigger = {
+                    prefetch_on_insert = true,
+                },
                 documentation = {
                     auto_show = true,
-                    auto_show_delay_ms = 250,
+                    auto_show_delay_ms = 50,
                     window = {
                         border = "rounded",
                     },
@@ -52,6 +64,7 @@ return {
                     },
                 },
                 menu = {
+                    auto_show_delay_ms = 0,
                     border = "rounded",
                     cmdline_position = cmdline_position,
                     draw = {

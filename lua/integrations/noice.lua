@@ -6,6 +6,9 @@ local function padded_border(padding)
 end
 
 require("noice").setup({
+    notify = {
+        enabled = false,
+    },
     cmdline = {
         enabled = true,
         view = "cmdline_popup",
@@ -42,7 +45,7 @@ require("noice").setup({
         view_search = "cmdline_popup",
     },
     popupmenu = {
-        enabled = true,
+        enabled = false,
         backend = "nui",
     },
     views = {

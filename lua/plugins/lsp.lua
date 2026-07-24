@@ -121,11 +121,11 @@ return {
             formatters_by_ft = {
                 lua = { "stylua" },
                 python = { "ruff_organize_imports", "ruff_format" },
-                javascript = { "eslint_d", "prettier" },
-                javascriptreact = { "eslint_d", "prettier" },
-                typescript = { "eslint_d", "prettier" },
-                typescriptreact = { "eslint_d", "prettier" },
-                vue = { "eslint_d", "prettier" },
+                javascript = { "prettier" },
+                javascriptreact = { "prettier" },
+                typescript = { "prettier" },
+                typescriptreact = { "prettier" },
+                vue = { "prettier" },
                 json = { "prettier" },
                 jsonc = { "prettier" },
                 css = { "prettier" },
@@ -143,7 +143,7 @@ return {
                 end
                 return {
                     bufnr = bufnr,
-                    timeout_ms = 1200,
+                    timeout_ms = 5000,
                     lsp_format = "fallback",
                 }
             end,

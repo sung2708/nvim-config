@@ -136,6 +136,7 @@ return {
     },
     {
         "github/copilot.vim",
+        cmd = "Copilot",
         event = "InsertEnter",
         cond = function()
             return vim.g.copilot_enabled == true

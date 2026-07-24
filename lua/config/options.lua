@@ -84,4 +84,4 @@ opt.splitbelow = true
 opt.splitkeep = "screen"
 
 opt.foldlevel = 99
-opt.foldmethod = "indent"
+opt.foldmethod = "manual"
