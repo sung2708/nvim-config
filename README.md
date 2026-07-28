@@ -1,5 +1,7 @@
 # SUNGP Neovim
 
+Language: [English](README.md) | [Tiếng Việt](README.vi.md)
+
 An IDE-oriented Neovim configuration for Python, Go, JavaScript/TypeScript,
 Java, C/C++, Lua, and Markdown. It uses `lazy.nvim`, native LSP, Blink
 completion, Telescope, FzfLua, Treesitter, DAP, Neotest, and a compact Snacks
