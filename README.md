@@ -120,7 +120,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
 
 scoop bucket add java
-scoop install git neovim ripgrep fd fzf make zig nodejs python go maven unzip gzip
+scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
 scoop install java/temurin21-jdk
 ```
 
@@ -138,6 +138,7 @@ git --version
 rg --version
 fzf --version
 zig version
+g++ --version
 node --version
 python --version
 go version
@@ -150,6 +151,7 @@ When Scoop is present, the configuration automatically detects:
 - `%USERPROFILE%\scoop\apps\go\current\bin`
 - `%USERPROFILE%\scoop\apps\maven\current\bin`
 - `%USERPROFILE%\scoop\apps\temurin21-jdk\current`
+- `%USERPROFILE%\scoop\apps\gcc\current\bin\g++.exe`
 
 `JAVA_HOME` is assigned from Scoop only when the variable is not already set.
 An existing user-defined value always takes precedence.
@@ -360,6 +362,22 @@ macOS use `CC`/`CXX` when set, then fall back to `cc`, `clang`, `gcc`, `c++`,
 `clang++`, or `g++`.
 
 ## Language Support
+
+### C/C++
+
+| Role | Tool |
+| --- | --- |
+| LSP | clangd through Mason |
+| Formatting | clang-format |
+| Compiler | GCC, Clang, or Zig |
+
+On Windows, Scoop GCC is supported directly. The `clangd` configuration allows
+Scoop GCC through `--query-driver` and provides fallback include paths for
+single C/C++ files that do not have `compile_commands.json`.
+
+For regular projects, prefer generating `compile_commands.json` with the build
+system. For one-file practice programs, this configuration should still find
+standard headers such as `<iostream>` when Scoop GCC is installed.
 
 ### Python
 
@@ -1115,6 +1133,48 @@ For parser ABI or `range` errors, uninstall and reinstall the affected parser:
 :TSUninstall <language>
 :TSInstall <language>
 ```
+
+### C/C++ Standard Headers Are Missing
+
+If `clangd` reports errors such as `'iostream' file not found`, first check
+that a real C++ compiler is installed in the environment that starts Neovim.
+
+Windows PowerShell with Scoop GCC:
+
+```powershell
+g++ --version
+where g++
+```
+
+Linux/macOS:
+
+```bash
+g++ --version || clang++ --version
+```
+
+Then open a C or C++ buffer and check LSP:
+
+```vim
+:LspInfo
+:Mason
+```
+
+Restart `clangd` after changing compiler installation or `PATH`:
+
+```vim
+:LspRestart clangd
+```
+
+If `Too many errors emitted, stopping now` appears, inspect the first real
+diagnostic instead of the final summary:
+
+```vim
+:lua vim.diagnostic.setqflist()
+:copen
+```
+
+For CMake, Meson, or larger projects, generate `compile_commands.json` so
+`clangd` can use the same compiler flags as the build system.
 
 ### JDTLS Does Not Start
 
