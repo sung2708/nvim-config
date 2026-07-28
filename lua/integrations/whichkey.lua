@@ -48,6 +48,15 @@ if wk then
         { "S", desc = "Flash Treesitter", icon = { icon = "󰉁", color = "yellow" }, mode = { "n", "x", "o" } },
         { "n", desc = "Next Search Centered", icon = { icon = "󰍉", color = "azure" } },
         { "s", desc = "Flash Jump", icon = { icon = "󰉁", color = "yellow" }, mode = { "n", "x", "o" } },
+        { "-", desc = "Open Parent Directory", icon = { icon = "󰉋", color = "yellow" } },
+        { "gS", desc = "Split / Join Arguments", icon = { icon = "󰅩", color = "cyan" }, mode = { "n", "x" } },
+        { "[y", desc = "Previous Yank Entry", icon = { icon = "󰅍", color = "purple" } },
+        { "]y", desc = "Next Yank Entry", icon = { icon = "󰅍", color = "purple" } },
+        { "zK", desc = "Peek Fold or Hover", icon = { icon = "󰘖", color = "cyan" } },
+        { "zM", desc = "Close All Folds", icon = { icon = "󰘖", color = "cyan" } },
+        { "zR", desc = "Open All Folds", icon = { icon = "󰘖", color = "cyan" } },
+        { "zm", desc = "Close One Fold Level", icon = { icon = "󰘖", color = "cyan" } },
+        { "zr", desc = "Open Fold Level", icon = { icon = "󰘖", color = "cyan" } },
 
         { "<leader>a", desc = "Swap Next Parameter", icon = { icon = "󰓡", color = "cyan" } },
         { "<leader>A", desc = "Swap Previous Parameter", icon = { icon = "󰓢", color = "cyan" } },
@@ -90,6 +99,9 @@ if wk then
         { "<leader>fg", desc = "Live Grep", icon = { icon = "󰱼", color = "green" } },
         { "<leader>fG", desc = "Fast Grep (Fzf)", icon = { icon = "󰱼", color = "green" } },
         { "<leader>fh", desc = "Help Tags", icon = { icon = "󰋖", color = "purple" } },
+        { "<leader>fo", desc = "Oil File Browser", icon = { icon = "󰉋", color = "yellow" } },
+        { "<leader>fr", desc = "Search and Replace", icon = { icon = "󰛔", color = "orange" }, mode = { "n", "x" } },
+        { "<leader>fy", desc = "Yank History", icon = { icon = "󰅍", color = "purple" } },
 
         { "<leader>g", group = "Git", icon = { icon = "󰊢", color = "orange" } },
         { "<leader>gD", desc = "Close Diff View", icon = { icon = "󰅖", color = "red" } },
@@ -114,8 +126,23 @@ if wk then
         { "<leader>hr", desc = "Reset Hunk", icon = { icon = "󰜉", color = "red" }, mode = { "n", "v" } },
         { "<leader>hs", desc = "Stage Hunk", icon = { icon = "󰐗", color = "green" }, mode = { "n", "v" } },
 
+        { "<leader>i", group = "AI", icon = { icon = "󰚩", color = "purple" } },
+        { "<leader>ia", desc = "AI Actions", icon = { icon = "󰚩", color = "purple" }, mode = { "n", "x" } },
+        { "<leader>ic", desc = "Toggle AI Chat", icon = { icon = "󰭻", color = "purple" }, mode = { "n", "x" } },
+        { "<leader>id", desc = "Add Selection to Chat", icon = { icon = "󰅍", color = "green" }, mode = "x" },
+        { "<leader>ie", desc = "Explain Selection", icon = { icon = "󰋖", color = "azure" }, mode = "x" },
+        { "<leader>if", desc = "Fix Selection", icon = { icon = "󰁨", color = "yellow" }, mode = "x" },
+        { "<leader>ii", desc = "Inline AI Prompt", icon = { icon = "󰆈", color = "purple" }, mode = { "n", "x" } },
+        { "<leader>it", desc = "Generate Tests", icon = { icon = "󰙨", color = "green" }, mode = "x" },
+
         { "<leader>l", group = "Local Tools", icon = { icon = "󰒓", color = "grey" } },
         { "<leader>ld", desc = "Lazydocker", icon = { icon = "󰡨", color = "blue" } },
+
+        { "<leader>m", group = "Move", icon = { icon = "󰆾", color = "cyan" } },
+        { "<leader>mh", desc = "Move Left", icon = { icon = "󰁍", color = "cyan" }, mode = { "n", "x" } },
+        { "<leader>mj", desc = "Move Down", icon = { icon = "󰁅", color = "cyan" }, mode = { "n", "x" } },
+        { "<leader>mk", desc = "Move Up", icon = { icon = "󰁝", color = "cyan" }, mode = { "n", "x" } },
+        { "<leader>ml", desc = "Move Right", icon = { icon = "󰁔", color = "cyan" }, mode = { "n", "x" } },
 
         { "<leader>n", group = "Tests", icon = { icon = "󰙨", color = "green" } },
         { "<leader>nO", desc = "Output Panel", icon = { icon = "󰦪", color = "green" } },
@@ -129,6 +156,16 @@ if wk then
         { "<leader>p", group = "Python", icon = { icon = "󰌠", color = "yellow" } },
         { "<leader>pv", desc = "Select Virtualenv", icon = { icon = "󰌠", color = "yellow" } },
         { "<leader>py", desc = "Python REPL", icon = { icon = "󰌠", color = "yellow" } },
+
+        { "<leader>o", group = "Tasks", icon = { icon = "󰄬", color = "green" } },
+        { "<leader>or", desc = "Run Task", icon = { icon = "󰐊", color = "green" } },
+        { "<leader>ot", desc = "Toggle Task List", icon = { icon = "󰄬", color = "blue" } },
+
+        { "<leader>q", group = "Sessions", icon = { icon = "󰆓", color = "purple" } },
+        { "<leader>qS", desc = "Select Session", icon = { icon = "󰆓", color = "purple" } },
+        { "<leader>qd", desc = "Stop Session Saving", icon = { icon = "󰅖", color = "red" } },
+        { "<leader>ql", desc = "Restore Last Session", icon = { icon = "󰦛", color = "purple" } },
+        { "<leader>qs", desc = "Restore Directory Session", icon = { icon = "󰆓", color = "purple" } },
 
         { "<leader>G", group = "Go", icon = { icon = "󰟓", color = "cyan" } },
         { "<leader>GF", desc = "Generate File Tests", icon = { icon = "󰙨", color = "green" } },

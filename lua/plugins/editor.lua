@@ -18,6 +18,29 @@ return {
         end,
     },
     {
+        "stevearc/oil.nvim",
+        lazy = false,
+        keys = {
+            { "-", "<cmd>Oil<cr>", desc = "Files: Open Parent Directory" },
+            { "<leader>fo", "<cmd>Oil --float<cr>", desc = "Find: Oil File Browser" },
+        },
+        dependencies = {
+            "nvim-tree/nvim-web-devicons",
+        },
+        opts = {
+            default_file_explorer = false,
+            delete_to_trash = true,
+            float = {
+                border = "rounded",
+                max_width = 0.9,
+                max_height = 0.9,
+            },
+            view_options = {
+                show_hidden = true,
+            },
+        },
+    },
+    {
         "folke/trouble.nvim",
         cmd = "Trouble",
         keys = {
@@ -90,6 +113,121 @@ return {
         },
     },
     {
+        "gbprod/yanky.nvim",
+        event = "VeryLazy",
+        keys = {
+            { "<leader>fy", "<cmd>YankyRingHistory<cr>", mode = { "n", "x" }, desc = "Find: Yank History" },
+            { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank: Text" },
+            { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Yank: Put After" },
+            { "P", "<Plug>(YankyPutBefore)", mode = { "n", "x" }, desc = "Yank: Put Before" },
+            { "gp", "<Plug>(YankyGPutAfter)", mode = { "n", "x" }, desc = "Yank: Put After and Move" },
+            { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "Yank: Put Before and Move" },
+            { "[y", "<Plug>(YankyPreviousEntry)", desc = "Yank: Previous History Entry" },
+            { "]y", "<Plug>(YankyNextEntry)", desc = "Yank: Next History Entry" },
+        },
+        opts = {
+            ring = {
+                history_length = 100,
+                storage = "shada",
+            },
+            highlight = {
+                on_put = true,
+                on_yank = true,
+                timer = 300,
+            },
+            preserve_cursor_position = {
+                enabled = true,
+            },
+        },
+    },
+    {
+        "kevinhwang91/nvim-ufo",
+        event = { "BufReadPost", "BufNewFile" },
+        keys = {
+            {
+                "zR",
+                function()
+                    require("ufo").openAllFolds()
+                end,
+                desc = "Folds: Open All",
+            },
+            {
+                "zM",
+                function()
+                    require("ufo").closeAllFolds()
+                end,
+                desc = "Folds: Close All",
+            },
+            {
+                "zr",
+                function()
+                    require("ufo").openFoldsExceptKinds()
+                end,
+                desc = "Folds: Open Except Kinds",
+            },
+            {
+                "zm",
+                function()
+                    require("ufo").closeFoldsWith()
+                end,
+                desc = "Folds: Close One Level",
+            },
+            {
+                "zK",
+                function()
+                    local winid = require("ufo").peekFoldedLinesUnderCursor()
+                    if not winid then
+                        vim.lsp.buf.hover()
+                    end
+                end,
+                desc = "Folds: Peek or Hover",
+            },
+        },
+        dependencies = {
+            "kevinhwang91/promise-async",
+        },
+        init = function()
+            vim.opt.foldcolumn = "1"
+            vim.opt.foldlevel = 99
+            vim.opt.foldlevelstart = 99
+            vim.opt.foldenable = true
+        end,
+        opts = {
+            provider_selector = function()
+                return { "treesitter", "indent" }
+            end,
+        },
+    },
+    {
+        "nvim-mini/mini.nvim",
+        event = "VeryLazy",
+        config = function()
+            require("mini.ai").setup({
+                n_lines = 100,
+            })
+            require("mini.splitjoin").setup()
+            require("mini.move").setup({
+                mappings = {
+                    left = "<leader>mh",
+                    right = "<leader>ml",
+                    down = "<leader>mj",
+                    up = "<leader>mk",
+                    line_left = "<leader>mh",
+                    line_right = "<leader>ml",
+                    line_down = "<leader>mj",
+                    line_up = "<leader>mk",
+                },
+            })
+            require("mini.bracketed").setup({
+                comment = { suffix = "" },
+                diagnostic = { suffix = "" },
+                treesitter = { suffix = "" },
+                undo = { suffix = "" },
+                yank = { suffix = "" },
+            })
+        end,
+    },
+    {
         "tpope/vim-commentary",
         event = "VeryLazy",
     },
@@ -125,7 +263,7 @@ return {
     },
     {
         "MeanderingProgrammer/render-markdown.nvim",
-        ft = { "markdown", "markdown.mdx" },
+        ft = { "markdown", "markdown.mdx", "codecompanion" },
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
             "nvim-tree/nvim-web-devicons",

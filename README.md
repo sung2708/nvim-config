@@ -41,8 +41,10 @@ The configuration is designed around five goals:
 | Completion | blink.cmp, friendly-snippets, signature help |
 | Formatting | Conform, Ruff, Prettier, Stylua, gofumpt, goimports |
 | Linting | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck |
-| Search | Telescope, telescope-fzf-native, FzfLua |
-| Navigation | Flash, Neo-tree, Bufferline, Treesitter textobjects |
+| Search | Telescope, telescope-fzf-native, FzfLua, Grug Far |
+| Navigation | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
+| Workflow | Overseer tasks, Persistence sessions, Yanky history |
+| AI | CodeCompanion chat and inline actions through GitHub Copilot |
 | Diagnostics | Trouble, Todo Comments, Lualine |
 | Git | Gitsigns, Fugitive, Diffview |
 | Debugging | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
@@ -102,7 +104,7 @@ test Go code.
 | Gradle | Java projects without `gradlew` |
 | Lazygit | `Space+gg` |
 | Lazydocker and Docker | `Space+ld` |
-| GitHub Copilot | AI suggestions in Insert mode |
+| GitHub Copilot | Insert suggestions and CodeCompanion chat |
 | xclip, xsel, or wl-clipboard | System clipboard integration on Linux |
 
 ## Install System Tools
@@ -302,13 +304,16 @@ Plugin specifications are grouped by responsibility:
 | --- | --- |
 | `lua/plugins/lsp.lua` | LSP, Mason, formatting, and linting |
 | `lua/plugins/completion.lua` | Completion, snippets, and signatures |
+| `lua/plugins/ai.lua` | CodeCompanion chat and inline AI through Copilot |
 | `lua/plugins/treesitter.lua` | Parsers and textobjects |
-| `lua/plugins/search.lua` | Telescope and FzfLua |
+| `lua/plugins/search.lua` | Telescope, FzfLua, and Grug Far |
 | `lua/plugins/ui.lua` | Dashboard, statusline, notifications, WhichKey |
 | `lua/plugins/git.lua` | Gitsigns, Fugitive, and Diffview |
-| `lua/plugins/editor.lua` | Explorer, Trouble, Flash, Todo, editing, cursor |
+| `lua/plugins/editor.lua` | Explorers, Trouble, Flash, Todo, folds, editing |
 | `lua/plugins/debug.lua` | DAP, Neotest, and adapters |
 | `lua/plugins/languages.lua` | Python, Go, TypeScript, and Java |
+| `lua/plugins/terminal.lua` | Terminals and Overseer tasks |
+| `lua/plugins/sessions.lua` | Persistent project sessions |
 
 ### Mason
 
@@ -600,6 +605,8 @@ descriptions and icons.
 | `Ctrl+n` | Reveal the current file in Neo-tree |
 | `Ctrl+t` | Toggle Neo-tree |
 | `Ctrl+f` | Focus Neo-tree |
+| `-` | Open the current file's parent directory in Oil |
+| `Space+fo` | Open Oil in a floating window |
 | `Space+sd` | Open the SUNGP dashboard |
 
 Dashboard keys:
@@ -630,6 +637,8 @@ Dashboard keys:
 | `Space+fF` | Fast file search with FzfLua |
 | `Space+fG` | Fast live grep with FzfLua |
 | `Space+fB` | Fast buffer search with FzfLua |
+| `Space+fr` | Project search and replace with Grug Far |
+| `Space+fy` | Open yank history |
 
 Convention: lowercase `f` mappings use Telescope; uppercase variants use
 FzfLua.
@@ -659,6 +668,41 @@ Inside FzfLua:
 | `]s` | Normal/Visual/Operator | Next scope |
 | `]z` | Normal/Visual/Operator | Next fold |
 | `]C` / `[C` | Normal/Visual/Operator | Next/previous conditional |
+
+### Editing Helpers and Folds
+
+| Key | Mode | Action |
+| --- | --- | --- |
+| `Space+mh/j/k/l` | Normal/Visual | Move the current line or selection |
+| `gS` | Normal/Visual | Split or join arguments |
+| `y`, `p`, `P`, `gp`, `gP` | Normal/Visual | Yank and put through Yanky history |
+| `[y` / `]y` | Normal | Previous/next yank-ring entry after a put |
+| `zR` / `zM` | Normal | Open/close all folds |
+| `zr` / `zm` | Normal | Open/close one fold level |
+| `zK` | Normal | Preview folded lines, otherwise show LSP hover |
+
+Mini AI enhances built-in `a`/`i` textobjects. Mini Bracketed adds
+previous/next navigation for buffers, files, indentation, jumps, location
+lists, old files, quickfix entries, windows, and Git conflict markers.
+
+### AI Assistant
+
+CodeCompanion uses the existing GitHub Copilot login for chat and inline
+editing. It leaves model selection on Copilot's automatic default.
+
+| Key | Mode | Action |
+| --- | --- | --- |
+| `Space+ia` | Normal/Visual | Open AI actions |
+| `Space+ic` | Normal/Visual | Toggle the chat panel |
+| `Space+ii` | Normal/Visual | Enter an inline AI prompt |
+| `Space+id` | Visual | Add the selection to the current chat |
+| `Space+ie` | Visual | Explain the selection |
+| `Space+if` | Visual | Fix the selection |
+| `Space+it` | Visual | Generate tests for the selection |
+
+In chat, use `#` to add editor context, `/` for workflows such as
+`/explain` and `/fix`, and `@` for tools. Press `Enter` or `Ctrl+s` in Normal
+mode to send the prompt.
 
 ### LSP
 
@@ -847,6 +891,17 @@ Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 | `Esc` or `jk` | Terminal | Return to Normal mode |
 | `Ctrl+h/j/k/l` | Terminal | Move between windows |
 
+### Tasks and Sessions
+
+| Key | Action |
+| --- | --- |
+| `Space+or` | Pick and run an Overseer task |
+| `Space+ot` | Toggle the Overseer task list |
+| `Space+qs` | Restore the session for the current directory and Git branch |
+| `Space+qS` | Select a saved session |
+| `Space+ql` | Restore the last session |
+| `Space+qd` | Stop saving the current session |
+
 Git terminal commands:
 
 ```vim
@@ -883,8 +938,8 @@ instead of the plugin defaults.
 
 ### GitHub Copilot
 
-Copilot is disabled by default to avoid startup work and login requirements.
-Enable it in:
+Copilot is enabled and supplies both Insert-mode suggestions and
+CodeCompanion's AI provider. If needed, enable it in:
 
 ```lua
 -- lua/config/init.lua
@@ -1154,6 +1209,7 @@ To change its color or disable Insert-mode animation, edit the
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Mason](https://github.com/mason-org/mason.nvim)
 - [Blink completion](https://github.com/Saghen/blink.cmp)
+- [CodeCompanion](https://github.com/olimorris/codecompanion.nvim)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)

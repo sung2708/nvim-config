@@ -111,4 +111,30 @@ return {
             require("integrations.fzf")
         end,
     },
+    {
+        "MagicDuck/grug-far.nvim",
+        cmd = { "GrugFar", "GrugFarWithin" },
+        keys = {
+            {
+                "<leader>fr",
+                function()
+                    require("grug-far").open()
+                end,
+                desc = "Find: Search and Replace",
+            },
+            {
+                "<leader>fr",
+                function()
+                    require("grug-far").open({
+                        visualSelectionUsage = "auto-detect",
+                    })
+                end,
+                mode = "x",
+                desc = "Find: Replace Selection",
+            },
+        },
+        opts = {
+            headerMaxWidth = 80,
+        },
+    },
 }

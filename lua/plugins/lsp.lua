@@ -47,6 +47,7 @@ return {
     {
         "neovim/nvim-lspconfig",
         ft = lsp_filetypes,
+        cmd = { "LspInfo", "LspRestart" },
         dependencies = {
             "saghen/blink.cmp",
             "mason-org/mason.nvim",

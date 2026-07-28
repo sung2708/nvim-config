@@ -51,13 +51,89 @@ vim.lsp.config("ruff", {
     end,
 })
 
-vim.lsp.config("clangd", {
-    cmd = {
+local function clangd_cmd()
+    local cmd = {
         "clangd",
         "--background-index",
         "--clang-tidy",
         "--completion-style=detailed",
         "--header-insertion=never",
+    }
+
+    local candidates = {
+        "C:/Users/hd/scoop/apps/gcc/*/bin/g++.exe",
+        vim.fn.exepath("g++"),
+        vim.fn.exepath("clang++"),
+        vim.fn.expand("~/scoop/apps/gcc/current/bin/g++.exe"),
+        vim.fn.expand("~/scoop/apps/llvm/current/bin/clang++.exe"),
+    }
+
+    local seen = {}
+    local drivers = {}
+    for _, path in ipairs(candidates) do
+        if path:find("*", 1, true) then
+            table.insert(drivers, path)
+        elseif path ~= "" and vim.fn.executable(path) == 1 then
+            path = vim.fn.fnamemodify(path, ":p"):gsub("\\", "/")
+            if not seen[path] then
+                seen[path] = true
+                table.insert(drivers, path)
+            end
+        end
+    end
+
+    if #drivers > 0 then
+        table.insert(cmd, "--query-driver=" .. table.concat(drivers, ","))
+    end
+
+    return cmd
+end
+
+local function clangd_fallback_flags()
+    local flags = {
+        "--target=x86_64-w64-windows-gnu",
+        "-std=c++20",
+        "-D_REENTRANT",
+    }
+
+    local gcc_root = vim.fn.expand("~/scoop/apps/gcc/current")
+    local cpp_root = gcc_root .. "/include/c++"
+    local cpp_versions = vim.fn.glob(cpp_root .. "/*", false, true)
+
+    if #cpp_versions == 0 then
+        return flags
+    end
+
+    table.sort(cpp_versions)
+    local cpp_include = cpp_versions[#cpp_versions]:gsub("\\", "/")
+    local version = vim.fn.fnamemodify(cpp_include, ":t")
+    local target = "x86_64-w64-mingw32"
+    local gcc_lib = (gcc_root .. "/lib/gcc/" .. target .. "/" .. version):gsub("\\", "/")
+
+    local includes = {
+        cpp_include,
+        cpp_include .. "/" .. target,
+        cpp_include .. "/backward",
+        gcc_lib .. "/include",
+        gcc_lib .. "/include-fixed",
+        gcc_root .. "/" .. target .. "/include",
+        gcc_root .. "/include",
+    }
+
+    for _, include in ipairs(includes) do
+        if vim.fn.isdirectory(include) == 1 then
+            table.insert(flags, "-isystem")
+            table.insert(flags, include)
+        end
+    end
+
+    return flags
+end
+
+vim.lsp.config("clangd", {
+    cmd = clangd_cmd(),
+    init_options = {
+        fallbackFlags = clangd_fallback_flags(),
     },
 })
 
@@ -226,6 +302,35 @@ vim.diagnostic.config({
         border = "rounded",
         source = "if_many",
     },
+})
+
+vim.api.nvim_create_user_command("LspInfo", function()
+    vim.cmd("checkhealth vim.lsp")
+end, {
+    desc = "Show native LSP health and active client info",
+})
+
+vim.api.nvim_create_user_command("LspRestart", function(opts)
+    local filter = opts.args ~= "" and { name = opts.args } or { bufnr = 0 }
+    local clients = vim.lsp.get_clients(filter)
+
+    for _, client in ipairs(clients) do
+        client:stop(true)
+    end
+
+    vim.defer_fn(function()
+        vim.cmd("edit")
+    end, 100)
+end, {
+    nargs = "?",
+    complete = function()
+        local names = {}
+        for _, client in ipairs(vim.lsp.get_clients()) do
+            table.insert(names, client.name)
+        end
+        return names
+    end,
+    desc = "Restart LSP clients for the current buffer or by server name",
 })
 
 local servers = {

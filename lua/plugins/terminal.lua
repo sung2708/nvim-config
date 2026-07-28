@@ -17,4 +17,20 @@ return {
             require("integrations.toggleterm")
         end,
     },
+    {
+        "stevearc/overseer.nvim",
+        cmd = { "OverseerRun", "OverseerToggle" },
+        keys = {
+            { "<leader>or", "<cmd>OverseerRun<cr>", desc = "Tasks: Run" },
+            { "<leader>ot", "<cmd>OverseerToggle<cr>", desc = "Tasks: Toggle List" },
+        },
+        opts = {
+            task_list = {
+                direction = "bottom",
+                min_height = 10,
+                max_height = 20,
+                default_detail = 1,
+            },
+        },
+    },
 }
