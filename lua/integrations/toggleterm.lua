@@ -16,10 +16,11 @@ if vim.fn.has("win32") == 1 then
         shell_executable = "powershell"
     end
 
+    -- Keep the PowerShell command wrapper valid for jobstart()/ToggleTerm,
+    -- but do not modify Console input/output encoding: that can make ConPTY
+    -- echo typed characters twice in Windows terminals.
     vim.opt.shell = shell_executable
-    vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "
-        .. "[Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();"
-        .. "$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
+    vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
     vim.opt.shellredir = "> %s 2>&1; exit $LastExitCode"
     vim.opt.shellpipe = "> %s 2>&1; exit $LastExitCode"
     vim.opt.shellquote = ""
@@ -175,7 +176,8 @@ end
 
 -- Custom Apps
 vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
-vim.keymap.set("n", "<leader>gg", _lazygit_toggle, { desc = "Terminal: Lazygit" })
+-- Disabled temporarily: Windows terminal input/ConPTY issue with LazyGit.
+-- vim.keymap.set("n", "<leader>gg", _lazygit_toggle, { desc = "Terminal: Lazygit" })
 vim.keymap.set("n", "<leader>ld", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
 
 -- Toggle different directions

@@ -263,7 +263,7 @@ return {
     },
     {
         "MeanderingProgrammer/render-markdown.nvim",
-        ft = { "markdown", "markdown.mdx", "codecompanion" },
+        ft = { "markdown", "markdown.mdx", "Avante" },
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
             "nvim-tree/nvim-web-devicons",
@@ -271,26 +271,5 @@ return {
         config = function()
             require("integrations.render-markdown")
         end,
-    },
-    {
-        "github/copilot.vim",
-        cmd = "Copilot",
-        event = "InsertEnter",
-        cond = function()
-            return vim.g.copilot_enabled == true
-        end,
-        init = function()
-            vim.g.copilot_no_tab_map = true
-        end,
-        keys = {
-            {
-                "<M-\\>",
-                'copilot#Accept("\\<CR>")',
-                mode = "i",
-                expr = true,
-                replace_keycodes = false,
-                desc = "Copilot: Accept",
-            },
-        },
     },
 }
