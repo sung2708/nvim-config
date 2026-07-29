@@ -51,7 +51,7 @@ The configuration is designed around five goals:
 | Git | Gitsigns, Fugitive, Diffview |
 | Debugging | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
 | Testing | Neotest for Python, Go, Jest, and Java |
-| UI | Snacks dashboard, WhichKey, Noice, Notify, Tokyonight |
+| UI | Snacks dashboard, WhichKey, Noice, Notify, selectable themes |
 | Cursor | smear-cursor.nvim, including Insert mode |
 
 ## Requirements
@@ -159,6 +159,30 @@ When Scoop is present, the configuration automatically detects:
 
 `JAVA_HOME` is assigned from Scoop only when the variable is not already set.
 An existing user-defined value always takes precedence.
+
+### Providers and document preview tools (Windows)
+
+This configuration uses `uv` for Neovim's Python provider and Volta/npm for
+the Node provider. Install them with:
+
+```powershell
+$provider = "$env:LOCALAPPDATA\nvim-data\python-provider"
+uv venv --python 3.13 $provider
+uv pip install --python "$provider\Scripts\python.exe" pynvim
+
+volta install node yarn
+npm install --global neovim @mermaid-js/mermaid-cli
+```
+
+For Snacks image, PDF, math, and Mermaid previews:
+
+```powershell
+scoop install imagemagick ghostscript tectonic
+```
+
+Restart PowerShell and Neovim after installation so the updated PATH is
+available. Neovim automatically uses the Python provider at
+`%LOCALAPPDATA%\nvim-data\python-provider` when it exists.
 
 ### Ubuntu/Debian
 

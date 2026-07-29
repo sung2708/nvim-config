@@ -144,13 +144,42 @@ end
 -- =============================================================================
 local opts = { noremap = true, silent = true }
 
+local function is_sidebar(win)
+    local filetype = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+    return filetype == "neo-tree" or filetype == "oil" or filetype == "NvimTree"
+end
+
+local function is_terminal(win)
+    local filetype = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+    return filetype == "toggleterm" or filetype == "terminal"
+end
+
+local function focus_editor_window()
+    local current = vim.api.nvim_get_current_win()
+    if not is_sidebar(current) and not is_terminal(current) then
+        return
+    end
+
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_is_valid(win) and not is_sidebar(win) and not is_terminal(win) then
+            vim.api.nvim_set_current_win(win)
+            return
+        end
+    end
+end
+
+local function open_horizontal_terminal()
+    focus_editor_window()
+    vim.cmd("ToggleTerm direction=horizontal")
+end
+
 -- Custom Apps
 vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
 vim.keymap.set("n", "<leader>gg", _lazygit_toggle, { desc = "Terminal: Lazygit" })
 vim.keymap.set("n", "<leader>ld", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
 
 -- Toggle different directions
-vim.keymap.set("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "Terminal: Horizontal" })
+vim.keymap.set("n", "<leader>th", open_horizontal_terminal, { desc = "Terminal: Horizontal" })
 vim.keymap.set("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<cr>", { desc = "Terminal: Vertical" })
 vim.keymap.set("n", "<leader>tf", "<cmd>ToggleTerm direction=float<cr>", { desc = "Terminal: Float" })
 

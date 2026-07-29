@@ -50,7 +50,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Git | Gitsigns, Fugitive, Diffview |
 | Debug | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
 | Test | Neotest cho Python, Go, Jest và Java |
-| UI | Snacks dashboard, WhichKey, Noice, Notify, Tokyonight |
+| UI | Snacks dashboard, WhichKey, Noice, Notify, theme có thể chọn |
 | Cursor | smear-cursor.nvim, bao gồm Insert mode |
 
 ## Yêu Cầu
@@ -142,6 +142,30 @@ Khi có Scoop, cấu hình tự nhận:
 
 `JAVA_HOME` chỉ được gán từ Scoop nếu biến này chưa tồn tại. Nếu người dùng đã
 tự đặt `JAVA_HOME`, giá trị đó luôn được ưu tiên.
+
+### Provider và công cụ xem tài liệu trên Windows
+
+Cấu hình dùng `uv` cho Python provider của Neovim và Volta/npm cho Node
+provider. Cài bằng PowerShell:
+
+```powershell
+$provider = "$env:LOCALAPPDATA\nvim-data\python-provider"
+uv venv --python 3.13 $provider
+uv pip install --python "$provider\Scripts\python.exe" pynvim
+
+volta install node yarn
+npm install --global neovim @mermaid-js/mermaid-cli
+```
+
+Để Snacks xem ảnh, PDF, công thức và Mermaid:
+
+```powershell
+scoop install imagemagick ghostscript tectonic
+```
+
+Sau khi cài, hãy mở PowerShell và Neovim mới để nhận PATH mới. Neovim sẽ tự
+dùng Python provider ở `%LOCALAPPDATA%\nvim-data\python-provider` nếu thư mục
+này tồn tại.
 
 ### Ubuntu/Debian
 

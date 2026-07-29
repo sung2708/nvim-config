@@ -86,8 +86,8 @@ if snacks then
             preset = {
                 header = dashboard_header(),
                 keys = {
-                    { icon = " ", key = "f", desc = "Find File", action = ":FzfLua files" },
-                    { icon = "󰱼 ", key = "g", desc = "Live Grep", action = ":FzfLua live_grep" },
+                    { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+                    { icon = "󰱼 ", key = "g", desc = "Live Grep", action = ":lua Snacks.dashboard.pick('live_grep')" },
                     { icon = "󰈚 ", key = "b", desc = "Buffers", action = ":Telescope buffers" },
                     { icon = "󰉋 ", key = "e", desc = "File Explorer", action = ":Neotree filesystem reveal left" },
                     { icon = "󰊢 ", key = "s", desc = "Git Status", action = ":Git" },
@@ -98,7 +98,7 @@ if snacks then
                         icon = " ",
                         key = "c",
                         desc = "Config",
-                        action = ":FzfLua files cwd=" .. vim.fn.stdpath("config"),
+                        action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config') })",
                     },
                     { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
                     { icon = " ", key = "q", desc = "Quit", action = ":qa" },

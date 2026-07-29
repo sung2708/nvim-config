@@ -19,6 +19,17 @@ if vim.fn.has("win32") == 1 then
     local scoop_home = vim.env.SCOOP or vim.fn.expand("~/scoop")
     prepend_path(scoop_home .. "/apps/go/current/bin")
     prepend_path(scoop_home .. "/apps/maven/current/bin")
+    prepend_path(scoop_home .. "/apps/imagemagick/current")
+
+    local python_provider = vim.fn.stdpath("data") .. "/python-provider/Scripts/python.exe"
+    if vim.fn.filereadable(python_provider) == 1 then
+        vim.g.python3_host_prog = python_provider
+    end
+
+    local node_provider = vim.fn.exepath("neovim-node-host")
+    if node_provider ~= "" then
+        vim.g.node_host_prog = node_provider
+    end
 
     local scoop_jdk = scoop_home .. "/apps/temurin21-jdk/current"
     if vim.fn.isdirectory(scoop_jdk) == 1 then
