@@ -66,6 +66,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | fzf | Backend cho FzfLua |
 | make | Build telescope-fzf-native |
 | C compiler hoặc Zig | Build native extension và Treesitter parser |
+| tree-sitter-cli | Biên dịch/cập nhật Treesitter parser |
 | unzip, gzip, tar | Giải nén package do Mason cài |
 | curl hoặc wget | Tải package do Mason cài |
 
@@ -107,6 +108,7 @@ irm get.scoop.sh | iex
 scoop bucket add java
 scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
 scoop install java/temurin21-jdk
+npm install --global tree-sitter-cli
 ```
 
 Khuyến nghị cài PowerShell 7:
@@ -272,6 +274,16 @@ nvim --headless "+Lazy! sync" +qa
 
 Sau khi cài, mở thử một file cho từng ngôn ngữ bạn dùng. LSP server và plugin
 theo ngôn ngữ chỉ khởi động khi mở buffer phù hợp.
+
+Trên Windows, kiểm tra dependency trước khi mở Neovim:
+
+```powershell
+.\\bin\\check-environment.ps1
+```
+
+Nếu `tree-sitter` không được tìm thấy, mở PowerShell mới sau khi cài bằng npm
+để PATH được cập nhật. Trong Neovim, kiểm tra bằng
+`:echo executable('tree-sitter')`.
 
 ## Phụ Thuộc Được Quản Lý
 

@@ -67,6 +67,7 @@ The configuration is designed around five goals:
 | fzf | FzfLua backend |
 | make | Build telescope-fzf-native |
 | C compiler or Zig | Build native extensions and Treesitter parsers |
+| tree-sitter-cli | Compile and update Treesitter parsers |
 | unzip, gzip, tar | Extract packages installed by Mason |
 | curl or wget | Download packages installed by Mason |
 
@@ -124,6 +125,7 @@ irm get.scoop.sh | iex
 scoop bucket add java
 scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
 scoop install java/temurin21-jdk
+npm install --global tree-sitter-cli
 ```
 
 PowerShell 7 is recommended:
@@ -292,6 +294,17 @@ nvim --headless "+Lazy! sync" +qa
 ```
 
 After installation, open one file for each language you use. LSP servers and
+language-specific plugins start only when a matching buffer is opened.
+
+On Windows, check dependencies before opening Neovim:
+
+```powershell
+.\\bin\\check-environment.ps1
+```
+
+If `tree-sitter` is missing, open a new PowerShell after installing it with npm
+so the updated PATH is inherited. Inside Neovim, verify it with
+`:echo executable('tree-sitter')`.
 language-specific plugins start only when a matching buffer is opened.
 
 ## Managed Dependencies
