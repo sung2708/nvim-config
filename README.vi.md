@@ -1,4 +1,4 @@
-# SUNGP Neovim
+# sungp Neovim
 
 Ngôn ngữ: [English](README.md) | [Tiếng Việt](README.vi.md)
 
@@ -35,40 +35,40 @@ Cấu hình này tập trung vào năm mục tiêu:
 
 ## Tính Năng
 
-| Khu vực | Thành phần |
-| --- | --- |
-| Quản lý plugin | lazy.nvim và `lazy-lock.json` |
-| LSP | Native `vim.lsp`, nvim-lspconfig, Mason |
-| Completion | blink.cmp, friendly-snippets, signature help |
-| Format | Conform, Ruff, Prettier, Stylua, gofumpt, goimports |
-| Lint | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck |
-| Tìm kiếm | Telescope, telescope-fzf-native, FzfLua, Grug Far |
-| Điều hướng | Flash, Neo-tree, Oil, Bufferline, Treesitter, Mini textobjects |
-| Workflow | Overseer tasks, Persistence sessions, Yanky history |
-| AI | CodeCompanion và GitHub Copilot |
-| Diagnostics | Trouble, Todo Comments, Lualine |
-| Git | Gitsigns, Fugitive, Diffview |
-| Debug | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
-| Test | Neotest cho Python, Go, Jest và Java |
-| UI | Snacks dashboard, WhichKey, Noice, Notify, theme có thể chọn |
-| Cursor | smear-cursor.nvim, bao gồm Insert mode |
+| Khu vực        | Thành phần                                                     |
+| -------------- | -------------------------------------------------------------- |
+| Quản lý plugin | lazy.nvim và `lazy-lock.json`                                  |
+| LSP            | Native `vim.lsp`, nvim-lspconfig, Mason                        |
+| Completion     | blink.cmp, friendly-snippets, signature help                   |
+| Format         | Conform, Ruff, Prettier, Stylua, gofumpt, goimports            |
+| Lint           | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck              |
+| Tìm kiếm       | Telescope, telescope-fzf-native, FzfLua, Grug Far              |
+| Điều hướng     | Flash, Neo-tree, Oil, Bufferline, Treesitter, Mini textobjects |
+| Workflow       | Overseer tasks, Persistence sessions, Yanky history            |
+| AI             | CodeCompanion và GitHub Copilot                                |
+| Diagnostics    | Trouble, Todo Comments, Lualine                                |
+| Git            | Gitsigns, Fugitive, Diffview                                   |
+| Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
+| Test           | Neotest cho Python, Go, Jest và Java                           |
+| UI             | Snacks dashboard, WhichKey, Noice, Notify, theme có thể chọn   |
+| Cursor         | smear-cursor.nvim, bao gồm Insert mode                         |
 
 ## Yêu Cầu
 
 ### Yêu Cầu Cốt Lõi
 
-| Công cụ | Mục đích |
-| --- | --- |
-| Neovim `>= 0.11` | Native LSP API và plugin hiện đại |
-| Git | Bootstrap lazy.nvim và tải plugin |
-| Internet | Chỉ cần cho lần cài đặt và cập nhật đầu tiên |
-| ripgrep (`rg`) | Tìm file, live grep, Todo, Telescope và FzfLua |
-| fzf | Backend cho FzfLua |
-| make | Build telescope-fzf-native |
-| C compiler hoặc Zig | Build native extension và Treesitter parser |
-| tree-sitter-cli | Biên dịch/cập nhật Treesitter parser |
-| unzip, gzip, tar | Giải nén package do Mason cài |
-| curl hoặc wget | Tải package do Mason cài |
+| Công cụ             | Mục đích                                       |
+| ------------------- | ---------------------------------------------- |
+| Neovim `>= 0.11`    | Native LSP API và plugin hiện đại              |
+| Git                 | Bootstrap lazy.nvim và tải plugin              |
+| Internet            | Chỉ cần cho lần cài đặt và cập nhật đầu tiên   |
+| ripgrep (`rg`)      | Tìm file, live grep, Todo, Telescope và FzfLua |
+| fzf                 | Backend cho FzfLua                             |
+| make                | Build telescope-fzf-native                     |
+| C compiler hoặc Zig | Build native extension và Treesitter parser    |
+| tree-sitter-cli     | Biên dịch/cập nhật Treesitter parser           |
+| unzip, gzip, tar    | Giải nén package do Mason cài                  |
+| curl hoặc wget      | Tải package do Mason cài                       |
 
 `fd` là tùy chọn. Cấu hình hiện dùng `rg --files` cho Telescope và FzfLua,
 nhưng một số picker khác vẫn có thể dùng `fd`.
@@ -81,14 +81,14 @@ thành ô vuông.
 
 Chỉ cần cài runtime cho ngôn ngữ bạn dùng:
 
-| Ngôn ngữ | Yêu cầu ngoài Neovim |
-| --- | --- |
-| Python | Python 3; `uv` là tùy chọn |
-| Go | Go toolchain |
-| JavaScript/TypeScript | Node.js và npm |
-| Java | JDK 21; Maven hoặc Gradle nếu project không có wrapper |
-| C/C++ | Clang, GCC hoặc Zig |
-| Lua | Không cần runtime riêng để sửa cấu hình Neovim |
+| Ngôn ngữ              | Yêu cầu ngoài Neovim                                   |
+| --------------------- | ------------------------------------------------------ |
+| Python                | Python 3; `uv` là tùy chọn                             |
+| Go                    | Go toolchain                                           |
+| JavaScript/TypeScript | Node.js và npm                                         |
+| Java                  | JDK 21; Maven hoặc Gradle nếu project không có wrapper |
+| C/C++                 | Clang, GCC hoặc Zig                                    |
+| Lua                   | Không cần runtime riêng để sửa cấu hình Neovim         |
 
 Mason cài language server, formatter, linter và debug adapter. Mason không
 thay thế runtime hoặc compiler của project. Ví dụ Mason có thể cài `gopls`,
@@ -319,20 +319,20 @@ trên nhiều máy.
 
 Các file plugin được nhóm theo trách nhiệm:
 
-| File | Trách nhiệm |
-| --- | --- |
-| `lua/plugins/lsp.lua` | LSP, Mason, format và lint |
-| `lua/plugins/completion.lua` | Completion, snippet và signature |
-| `lua/plugins/ai.lua` | CodeCompanion và Copilot |
-| `lua/plugins/treesitter.lua` | Parser và textobject |
-| `lua/plugins/search.lua` | Telescope, FzfLua và Grug Far |
-| `lua/plugins/ui.lua` | Dashboard, statusline, notification, WhichKey |
-| `lua/plugins/git.lua` | Gitsigns, Fugitive và Diffview |
-| `lua/plugins/editor.lua` | Explorer, Trouble, Flash, Todo, fold, editing |
-| `lua/plugins/debug.lua` | DAP, Neotest và adapter |
-| `lua/plugins/languages.lua` | Python, Go, TypeScript và Java |
-| `lua/plugins/terminal.lua` | Terminal và Overseer task |
-| `lua/plugins/sessions.lua` | Phiên làm việc theo project |
+| File                         | Trách nhiệm                                   |
+| ---------------------------- | --------------------------------------------- |
+| `lua/plugins/lsp.lua`        | LSP, Mason, format và lint                    |
+| `lua/plugins/completion.lua` | Completion, snippet và signature              |
+| `lua/plugins/ai.lua`         | CodeCompanion và Copilot                      |
+| `lua/plugins/treesitter.lua` | Parser và textobject                          |
+| `lua/plugins/search.lua`     | Telescope, FzfLua và Grug Far                 |
+| `lua/plugins/ui.lua`         | Dashboard, statusline, notification, WhichKey |
+| `lua/plugins/git.lua`        | Gitsigns, Fugitive và Diffview                |
+| `lua/plugins/editor.lua`     | Explorer, Trouble, Flash, Todo, fold, editing |
+| `lua/plugins/debug.lua`      | DAP, Neotest và adapter                       |
+| `lua/plugins/languages.lua`  | Python, Go, TypeScript và Java                |
+| `lua/plugins/terminal.lua`   | Terminal và Overseer task                     |
+| `lua/plugins/sessions.lua`   | Phiên làm việc theo project                   |
 
 ### Mason
 
@@ -381,10 +381,10 @@ Linux và macOS dùng `CC`/`CXX` nếu có, rồi fallback sang `cc`, `clang`, `
 
 ### C/C++
 
-| Vai trò | Công cụ |
-| --- | --- |
-| LSP | clangd qua Mason |
-| Format | clang-format |
+| Vai trò  | Công cụ             |
+| -------- | ------------------- |
+| LSP      | clangd qua Mason    |
+| Format   | clang-format        |
 | Compiler | GCC, Clang hoặc Zig |
 
 Trên Windows, Scoop GCC được hỗ trợ trực tiếp. Cấu hình `clangd` cho phép
@@ -397,14 +397,14 @@ khi Scoop GCC đã được cài.
 
 ### Python
 
-| Vai trò | Công cụ |
-| --- | --- |
-| LSP và type | Pyright |
-| Lint và quick fix | Ruff LSP |
-| Format và import | Ruff |
+| Vai trò             | Công cụ            |
+| ------------------- | ------------------ |
+| LSP và type         | Pyright            |
+| Lint và quick fix   | Ruff LSP           |
+| Format và import    | Ruff               |
 | Virtual environment | venv-selector.nvim |
-| Debug | debugpy |
-| Test | neotest-python |
+| Debug               | debugpy            |
+| Test                | neotest-python     |
 
 Python terminal chọn interpreter theo thứ tự:
 
@@ -414,55 +414,55 @@ Python terminal chọn interpreter theo thứ tự:
 
 ### Go
 
-| Vai trò | Công cụ |
-| --- | --- |
-| LSP | gopls |
-| Format và import | gofumpt, goimports |
-| Sinh code | gopher.nvim, gomodifytags, gotests, impl, iferr |
-| Debug | Delve |
-| Test | neotest-golang |
+| Vai trò          | Công cụ                                         |
+| ---------------- | ----------------------------------------------- |
+| LSP              | gopls                                           |
+| Format và import | gofumpt, goimports                              |
+| Sinh code        | gopher.nvim, gomodifytags, gotests, impl, iferr |
+| Debug            | Delve                                           |
+| Test             | neotest-golang                                  |
 
 Trên Windows x86_64, cấu hình đặt `GOARCH=amd64` nếu biến này chưa tồn tại.
 
 ### JavaScript/TypeScript
 
-| Vai trò | Công cụ |
-| --- | --- |
-| LSP | typescript-tools.nvim |
-| Diagnostics | ESLint |
-| Format | eslint_d và Prettier |
-| Debug | js-debug-adapter |
-| Test | neotest-jest |
-| JSX/TSX tags | nvim-ts-autotag |
+| Vai trò      | Công cụ               |
+| ------------ | --------------------- |
+| LSP          | typescript-tools.nvim |
+| Diagnostics  | ESLint                |
+| Format       | eslint_d và Prettier  |
+| Debug        | js-debug-adapter      |
+| Test         | neotest-jest          |
+| JSX/TSX tags | nvim-ts-autotag       |
 
 `typescript-tools.nvim` sở hữu tích hợp TypeScript language server, nên
 `ts_ls` không được bật lần thứ hai.
 
 ### Java
 
-| Vai trò | Công cụ |
-| --- | --- |
-| LSP | nvim-jdtls và Eclipse JDTLS |
-| Annotation | Lombok |
-| Format | google-java-format |
-| Debug | java-debug-adapter |
-| Test | neotest-java và JUnit Console |
+| Vai trò    | Công cụ                       |
+| ---------- | ----------------------------- |
+| LSP        | nvim-jdtls và Eclipse JDTLS   |
+| Annotation | Lombok                        |
+| Format     | google-java-format            |
+| Debug      | java-debug-adapter            |
+| Test       | neotest-java và JUnit Console |
 
 Cấu hình chạy JDTLS với JDK 21. Project nên có ít nhất một root marker:
 `.git`, `mvnw`, `pom.xml`, `gradlew`, `build.gradle` hoặc `settings.gradle`.
 
 ## Bố Cục Cấu Hình
 
-| Đường dẫn | Nội dung |
-| --- | --- |
-| `init.lua` | Điểm vào chính |
-| `init.vim` | Shim tương thích gọi `init.lua` |
-| `lua/config/` | Bootstrap, option, keymap và lazy.nvim |
-| `lua/plugins/` | Khai báo plugin theo nhóm |
-| `lua/integrations/` | Cấu hình chi tiết cho plugin |
-| `lua/helper/` | Hàm dùng chung |
-| `bin/` | Wrapper Windows cho Zig C/C++ |
-| `lazy-lock.json` | Phiên bản plugin đã khóa |
+| Đường dẫn           | Nội dung                               |
+| ------------------- | -------------------------------------- |
+| `init.lua`          | Điểm vào chính                         |
+| `init.vim`          | Shim tương thích gọi `init.lua`        |
+| `lua/config/`       | Bootstrap, option, keymap và lazy.nvim |
+| `lua/plugins/`      | Khai báo plugin theo nhóm              |
+| `lua/integrations/` | Cấu hình chi tiết cho plugin           |
+| `lua/helper/`       | Hàm dùng chung                         |
+| `bin/`              | Wrapper Windows cho Zig C/C++          |
+| `lazy-lock.json`    | Phiên bản plugin đã khóa               |
 
 Quy tắc chung: `lua/plugins/*.lua` quyết định plugin load khi nào, còn
 `lua/integrations/*.lua` chứa cấu hình chi tiết sau khi plugin đã load.
@@ -493,51 +493,51 @@ Leader mặc định là `Space`.
 
 LSP mapping chỉ tồn tại sau khi language server attach vào buffer:
 
-| Phím | Hành động |
-| --- | --- |
-| `gd` | Đi tới definition qua Telescope |
-| `gy` | Đi tới type definition qua Telescope |
-| `gi` | Đi tới implementation |
-| `gr` | Xem references qua FzfLua |
-| `gO` | Document symbols |
-| `Space+cS` | Workspace symbols |
-| `K` / `Space+e` | Hover documentation |
-| `Space+ca` | Code action |
-| `Space+rn` | Rename symbol |
-| `Space+cd` | Diagnostic của dòng hiện tại |
-| `]d` / `[d` | Diagnostic kế tiếp/trước đó |
-| `Space+ci` | Bật/tắt inlay hints nếu server hỗ trợ |
-| `Space+cf` | Format buffer hoặc selection |
-| `Space+cL` | Chạy lint |
-| `Space+cm` | Mở Mason |
-| `Space+cs` | Trouble document symbols |
-| `Space+cl` | Trouble LSP list |
+| Phím            | Hành động                             |
+| --------------- | ------------------------------------- |
+| `gd`            | Đi tới definition qua Telescope       |
+| `gy`            | Đi tới type definition qua Telescope  |
+| `gi`            | Đi tới implementation                 |
+| `gr`            | Xem references qua FzfLua             |
+| `gO`            | Document symbols                      |
+| `Space+cS`      | Workspace symbols                     |
+| `K` / `Space+e` | Hover documentation                   |
+| `Space+ca`      | Code action                           |
+| `Space+rn`      | Rename symbol                         |
+| `Space+cd`      | Diagnostic của dòng hiện tại          |
+| `]d` / `[d`     | Diagnostic kế tiếp/trước đó           |
+| `Space+ci`      | Bật/tắt inlay hints nếu server hỗ trợ |
+| `Space+cf`      | Format buffer hoặc selection          |
+| `Space+cL`      | Chạy lint                             |
+| `Space+cm`      | Mở Mason                              |
+| `Space+cs`      | Trouble document symbols              |
+| `Space+cl`      | Trouble LSP list                      |
 
 Diagnostics không cập nhật khi đang Insert mode để việc gõ ổn định hơn.
 
 ### Completion
 
-| Phím | Hành động |
-| --- | --- |
-| `Ctrl+Space` | Hiện completion hoặc documentation |
-| `Ctrl+e` | Ẩn completion |
-| `Ctrl+n/p` | Chọn item tiếp theo/trước đó |
-| `Ctrl+j/k` | Chọn item hoặc nhảy snippet |
+| Phím                | Hành động                             |
+| ------------------- | ------------------------------------- |
+| `Ctrl+Space`        | Hiện completion hoặc documentation    |
+| `Ctrl+e`            | Ẩn completion                         |
+| `Ctrl+n/p`          | Chọn item tiếp theo/trước đó          |
+| `Ctrl+j/k`          | Chọn item hoặc nhảy snippet           |
 | `Tab` / `Shift+Tab` | Completion hoặc snippet next/previous |
-| `Enter` | Chấp nhận completion |
-| `Ctrl+b/f` | Cuộn documentation |
-| `Ctrl+l` | Bật/tắt signature help |
+| `Enter`             | Chấp nhận completion                  |
+| `Ctrl+b/f`          | Cuộn documentation                    |
+| `Ctrl+l`            | Bật/tắt signature help                |
 
 ### Công Cụ Thường Dùng
 
-| Phím | Hành động |
-| --- | --- |
-| `Space+ff` | Tìm file |
-| `Space+fg` | Live grep |
-| `Space+fb` | Tìm buffer |
-| `Space+gg` | Lazygit |
-| `Space+ld` | Lazydocker |
-| `Space+tt` | Mở terminal |
+| Phím       | Hành động           |
+| ---------- | ------------------- |
+| `Space+ff` | Tìm file            |
+| `Space+fg` | Live grep           |
+| `Space+fb` | Tìm buffer          |
+| `Space+gg` | Lazygit             |
+| `Space+ld` | Lazydocker          |
+| `Space+tt` | Mở terminal         |
 | `Space+xx` | Trouble diagnostics |
 
 ## Tính Năng Tùy Chọn

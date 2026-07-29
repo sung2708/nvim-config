@@ -1,4 +1,4 @@
-# SUNGP Neovim
+# sungp Neovim
 
 Language: [English](README.md) | [Tiếng Việt](README.vi.md)
 
@@ -36,40 +36,40 @@ The configuration is designed around five goals:
 
 ## Features
 
-| Area | Components |
-| --- | --- |
-| Plugin manager | lazy.nvim and `lazy-lock.json` |
-| LSP | Native `vim.lsp`, nvim-lspconfig, Mason |
-| Completion | blink.cmp, friendly-snippets, signature help |
-| Formatting | Conform, Ruff, Prettier, Stylua, gofumpt, goimports |
-| Linting | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck |
-| Search | Telescope, telescope-fzf-native, FzfLua, Grug Far |
-| Navigation | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
-| Workflow | Overseer tasks, Persistence sessions, Yanky history |
-| AI | CodeCompanion chat and inline actions through GitHub Copilot |
-| Diagnostics | Trouble, Todo Comments, Lualine |
-| Git | Gitsigns, Fugitive, Diffview |
-| Debugging | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug |
-| Testing | Neotest for Python, Go, Jest, and Java |
-| UI | Snacks dashboard, WhichKey, Noice, Notify, selectable themes |
-| Cursor | smear-cursor.nvim, including Insert mode |
+| Area           | Components                                                        |
+| -------------- | ----------------------------------------------------------------- |
+| Plugin manager | lazy.nvim and `lazy-lock.json`                                    |
+| LSP            | Native `vim.lsp`, nvim-lspconfig, Mason                           |
+| Completion     | blink.cmp, friendly-snippets, signature help                      |
+| Formatting     | Conform, Ruff, Prettier, Stylua, gofumpt, goimports               |
+| Linting        | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck                 |
+| Search         | Telescope, telescope-fzf-native, FzfLua, Grug Far                 |
+| Navigation     | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
+| Workflow       | Overseer tasks, Persistence sessions, Yanky history               |
+| AI             | CodeCompanion chat and inline actions through GitHub Copilot      |
+| Diagnostics    | Trouble, Todo Comments, Lualine                                   |
+| Git            | Gitsigns, Fugitive, Diffview                                      |
+| Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
+| Testing        | Neotest for Python, Go, Jest, and Java                            |
+| UI             | Snacks dashboard, WhichKey, Noice, Notify, selectable themes      |
+| Cursor         | smear-cursor.nvim, including Insert mode                          |
 
 ## Requirements
 
 ### Core Requirements
 
-| Tool | Purpose |
-| --- | --- |
-| Neovim `>= 0.11` | Native LSP APIs and current plugin support |
-| Git | Bootstrap lazy.nvim and download plugins |
-| Internet access | Required only for initial installation and updates |
-| ripgrep (`rg`) | File search, live grep, Todo, Telescope, and FzfLua |
-| fzf | FzfLua backend |
-| make | Build telescope-fzf-native |
-| C compiler or Zig | Build native extensions and Treesitter parsers |
-| tree-sitter-cli | Compile and update Treesitter parsers |
-| unzip, gzip, tar | Extract packages installed by Mason |
-| curl or wget | Download packages installed by Mason |
+| Tool              | Purpose                                             |
+| ----------------- | --------------------------------------------------- |
+| Neovim `>= 0.11`  | Native LSP APIs and current plugin support          |
+| Git               | Bootstrap lazy.nvim and download plugins            |
+| Internet access   | Required only for initial installation and updates  |
+| ripgrep (`rg`)    | File search, live grep, Todo, Telescope, and FzfLua |
+| fzf               | FzfLua backend                                      |
+| make              | Build telescope-fzf-native                          |
+| C compiler or Zig | Build native extensions and Treesitter parsers      |
+| tree-sitter-cli   | Compile and update Treesitter parsers               |
+| unzip, gzip, tar  | Extract packages installed by Mason                 |
+| curl or wget      | Download packages installed by Mason                |
 
 `fd` is optional. The current Telescope and FzfLua file pickers use
 `rg --files`, but other picker configurations may still benefit from `fd`.
@@ -82,14 +82,14 @@ may appear as empty squares.
 
 Install only the runtimes for the languages you use:
 
-| Language | External requirement |
-| --- | --- |
-| Python | Python 3; `uv` is optional |
-| Go | Go toolchain |
-| JavaScript/TypeScript | Node.js and npm |
-| Java | JDK 21; Maven or Gradle when the project has no wrapper |
-| C/C++ | Clang, GCC, or Zig |
-| Lua | No separate runtime is required to edit Neovim configuration |
+| Language              | External requirement                                         |
+| --------------------- | ------------------------------------------------------------ |
+| Python                | Python 3; `uv` is optional                                   |
+| Go                    | Go toolchain                                                 |
+| JavaScript/TypeScript | Node.js and npm                                              |
+| Java                  | JDK 21; Maven or Gradle when the project has no wrapper      |
+| C/C++                 | Clang, GCC, or Zig                                           |
+| Lua                   | No separate runtime is required to edit Neovim configuration |
 
 Mason installs language servers, formatters, linters, and debug adapters. It
 does not replace the runtime or compiler required by a project. For example,
@@ -98,17 +98,17 @@ test Go code.
 
 ### Optional Tools
 
-| Tool | Used by |
-| --- | --- |
-| PowerShell 7 (`pwsh`) | Improved terminal behavior on Windows |
-| fd | Alternative fast file discovery |
-| uv | Python environments and the Python REPL |
-| Maven | Java projects without `mvnw` |
-| Gradle | Java projects without `gradlew` |
-| Lazygit | `Space+gg` |
-| Lazydocker and Docker | `Space+ld` |
-| GitHub Copilot | Insert suggestions and CodeCompanion chat |
-| xclip, xsel, or wl-clipboard | System clipboard integration on Linux |
+| Tool                         | Used by                                   |
+| ---------------------------- | ----------------------------------------- |
+| PowerShell 7 (`pwsh`)        | Improved terminal behavior on Windows     |
+| fd                           | Alternative fast file discovery           |
+| uv                           | Python environments and the Python REPL   |
+| Maven                        | Java projects without `mvnw`              |
+| Gradle                       | Java projects without `gradlew`           |
+| Lazygit                      | `Space+gg`                                |
+| Lazydocker and Docker        | `Space+ld`                                |
+| GitHub Copilot               | Insert suggestions and CodeCompanion chat |
+| xclip, xsel, or wl-clipboard | System clipboard integration on Linux     |
 
 ## Install System Tools
 
@@ -341,20 +341,20 @@ versions across machines.
 
 Plugin specifications are grouped by responsibility:
 
-| File | Responsibility |
-| --- | --- |
-| `lua/plugins/lsp.lua` | LSP, Mason, formatting, and linting |
-| `lua/plugins/completion.lua` | Completion, snippets, and signatures |
-| `lua/plugins/ai.lua` | CodeCompanion chat and inline AI through Copilot |
-| `lua/plugins/treesitter.lua` | Parsers and textobjects |
-| `lua/plugins/search.lua` | Telescope, FzfLua, and Grug Far |
-| `lua/plugins/ui.lua` | Dashboard, statusline, notifications, WhichKey |
-| `lua/plugins/git.lua` | Gitsigns, Fugitive, and Diffview |
-| `lua/plugins/editor.lua` | Explorers, Trouble, Flash, Todo, folds, editing |
-| `lua/plugins/debug.lua` | DAP, Neotest, and adapters |
-| `lua/plugins/languages.lua` | Python, Go, TypeScript, and Java |
-| `lua/plugins/terminal.lua` | Terminals and Overseer tasks |
-| `lua/plugins/sessions.lua` | Persistent project sessions |
+| File                         | Responsibility                                   |
+| ---------------------------- | ------------------------------------------------ |
+| `lua/plugins/lsp.lua`        | LSP, Mason, formatting, and linting              |
+| `lua/plugins/completion.lua` | Completion, snippets, and signatures             |
+| `lua/plugins/ai.lua`         | CodeCompanion chat and inline AI through Copilot |
+| `lua/plugins/treesitter.lua` | Parsers and textobjects                          |
+| `lua/plugins/search.lua`     | Telescope, FzfLua, and Grug Far                  |
+| `lua/plugins/ui.lua`         | Dashboard, statusline, notifications, WhichKey   |
+| `lua/plugins/git.lua`        | Gitsigns, Fugitive, and Diffview                 |
+| `lua/plugins/editor.lua`     | Explorers, Trouble, Flash, Todo, folds, editing  |
+| `lua/plugins/debug.lua`      | DAP, Neotest, and adapters                       |
+| `lua/plugins/languages.lua`  | Python, Go, TypeScript, and Java                 |
+| `lua/plugins/terminal.lua`   | Terminals and Overseer tasks                     |
+| `lua/plugins/sessions.lua`   | Persistent project sessions                      |
 
 ### Mason
 
@@ -404,11 +404,11 @@ macOS use `CC`/`CXX` when set, then fall back to `cc`, `clang`, `gcc`, `c++`,
 
 ### C/C++
 
-| Role | Tool |
-| --- | --- |
-| LSP | clangd through Mason |
-| Formatting | clang-format |
-| Compiler | GCC, Clang, or Zig |
+| Role       | Tool                 |
+| ---------- | -------------------- |
+| LSP        | clangd through Mason |
+| Formatting | clang-format         |
+| Compiler   | GCC, Clang, or Zig   |
 
 On Windows, Scoop GCC is supported directly. The `clangd` configuration allows
 Scoop GCC through `--query-driver` and provides fallback include paths for
@@ -420,14 +420,14 @@ standard headers such as `<iostream>` when Scoop GCC is installed.
 
 ### Python
 
-| Role | Tool |
-| --- | --- |
-| LSP and types | Pyright |
-| Lint and quick fixes | Ruff LSP |
-| Formatting and imports | Ruff |
-| Virtual environments | venv-selector.nvim |
-| Debugging | debugpy |
-| Testing | neotest-python |
+| Role                   | Tool               |
+| ---------------------- | ------------------ |
+| LSP and types          | Pyright            |
+| Lint and quick fixes   | Ruff LSP           |
+| Formatting and imports | Ruff               |
+| Virtual environments   | venv-selector.nvim |
+| Debugging              | debugpy            |
+| Testing                | neotest-python     |
 
 The Python terminal chooses an interpreter in this order:
 
@@ -437,40 +437,40 @@ The Python terminal chooses an interpreter in this order:
 
 ### Go
 
-| Role | Tool |
-| --- | --- |
-| LSP | gopls |
-| Formatting and imports | gofumpt, goimports |
-| Code generation | gopher.nvim, gomodifytags, gotests, impl, iferr |
-| Debugging | Delve |
-| Testing | neotest-golang |
+| Role                   | Tool                                            |
+| ---------------------- | ----------------------------------------------- |
+| LSP                    | gopls                                           |
+| Formatting and imports | gofumpt, goimports                              |
+| Code generation        | gopher.nvim, gomodifytags, gotests, impl, iferr |
+| Debugging              | Delve                                           |
+| Testing                | neotest-golang                                  |
 
 On Windows x86_64, the configuration sets `GOARCH=amd64` only when `GOARCH`
 does not already exist.
 
 ### JavaScript/TypeScript
 
-| Role | Tool |
-| --- | --- |
-| LSP | typescript-tools.nvim |
-| Diagnostics | ESLint |
-| Formatting | eslint_d and Prettier |
-| Debugging | js-debug-adapter |
-| Testing | neotest-jest |
-| JSX/TSX tags | nvim-ts-autotag |
+| Role         | Tool                  |
+| ------------ | --------------------- |
+| LSP          | typescript-tools.nvim |
+| Diagnostics  | ESLint                |
+| Formatting   | eslint_d and Prettier |
+| Debugging    | js-debug-adapter      |
+| Testing      | neotest-jest          |
+| JSX/TSX tags | nvim-ts-autotag       |
 
 `typescript-tools.nvim` owns the TypeScript language server integration, so
 `ts_ls` is not enabled a second time.
 
 ### Java
 
-| Role | Tool |
-| --- | --- |
-| LSP | nvim-jdtls and Eclipse JDTLS |
-| Annotations | Lombok |
-| Formatting | google-java-format |
-| Debugging | java-debug-adapter |
-| Testing | neotest-java and JUnit Console |
+| Role        | Tool                           |
+| ----------- | ------------------------------ |
+| LSP         | nvim-jdtls and Eclipse JDTLS   |
+| Annotations | Lombok                         |
+| Formatting  | google-java-format             |
+| Debugging   | java-debug-adapter             |
+| Testing     | neotest-java and JUnit Console |
 
 This configuration runs JDTLS with JDK 21. A project should contain at least
 one recognized root marker: `.git`, `mvnw`, `pom.xml`, `gradlew`,
@@ -482,12 +482,12 @@ directory.
 
 ### Filetype Indentation
 
-| Filetype | Settings |
-| --- | --- |
-| Python, Lua, Java | 4 spaces |
-| JavaScript, TypeScript, JSX, TSX | 2 spaces |
-| Go | Tabs displayed at width 4 |
-| Markdown | Wrap and linebreak enabled |
+| Filetype                         | Settings                   |
+| -------------------------------- | -------------------------- |
+| Python, Lua, Java                | 4 spaces                   |
+| JavaScript, TypeScript, JSX, TSX | 2 spaces                   |
+| Go                               | Tabs displayed at width 4  |
+| Markdown                         | Wrap and linebreak enabled |
 
 ## Configuration Layout
 
@@ -641,102 +641,102 @@ descriptions and icons.
 
 ### Core Navigation
 
-| Key | Mode | Action |
-| --- | --- | --- |
-| `Alt+h/j/k/l` | Normal/Terminal | Move between windows |
-| `Ctrl+Arrow` | Normal | Resize the current window |
-| `Space+j/k` | Normal/Visual | Move a line or selection |
-| `<` / `>` | Visual | Indent and retain the selection |
-| `Ctrl+d/u` | Normal | Half-page scroll and center |
-| `n` / `N` | Normal | Next/previous search result and center |
-| `Esc` | Normal | Clear search highlighting |
-| `Tab` / `Shift+Tab` | Normal | Next/previous buffer |
-| `Space+bc` | Normal | Close buffer while preserving layout |
-| `Space+bp` | Normal | Pin or unpin buffer |
-| `Space+be/bq` | Normal | Move buffer right/left |
+| Key                 | Mode            | Action                                 |
+| ------------------- | --------------- | -------------------------------------- |
+| `Alt+h/j/k/l`       | Normal/Terminal | Move between windows                   |
+| `Ctrl+Arrow`        | Normal          | Resize the current window              |
+| `Space+j/k`         | Normal/Visual   | Move a line or selection               |
+| `<` / `>`           | Visual          | Indent and retain the selection        |
+| `Ctrl+d/u`          | Normal          | Half-page scroll and center            |
+| `n` / `N`           | Normal          | Next/previous search result and center |
+| `Esc`               | Normal          | Clear search highlighting              |
+| `Tab` / `Shift+Tab` | Normal          | Next/previous buffer                   |
+| `Space+bc`          | Normal          | Close buffer while preserving layout   |
+| `Space+bp`          | Normal          | Pin or unpin buffer                    |
+| `Space+be/bq`       | Normal          | Move buffer right/left                 |
 
 ### Explorer and Dashboard
 
-| Key | Action |
-| --- | --- |
-| `Ctrl+n` | Reveal the current file in Neo-tree |
-| `Ctrl+t` | Toggle Neo-tree |
-| `Ctrl+f` | Focus Neo-tree |
-| `-` | Open the current file's parent directory in Oil |
-| `Space+fo` | Open Oil in a floating window |
-| `Space+sd` | Open the SUNGP dashboard |
+| Key        | Action                                          |
+| ---------- | ----------------------------------------------- |
+| `Ctrl+n`   | Reveal the current file in Neo-tree             |
+| `Ctrl+t`   | Toggle Neo-tree                                 |
+| `Ctrl+f`   | Focus Neo-tree                                  |
+| `-`        | Open the current file's parent directory in Oil |
+| `Space+fo` | Open Oil in a floating window                   |
+| `Space+sd` | Open the SUNGP dashboard                        |
 
 Dashboard keys:
 
-| Key | Action |
-| --- | --- |
-| `f` | Find file |
-| `g` | Live grep |
-| `b` | List buffers |
-| `e` | Open file explorer |
-| `s` | Git status |
-| `d` | Git diff |
-| `x` | Diagnostics |
-| `t` | Test summary |
+| Key | Action                           |
+| --- | -------------------------------- |
+| `f` | Find file                        |
+| `g` | Live grep                        |
+| `b` | List buffers                     |
+| `e` | Open file explorer               |
+| `s` | Git status                       |
+| `d` | Git diff                         |
+| `x` | Diagnostics                      |
+| `t` | Test summary                     |
 | `c` | Open the configuration directory |
-| `n` | Create a new file |
-| `q` | Quit Neovim |
+| `n` | Create a new file                |
+| `q` | Quit Neovim                      |
 
 ### Search
 
-| Key | Action |
-| --- | --- |
-| `Space+ff` | Find files with Telescope |
-| `Space+fg` | Live grep with Telescope |
-| `Space+fb` | Find buffers with Telescope |
-| `Space+fh` | Search help tags |
-| `Space+fe` | Telescope file browser |
-| `Space+fF` | Fast file search with FzfLua |
-| `Space+fG` | Fast live grep with FzfLua |
-| `Space+fB` | Fast buffer search with FzfLua |
+| Key        | Action                                   |
+| ---------- | ---------------------------------------- |
+| `Space+ff` | Find files with Telescope                |
+| `Space+fg` | Live grep with Telescope                 |
+| `Space+fb` | Find buffers with Telescope              |
+| `Space+fh` | Search help tags                         |
+| `Space+fe` | Telescope file browser                   |
+| `Space+fF` | Fast file search with FzfLua             |
+| `Space+fG` | Fast live grep with FzfLua               |
+| `Space+fB` | Fast buffer search with FzfLua           |
 | `Space+fr` | Project search and replace with Grug Far |
-| `Space+fy` | Open yank history |
+| `Space+fy` | Open yank history                        |
 
 Convention: lowercase `f` mappings use Telescope; uppercase variants use
 FzfLua.
 
 Inside FzfLua:
 
-| Key | Action |
-| --- | --- |
+| Key        | Action                 |
+| ---------- | ---------------------- |
 | `Ctrl+d/u` | Scroll preview down/up |
-| `Ctrl+q` | Select all and accept |
+| `Ctrl+q`   | Select all and accept  |
 
 ### Flash and Treesitter
 
-| Key | Mode | Action |
-| --- | --- | --- |
-| `s` | Normal/Visual/Operator | Flash jump |
-| `S` | Normal/Visual/Operator | Flash Treesitter |
-| `am` / `im` | Visual/Operator | Around/inside function |
-| `ac` / `ic` | Visual/Operator | Around/inside class |
-| `as` | Visual/Operator | Around scope |
-| `Space+a/A` | Normal | Swap next/previous parameter |
+| Key         | Mode                   | Action                       |
+| ----------- | ---------------------- | ---------------------------- |
+| `s`         | Normal/Visual/Operator | Flash jump                   |
+| `S`         | Normal/Visual/Operator | Flash Treesitter             |
+| `am` / `im` | Visual/Operator        | Around/inside function       |
+| `ac` / `ic` | Visual/Operator        | Around/inside class          |
+| `as`        | Visual/Operator        | Around scope                 |
+| `Space+a/A` | Normal                 | Swap next/previous parameter |
 | `]m` / `[m` | Normal/Visual/Operator | Next/previous function start |
-| `]M` / `[M` | Normal/Visual/Operator | Next/previous function end |
-| `]]` / `[[` | Normal/Visual/Operator | Next/previous class start |
-| `][` / `[]` | Normal/Visual/Operator | Next/previous class end |
-| `]o` | Normal/Visual/Operator | Next loop |
-| `]s` | Normal/Visual/Operator | Next scope |
-| `]z` | Normal/Visual/Operator | Next fold |
-| `]C` / `[C` | Normal/Visual/Operator | Next/previous conditional |
+| `]M` / `[M` | Normal/Visual/Operator | Next/previous function end   |
+| `]]` / `[[` | Normal/Visual/Operator | Next/previous class start    |
+| `][` / `[]` | Normal/Visual/Operator | Next/previous class end      |
+| `]o`        | Normal/Visual/Operator | Next loop                    |
+| `]s`        | Normal/Visual/Operator | Next scope                   |
+| `]z`        | Normal/Visual/Operator | Next fold                    |
+| `]C` / `[C` | Normal/Visual/Operator | Next/previous conditional    |
 
 ### Editing Helpers and Folds
 
-| Key | Mode | Action |
-| --- | --- | --- |
-| `Space+mh/j/k/l` | Normal/Visual | Move the current line or selection |
-| `gS` | Normal/Visual | Split or join arguments |
-| `y`, `p`, `P`, `gp`, `gP` | Normal/Visual | Yank and put through Yanky history |
-| `[y` / `]y` | Normal | Previous/next yank-ring entry after a put |
-| `zR` / `zM` | Normal | Open/close all folds |
-| `zr` / `zm` | Normal | Open/close one fold level |
-| `zK` | Normal | Preview folded lines, otherwise show LSP hover |
+| Key                       | Mode          | Action                                         |
+| ------------------------- | ------------- | ---------------------------------------------- |
+| `Space+mh/j/k/l`          | Normal/Visual | Move the current line or selection             |
+| `gS`                      | Normal/Visual | Split or join arguments                        |
+| `y`, `p`, `P`, `gp`, `gP` | Normal/Visual | Yank and put through Yanky history             |
+| `[y` / `]y`               | Normal        | Previous/next yank-ring entry after a put      |
+| `zR` / `zM`               | Normal        | Open/close all folds                           |
+| `zr` / `zm`               | Normal        | Open/close one fold level                      |
+| `zK`                      | Normal        | Preview folded lines, otherwise show LSP hover |
 
 Mini AI enhances built-in `a`/`i` textobjects. Mini Bracketed adds
 previous/next navigation for buffers, files, indentation, jumps, location
@@ -747,15 +747,15 @@ lists, old files, quickfix entries, windows, and Git conflict markers.
 CodeCompanion uses the existing GitHub Copilot login for chat and inline
 editing. It leaves model selection on Copilot's automatic default.
 
-| Key | Mode | Action |
-| --- | --- | --- |
-| `Space+ia` | Normal/Visual | Open AI actions |
-| `Space+ic` | Normal/Visual | Toggle the chat panel |
-| `Space+ii` | Normal/Visual | Enter an inline AI prompt |
-| `Space+id` | Visual | Add the selection to the current chat |
-| `Space+ie` | Visual | Explain the selection |
-| `Space+if` | Visual | Fix the selection |
-| `Space+it` | Visual | Generate tests for the selection |
+| Key        | Mode          | Action                                |
+| ---------- | ------------- | ------------------------------------- |
+| `Space+ia` | Normal/Visual | Open AI actions                       |
+| `Space+ic` | Normal/Visual | Toggle the chat panel                 |
+| `Space+ii` | Normal/Visual | Enter an inline AI prompt             |
+| `Space+id` | Visual        | Add the selection to the current chat |
+| `Space+ie` | Visual        | Explain the selection                 |
+| `Space+if` | Visual        | Fix the selection                     |
+| `Space+it` | Visual        | Generate tests for the selection      |
 
 In chat, use `#` to add editor context, `/` for workflows such as
 `/explain` and `/fix`, and `@` for tools. Press `Enter` or `Ctrl+s` in Normal
@@ -765,41 +765,41 @@ mode to send the prompt.
 
 LSP mappings are buffer-local and exist only after a language server attaches:
 
-| Key | Action |
-| --- | --- |
-| `gd` | Definitions through Telescope |
-| `gy` | Type definitions through Telescope |
-| `gi` | Implementations through Telescope |
-| `gr` | References through FzfLua |
-| `gO` | Document symbols through FzfLua |
-| `Space+cS` | Workspace symbols |
-| `K` / `Space+e` | Hover documentation |
-| `Space+ca` | Code action |
-| `Space+rn` | Rename symbol |
-| `Space+cd` | Line diagnostics |
-| `]d` / `[d` | Next/previous diagnostic |
-| `Space+ci` | Toggle inlay hints when supported |
-| `Space+cf` | Format buffer or selection |
-| `Space+cL` | Run lint |
-| `Space+cm` | Open Mason |
-| `Space+cs` | Trouble document symbols |
-| `Space+cl` | Trouble LSP list |
+| Key             | Action                             |
+| --------------- | ---------------------------------- |
+| `gd`            | Definitions through Telescope      |
+| `gy`            | Type definitions through Telescope |
+| `gi`            | Implementations through Telescope  |
+| `gr`            | References through FzfLua          |
+| `gO`            | Document symbols through FzfLua    |
+| `Space+cS`      | Workspace symbols                  |
+| `K` / `Space+e` | Hover documentation                |
+| `Space+ca`      | Code action                        |
+| `Space+rn`      | Rename symbol                      |
+| `Space+cd`      | Line diagnostics                   |
+| `]d` / `[d`     | Next/previous diagnostic           |
+| `Space+ci`      | Toggle inlay hints when supported  |
+| `Space+cf`      | Format buffer or selection         |
+| `Space+cL`      | Run lint                           |
+| `Space+cm`      | Open Mason                         |
+| `Space+cs`      | Trouble document symbols           |
+| `Space+cl`      | Trouble LSP list                   |
 
 Diagnostics do not update while Insert mode is active, which keeps typing
 stable and reduces unnecessary redraws.
 
 ### Insert Completion
 
-| Key | Action |
-| --- | --- |
-| `Ctrl+Space` | Show completion or documentation |
-| `Ctrl+e` | Hide completion |
-| `Ctrl+n/p` | Select next/previous item |
-| `Ctrl+j/k` | Select item or jump through snippets |
-| `Tab` / `Shift+Tab` | Completion or snippet next/previous |
-| `Enter` | Accept completion |
-| `Ctrl+b/f` | Scroll documentation |
-| `Ctrl+l` | Toggle signature help |
+| Key                 | Action                               |
+| ------------------- | ------------------------------------ |
+| `Ctrl+Space`        | Show completion or documentation     |
+| `Ctrl+e`            | Hide completion                      |
+| `Ctrl+n/p`          | Select next/previous item            |
+| `Ctrl+j/k`          | Select item or jump through snippets |
+| `Tab` / `Shift+Tab` | Completion or snippet next/previous  |
+| `Enter`             | Accept completion                    |
+| `Ctrl+b/f`          | Scroll documentation                 |
+| `Ctrl+l`            | Toggle signature help                |
 
 ### Command-Line Completion
 
@@ -807,40 +807,40 @@ Typing `:` automatically opens Blink command suggestions. `/` and `?` search
 do not open the menu automatically, but completion can still be requested
 manually.
 
-| Key | Action |
-| --- | --- |
-| `Tab` | Show the menu or select the next item |
-| `Shift+Tab` | Select the previous item |
-| `Ctrl+Space` | Show completion manually |
-| `Ctrl+n/p` | Select next/previous item |
-| `Ctrl+y` | Accept the selected item |
-| `Ctrl+e` | Cancel completion |
+| Key          | Action                                |
+| ------------ | ------------------------------------- |
+| `Tab`        | Show the menu or select the next item |
+| `Shift+Tab`  | Select the previous item              |
+| `Ctrl+Space` | Show completion manually              |
+| `Ctrl+n/p`   | Select next/previous item             |
+| `Ctrl+y`     | Accept the selected item              |
+| `Ctrl+e`     | Cancel completion                     |
 
 ### Formatting and Linting
 
-| Command or key | Action |
-| --- | --- |
-| `Space+cf` | Format now |
-| `Space+cL` | Lint now |
-| `:FormatDisable` | Disable format-on-save globally |
+| Command or key    | Action                                        |
+| ----------------- | --------------------------------------------- |
+| `Space+cf`        | Format now                                    |
+| `Space+cL`        | Lint now                                      |
+| `:FormatDisable`  | Disable format-on-save globally               |
 | `:FormatDisable!` | Disable format-on-save for the current buffer |
-| `:FormatEnable` | Re-enable format-on-save |
-| `:ConformInfo` | Show active formatter information |
+| `:FormatEnable`   | Re-enable format-on-save                      |
+| `:ConformInfo`    | Show active formatter information             |
 
 ### Todo and Trouble
 
-| Key | Action |
-| --- | --- |
-| `Space+xx` | Workspace diagnostics |
-| `Space+xX` | Current buffer diagnostics |
-| `Space+xL` | Location list |
-| `Space+xQ` | Quickfix list |
-| `]t` / `[t` | Next/previous Todo |
-| `Space+xt` | All Todos in Trouble |
-| `Space+xT` | All Todos in Telescope |
-| `Space+xf` | All Todos in FzfLua |
-| `Space+xF` | TODO/FIX/FIXME only in FzfLua |
-| `Space+xR` | TODO/FIX/FIXME only in Trouble |
+| Key           | Action                          |
+| ------------- | ------------------------------- |
+| `Space+xx`    | Workspace diagnostics           |
+| `Space+xX`    | Current buffer diagnostics      |
+| `Space+xL`    | Location list                   |
+| `Space+xQ`    | Quickfix list                   |
+| `]t` / `[t`   | Next/previous Todo              |
+| `Space+xt`    | All Todos in Trouble            |
+| `Space+xT`    | All Todos in Telescope          |
+| `Space+xf`    | All Todos in FzfLua             |
+| `Space+xF`    | TODO/FIX/FIXME only in FzfLua   |
+| `Space+xR`    | TODO/FIX/FIXME only in Trouble  |
 | `Space+xq/xl` | Todos in quickfix/location list |
 
 Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
@@ -848,116 +848,116 @@ Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 
 ### Git
 
-| Key | Action |
-| --- | --- |
-| `Space+gs` | Git status |
-| `Space+gc` | Git commit |
-| `Space+gp` | Git push |
-| `Space+gl` | Git pull |
-| `Space+gd` | Open Diffview |
-| `Space+gD` | Close Diffview |
-| `Space+gh` | File history |
-| `]c` / `[c` | Next/previous hunk |
-| `Space+hs/hr` | Stage/reset hunk |
-| `Space+hS/hR` | Stage/reset buffer |
-| `Space+hp/hi` | Preview hunk in popup/inline |
-| `Space+hb` | Blame current line |
-| `Space+hd/hD` | Diff against index/previous commit |
-| `Space+hq/hQ` | Buffer/all hunks to quickfix |
+| Key                 | Action                                       |
+| ------------------- | -------------------------------------------- |
+| `Space+gs`          | Git status                                   |
+| `Space+gc`          | Git commit                                   |
+| `Space+gp`          | Git push                                     |
+| `Space+gl`          | Git pull                                     |
+| `Space+gd`          | Open Diffview                                |
+| `Space+gD`          | Close Diffview                               |
+| `Space+gh`          | File history                                 |
+| `]c` / `[c`         | Next/previous hunk                           |
+| `Space+hs/hr`       | Stage/reset hunk                             |
+| `Space+hS/hR`       | Stage/reset buffer                           |
+| `Space+hp/hi`       | Preview hunk in popup/inline                 |
+| `Space+hb`          | Blame current line                           |
+| `Space+hd/hD`       | Diff against index/previous commit           |
+| `Space+hq/hQ`       | Buffer/all hunks to quickfix                 |
 | `Space+tb/tw/tl/tn` | Toggle blame/word diff/line/number highlight |
-| `ih` | Select hunk in Visual/Operator mode |
+| `ih`                | Select hunk in Visual/Operator mode          |
 
 ### Debugging
 
-| Key | Action |
-| --- | --- |
-| `F5` | Continue or start |
-| `F10` | Step over |
-| `F11` | Step into |
-| `F12` | Step out |
-| `Space+db` | Toggle breakpoint |
-| `Space+dB` | Set conditional breakpoint |
-| `Space+dr` | Open debug REPL |
+| Key        | Action                               |
+| ---------- | ------------------------------------ |
+| `F5`       | Continue or start                    |
+| `F10`      | Step over                            |
+| `F11`      | Step into                            |
+| `F12`      | Step out                             |
+| `Space+db` | Toggle breakpoint                    |
+| `Space+dB` | Set conditional breakpoint           |
+| `Space+dr` | Open debug REPL                      |
 | `Space+dl` | Run the previous debug configuration |
-| `Space+du` | Toggle DAP UI |
+| `Space+du` | Toggle DAP UI                        |
 
 ### Testing
 
-| Key | Action |
-| --- | --- |
-| `Space+nt` | Run nearest test |
+| Key        | Action                        |
+| ---------- | ----------------------------- |
+| `Space+nt` | Run nearest test              |
 | `Space+nf` | Run tests in the current file |
-| `Space+nT` | Run the complete test suite |
-| `Space+ns` | Toggle test summary |
-| `Space+no` | Open test output |
-| `Space+nO` | Toggle output panel |
-| `Space+nw` | Toggle watch mode |
+| `Space+nT` | Run the complete test suite   |
+| `Space+ns` | Toggle test summary           |
+| `Space+no` | Open test output              |
+| `Space+nO` | Toggle output panel           |
+| `Space+nw` | Toggle watch mode             |
 
 ### Python Keymaps
 
-| Key | Action |
-| --- | --- |
+| Key        | Action                                   |
+| ---------- | ---------------------------------------- |
 | `Space+pv` | Select a virtual environment with FzfLua |
-| `Space+py` | Open a Python REPL terminal |
+| `Space+py` | Open a Python REPL terminal              |
 
 ### Go Keymaps
 
-| Key | Action |
-| --- | --- |
-| `Space+Gi` | Insert `if err != nil` |
-| `Space+Gt` | Add JSON struct tags |
-| `Space+GT` | Remove struct tags |
-| `Space+Gc` | Generate a symbol comment |
-| `Space+Gf` | Generate a function test |
+| Key        | Action                              |
+| ---------- | ----------------------------------- |
+| `Space+Gi` | Insert `if err != nil`              |
+| `Space+Gt` | Add JSON struct tags                |
+| `Space+GT` | Remove struct tags                  |
+| `Space+Gc` | Generate a symbol comment           |
+| `Space+Gf` | Generate a function test            |
 | `Space+GF` | Generate tests for the current file |
 
 ### JavaScript/TypeScript Keymaps
 
-| Key | Action |
-| --- | --- |
-| `Space+Ti` | Organize imports |
-| `Space+Ta` | Add missing imports |
+| Key        | Action                         |
+| ---------- | ------------------------------ |
+| `Space+Ti` | Organize imports               |
+| `Space+Ta` | Add missing imports            |
 | `Space+Tu` | Remove unused code and imports |
-| `Space+Tf` | Apply all available fixes |
+| `Space+Tf` | Apply all available fixes      |
 | `Space+Tr` | Rename file and update imports |
 
 ### Java Keymaps
 
-| Key | Mode | Action |
-| --- | --- | --- |
-| `Space+Jo` | Normal | Organize imports |
-| `Space+Jv` | Normal/Visual | Extract variable |
-| `Space+Jc` | Normal/Visual | Extract constant |
-| `Space+Jm` | Visual | Extract method |
-| `Space+Jt` | Normal | Run nearest test |
-| `Space+JT` | Normal | Run all tests in the file |
-| `Space+Ju` | Normal | Refresh Maven/Gradle project configuration |
+| Key        | Mode          | Action                                     |
+| ---------- | ------------- | ------------------------------------------ |
+| `Space+Jo` | Normal        | Organize imports                           |
+| `Space+Jv` | Normal/Visual | Extract variable                           |
+| `Space+Jc` | Normal/Visual | Extract constant                           |
+| `Space+Jm` | Visual        | Extract method                             |
+| `Space+Jt` | Normal        | Run nearest test                           |
+| `Space+JT` | Normal        | Run all tests in the file                  |
+| `Space+Ju` | Normal        | Refresh Maven/Gradle project configuration |
 
 ### Terminal
 
-| Key | Mode | Action |
-| --- | --- | --- |
-| `Ctrl+\` | Normal/Terminal | Toggle terminal |
-| `Space+th` | Normal | Horizontal terminal |
-| `Space+tv` | Normal | Vertical terminal |
-| `Space+tf` | Normal | Floating terminal |
-| `Space+py` | Normal | Python REPL |
-| `Space+gg` | Normal | Lazygit, when installed |
-| `Space+ld` | Normal | Lazydocker, when installed |
-| `Space+s` | Visual | Send selection to terminal |
-| `Esc` or `jk` | Terminal | Return to Normal mode |
-| `Ctrl+h/j/k/l` | Terminal | Move between windows |
+| Key            | Mode            | Action                     |
+| -------------- | --------------- | -------------------------- |
+| `Ctrl+\`       | Normal/Terminal | Toggle terminal            |
+| `Space+th`     | Normal          | Horizontal terminal        |
+| `Space+tv`     | Normal          | Vertical terminal          |
+| `Space+tf`     | Normal          | Floating terminal          |
+| `Space+py`     | Normal          | Python REPL                |
+| `Space+gg`     | Normal          | Lazygit, when installed    |
+| `Space+ld`     | Normal          | Lazydocker, when installed |
+| `Space+s`      | Visual          | Send selection to terminal |
+| `Esc` or `jk`  | Terminal        | Return to Normal mode      |
+| `Ctrl+h/j/k/l` | Terminal        | Move between windows       |
 
 ### Tasks and Sessions
 
-| Key | Action |
-| --- | --- |
-| `Space+or` | Pick and run an Overseer task |
-| `Space+ot` | Toggle the Overseer task list |
+| Key        | Action                                                       |
+| ---------- | ------------------------------------------------------------ |
+| `Space+or` | Pick and run an Overseer task                                |
+| `Space+ot` | Toggle the Overseer task list                                |
 | `Space+qs` | Restore the session for the current directory and Git branch |
-| `Space+qS` | Select a saved session |
-| `Space+ql` | Restore the last session |
-| `Space+qd` | Stop saving the current session |
+| `Space+qS` | Select a saved session                                       |
+| `Space+ql` | Restore the last session                                     |
+| `Space+qd` | Stop saving the current session                              |
 
 Git terminal commands:
 
@@ -971,22 +971,22 @@ remote impact are understood.
 
 ### Comments, Surround, and Multiple Cursors
 
-| Key | Action |
-| --- | --- |
-| `gcc` | Toggle line comment |
-| `gc{motion}` | Comment by motion |
-| `gc` | Comment Visual selection |
-| `ys{motion}{char}` | Add surround |
-| `ds{char}` | Delete surround |
-| `cs{old}{new}` | Change surround |
-| `S{char}` | Surround Visual selection |
-| `Alt+n` | Start/select next word occurrence |
-| `Alt+a` | Select all matching words |
-| `g Alt+n` | Start without word boundaries |
-| `g Alt+a` | Select all without word boundaries |
-| `Alt+p` | Previous multiple-cursor occurrence |
-| `Alt+x` | Skip current occurrence |
-| `Esc` | Exit multiple cursors |
+| Key                | Action                              |
+| ------------------ | ----------------------------------- |
+| `gcc`              | Toggle line comment                 |
+| `gc{motion}`       | Comment by motion                   |
+| `gc`               | Comment Visual selection            |
+| `ys{motion}{char}` | Add surround                        |
+| `ds{char}`         | Delete surround                     |
+| `cs{old}{new}`     | Change surround                     |
+| `S{char}`          | Surround Visual selection           |
+| `Alt+n`            | Start/select next word occurrence   |
+| `Alt+a`            | Select all matching words           |
+| `g Alt+n`          | Start without word boundaries       |
+| `g Alt+a`          | Select all without word boundaries  |
+| `Alt+p`            | Previous multiple-cursor occurrence |
+| `Alt+x`            | Skip current occurrence             |
+| `Esc`              | Exit multiple cursors               |
 
 `Ctrl+n` is reserved for Neo-tree, so multiple cursors use custom mappings
 instead of the plugin defaults.
