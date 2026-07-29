@@ -125,7 +125,7 @@ irm get.scoop.sh | iex
 scoop bucket add java
 scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
 scoop install java/temurin21-jdk
-npm install --global tree-sitter-cli
+npm install --global tree-sitter-cli@0.26.11
 ```
 
 PowerShell 7 is recommended:
@@ -173,6 +173,19 @@ uv pip install --python "$provider\Scripts\python.exe" pynvim
 volta install node yarn
 npm install --global neovim @mermaid-js/mermaid-cli
 ```
+
+Verify both providers after installation:
+
+```powershell
+nvim --headless -i NONE `
+  +'lua print("Python provider: " .. (vim.g.python3_host_prog or "missing"))' `
+  +'lua print("Node provider: " .. (vim.g.node_host_prog or "missing"))' +qa
+& "$env:LOCALAPPDATA\nvim-data\python-provider\Scripts\python.exe" -c "import pynvim; print(pynvim.__version__)"
+neovim-node-host --version
+```
+
+The Python path should point to `nvim-data\python-provider`, and both provider
+commands should run successfully.
 
 For Snacks image, PDF, math, and Mermaid previews:
 
@@ -329,6 +342,14 @@ On Windows, check dependencies before opening Neovim:
 If `tree-sitter` is missing, open a new PowerShell after installing it with npm
 so the updated PATH is inherited. Inside Neovim, verify it with
 `:echo executable('tree-sitter')`.
+
+This repository uses the `main` branch of `nvim-treesitter`, so it requires the
+`0.26.x` Tree-sitter CLI line. The documented version is `0.26.11`, which meets
+the `0.26.1` minimum reported by `:checkhealth nvim-treesitter`.
+
+On Windows with Volta, the configuration automatically prefers the real
+Tree-sitter binary over Volta's `Volta\\bin\\tree-sitter.cmd` shim. The shim can
+fail when a parser is built inside a temporary grammar directory.
 language-specific plugins start only when a matching buffer is opened.
 
 ## Managed Dependencies
@@ -518,9 +539,8 @@ nvim/
 
 Responsibilities:
 
-- `init.lua`: primary entrypoint.
-- `init.vim`: compatibility shim for environments where `VIMINIT` still
-  points to `init.vim`.
+- `init.lua`: the only configuration entrypoint. Do not add `init.vim`; Neovim
+  reports `E5422: Conflicting configs` when both files exist.
 - `lua/config/`: global options, keymaps, autocmds, and lazy bootstrap.
 - `lua/plugins/`: plugin specifications, dependencies, and lazy-load rules.
 - `lua/integrations/`: plugin setup and cross-plugin integration.

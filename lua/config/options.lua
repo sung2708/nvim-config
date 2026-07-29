@@ -21,6 +21,14 @@ if vim.fn.has("win32") == 1 then
     prepend_path(scoop_home .. "/apps/maven/current/bin")
     prepend_path(scoop_home .. "/apps/imagemagick/current")
 
+    -- Volta exposes tree-sitter through a shim that fails when nvim-treesitter
+    -- runs it from a downloaded grammar project. Prefer the real executable.
+    local volta_tree_sitter = vim.env.LOCALAPPDATA
+        and vim.env.LOCALAPPDATA .. "/Volta/tools/image/packages/tree-sitter-cli"
+    if volta_tree_sitter and vim.fn.isdirectory(volta_tree_sitter) == 1 then
+        prepend_path(volta_tree_sitter)
+    end
+
     local python_provider = vim.fn.stdpath("data") .. "/python-provider/Scripts/python.exe"
     if vim.fn.filereadable(python_provider) == 1 then
         vim.g.python3_host_prog = python_provider

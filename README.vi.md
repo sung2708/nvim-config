@@ -108,7 +108,7 @@ irm get.scoop.sh | iex
 scoop bucket add java
 scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
 scoop install java/temurin21-jdk
-npm install --global tree-sitter-cli
+npm install --global tree-sitter-cli@0.26.11
 ```
 
 Khuyến nghị cài PowerShell 7:
@@ -156,6 +156,19 @@ uv pip install --python "$provider\Scripts\python.exe" pynvim
 volta install node yarn
 npm install --global neovim @mermaid-js/mermaid-cli
 ```
+
+Kiểm tra hai provider sau khi cài:
+
+```powershell
+nvim --headless -i NONE `
+  +'lua print("Python provider: " .. (vim.g.python3_host_prog or "missing"))' `
+  +'lua print("Node provider: " .. (vim.g.node_host_prog or "missing"))' +qa
+& "$env:LOCALAPPDATA\nvim-data\python-provider\Scripts\python.exe" -c "import pynvim; print(pynvim.__version__)"
+neovim-node-host --version
+```
+
+Kết quả cần có đường dẫn Python tới `nvim-data\python-provider` và cả hai
+lệnh provider chạy được.
 
 Để Snacks xem ảnh, PDF, công thức và Mermaid:
 
@@ -308,6 +321,14 @@ Trên Windows, kiểm tra dependency trước khi mở Neovim:
 Nếu `tree-sitter` không được tìm thấy, mở PowerShell mới sau khi cài bằng npm
 để PATH được cập nhật. Trong Neovim, kiểm tra bằng
 `:echo executable('tree-sitter')`.
+
+Repo dùng `nvim-treesitter` nhánh `main`, nên cần Tree-sitter CLI từ dòng
+`0.26.x`. Hiện dùng `0.26.11`, đáp ứng yêu cầu tối thiểu `0.26.1` của
+`:checkhealth nvim-treesitter`.
+
+Trên Windows dùng Volta, cấu hình tự ưu tiên binary thật của Tree-sitter thay
+vì shim `Volta\\bin\\tree-sitter.cmd`, vì shim này có thể lỗi khi parser được
+build trong thư mục grammar tạm.
 
 ## Phụ Thuộc Được Quản Lý
 
@@ -589,8 +610,9 @@ Linux/macOS:
 printf '%s\n' "$VIMINIT"
 ```
 
-Nếu biến này trỏ tới cấu hình cũ, hãy xóa nó khỏi shell profile. File
-`init.vim` trong repo chỉ là shim tương thích để load `init.lua`.
+Nếu biến này trỏ tới cấu hình cũ, hãy xóa nó khỏi shell profile rồi mở lại
+Neovim. Repo này chỉ dùng `init.lua`; không tạo thêm `init.vim`, vì Neovim mới
+sẽ báo `E5422: Conflicting configs` khi cả hai file cùng tồn tại.
 
 ### `module 'helper.utils' not found`
 
