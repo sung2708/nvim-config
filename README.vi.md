@@ -45,7 +45,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Tìm kiếm       | Telescope, telescope-fzf-native, FzfLua, Grug Far              |
 | Điều hướng     | Flash, Neo-tree, Oil, Bufferline, Treesitter, Mini textobjects |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history            |
-| AI             | CodeCompanion và GitHub Copilot                                |
+| AI             | Avante agentic chat qua Codex ACP                              |
 | Diagnostics    | Trouble, Todo Comments, Lualine                                |
 | Git            | Gitsigns, Fugitive, Diffview                                   |
 | Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
@@ -291,7 +291,7 @@ Chạy các lệnh này trong Neovim:
 :Lazy load nvim-dap
 :Lazy load neotest
 :NeotestJava setup
-:checkhealth
+:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
 ```
 
 Ý nghĩa:
@@ -301,7 +301,9 @@ Chạy các lệnh này trong Neovim:
 3. `TSUpdate` cài hoặc cập nhật Treesitter parser.
 4. Load `nvim-dap` để Mason cài debugpy, Delve và codelldb.
 5. `NeotestJava setup` tải JUnit Console cần cho test Java.
-6. `checkhealth` kiểm tra provider, executable và plugin integration.
+6. Lệnh `checkhealth` theo từng mục kiểm tra đúng các tích hợp cấu hình đang
+   dùng, không chạy health-check của module Snacks đã tắt hoặc trình quản lý
+   `vim.pack` không được sử dụng.
 
 Có thể bootstrap plugin không cần mở UI:
 
@@ -311,6 +313,27 @@ nvim --headless "+Lazy! sync" +qa
 
 Sau khi cài, mở thử một file cho từng ngôn ngữ bạn dùng. LSP server và plugin
 theo ngôn ngữ chỉ khởi động khi mở buffer phù hợp.
+
+### Kiểm Tra Cuối
+
+Sau khi khởi động lại Neovim, chạy:
+
+```vim
+:messages
+:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+```
+
+`:messages` không nên chứa lỗi startup. Báo cáo health theo từng mục không nên
+có lỗi; cảnh báo có bản Neovim mới hơn chỉ mang tính thông tin. Với Codex ACP,
+chạy thêm trong terminal:
+
+```powershell
+codex login status
+codex doctor --summary
+```
+
+`codex doctor` cần báo authentication đã cấu hình và database khỏe. Nếu báo
+lỗi đăng nhập, chạy lại `codex login` trước khi mở Avante.
 
 Trên Windows, kiểm tra dependency trước khi mở Neovim:
 
@@ -344,7 +367,7 @@ Các file plugin được nhóm theo trách nhiệm:
 | ---------------------------- | --------------------------------------------- |
 | `lua/plugins/lsp.lua`        | LSP, Mason, format và lint                    |
 | `lua/plugins/completion.lua` | Completion, snippet và signature              |
-| `lua/plugins/ai.lua`         | CodeCompanion và Copilot                      |
+| `lua/plugins/ai.lua`         | Avante agentic chat qua Codex ACP             |
 | `lua/plugins/treesitter.lua` | Parser và textobject                          |
 | `lua/plugins/search.lua`     | Telescope, FzfLua và Grug Far                 |
 | `lua/plugins/ui.lua`         | Dashboard, statusline, notification, WhichKey |
@@ -477,7 +500,6 @@ Cấu hình chạy JDTLS với JDK 21. Project nên có ít nhất một root ma
 | Đường dẫn           | Nội dung                               |
 | ------------------- | -------------------------------------- |
 | `init.lua`          | Điểm vào chính                         |
-| `init.vim`          | Shim tương thích gọi `init.lua`        |
 | `lua/config/`       | Bootstrap, option, keymap và lazy.nvim |
 | `lua/plugins/`      | Khai báo plugin theo nhóm              |
 | `lua/integrations/` | Cấu hình chi tiết cho plugin           |
@@ -561,11 +583,49 @@ Diagnostics không cập nhật khi đang Insert mode để việc gõ ổn đ�
 | `Space+tt` | Mở terminal         |
 | `Space+xx` | Trouble diagnostics |
 
+### Trợ Lý AI
+
+Avante dùng Codex qua ACP. Trên mỗi máy chỉ cần chạy `codex login` một lần và
+hoàn tất yêu cầu đăng nhập ACP nếu Avante hiển thị.
+
+| Phím       | Chế độ        | Hành động                       |
+| ---------- | ------------- | ------------------------------- |
+| `Space+ai` | Normal/Visual | Hỏi Avante                      |
+| `Space+an` | Normal/Visual | Tạo cuộc trò chuyện mới         |
+| `Space+at` | Normal        | Bật/tắt sidebar                 |
+| `Space+af` | Normal        | Focus sidebar                   |
+| `Space+ae` | Visual        | Chỉnh sửa vùng đang chọn        |
+| `Space+ah` | Normal        | Mở lịch sử trò chuyện           |
+| `Space+aM` | Normal        | Chọn model của Codex ACP        |
+| `Space+aE` | Normal        | Chọn mức reasoning effort       |
+| `Space+am` | Normal        | Chọn chế độ quyền/sandbox Codex |
+| `Space+a?` | Normal        | Chọn model/provider của Avante  |
+| `Space+aS` | Normal        | Dừng yêu cầu hiện tại           |
+
+Ba bộ chọn ACP sẽ tự khởi tạo sidebar để tạo phiên Codex, sau đó đóng lại trước
+khi hiện danh sách nếu sidebar đang đóng. Lần đầu có thể thấy sidebar lóe lên
+trong vài giây; không cần chạy `:AvanteAsk` trước.
+
+Tài khoản và cấu hình Codex vẫn nằm trong `~/.codex` mặc định của từng hệ điều
+hành. Avante chỉ đặt SQLite runtime vào thư mục local đã được bỏ qua bởi Git:
+`.nvim-data/codex-sqlite`. Cách này tránh xung đột với Codex Desktop mà không
+sao chép token và không gắn cứng đường dẫn của một người dùng cụ thể.
+
 ## Tính Năng Tùy Chọn
 
-GitHub Copilot và CodeCompanion chỉ hoạt động khi bạn đã đăng nhập và cấu hình
-đúng. Lazygit, Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng
-workflow tương ứng.
+Để dùng Avante, cài Codex CLI và `codex-acp`, bảo đảm hai lệnh có trong `PATH`,
+sau đó chạy:
+
+```powershell
+codex login
+codex login status
+```
+
+Mở Neovim và dùng `Space+ai`. Nếu Avante yêu cầu đăng nhập provider ACP, hoàn
+tất yêu cầu đó một lần. Không cần đặt biến môi trường `CODEX_HOME`.
+
+Lazygit, Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow
+tương ứng.
 
 ## Hiệu Năng
 
@@ -594,6 +654,61 @@ parser bị lỗi.
 
 ## Xử Lý Lỗi
 
+### `:checkhealth` Chung Báo Lỗi Snacks Hoặc `vim.pack`
+
+Cấu hình chỉ dùng một số module Snacks và dùng lazy.nvim; không dùng Snacks
+image, Snacks picker/notifier hoặc trình quản lý `vim.pack` tích hợp của
+Neovim. `:checkhealth` không có tham số vẫn kiểm tra cả các thành phần đã tắt.
+Trong terminal headless, nó có thể báo thiếu Kitty graphics, dashboard chưa
+chạy, picker/notifier bị tắt hoặc thiếu `nvim-pack-lock.json`. Đây không phải
+lỗi khởi động của cấu hình.
+
+Hãy dùng lệnh kiểm tra đúng phạm vi:
+
+```vim
+:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+```
+
+Node, Perl và Ruby remote provider được tắt có chủ đích vì không plugin nào
+trong cấu hình sử dụng chúng. Việc này không tắt language server/formatter dùng
+Node, Treesitter CLI hoặc plugin Lua thông thường.
+
+### Lệnh Headless Báo Lỗi PSReadLine Prediction
+
+Thông báo này đến từ PowerShell profile, không phải Neovim. Chỉ bật prediction
+trong terminal tương tác:
+
+```powershell
+if ($Host.UI.SupportsVirtualTerminal -and -not [Console]::IsOutputRedirected) {
+    Set-PSReadLineOption -PredictionSource History
+}
+```
+
+Đặt điều kiện này trong `Microsoft.PowerShell_profile.ps1`, rồi mở lại
+terminal. Các lệnh redirect như health-check headless sẽ không còn in lỗi
+PSReadLine không liên quan.
+
+### Codex ACP Báo Lỗi Quyền SQLite Hoặc `arg0`
+
+Không đặt `CODEX_HOME` trong cấu hình Neovim. Đăng nhập bằng Codex home mặc
+định:
+
+```powershell
+codex login
+codex doctor --summary
+```
+
+Avante vẫn dùng tài khoản/cấu hình trong `~/.codex` mặc định của hệ điều hành,
+nhưng tách SQLite runtime vào `.nvim-data/codex-sqlite`. Cách này tránh Codex
+Desktop và `codex-acp` tranh chấp cùng database. Sau khi đổi đăng nhập, đóng
+Neovim/ACP cũ rồi mở lại Neovim.
+
+### Markdown Để Lại `E31: No such mapping`
+
+Cập nhật cấu hình này rồi khởi động lại Neovim. Neovim 0.12 đã cung cấp mapping
+Lua cho heading Markdown, nên cấu hình tắt bộ mapping Vimscript cũ bị trùng.
+`[[` và `]]` vẫn hoạt động để đi tới heading trước/sau.
+
 ### Neovim Chỉ Hoạt Động Sau Khi Chạy `:source %`
 
 Kiểm tra biến môi trường `VIMINIT`.
@@ -611,8 +726,9 @@ printf '%s\n' "$VIMINIT"
 ```
 
 Nếu biến này trỏ tới cấu hình cũ, hãy xóa nó khỏi shell profile rồi mở lại
-Neovim. Repo này chỉ dùng `init.lua`; không tạo thêm `init.vim`, vì Neovim mới
-sẽ báo `E5422: Conflicting configs` khi cả hai file cùng tồn tại.
+Neovim. Repo này chỉ dùng `init.lua`; không cần và không nên tạo thêm
+`init.vim`, vì Neovim mới sẽ báo `E5422: Conflicting configs` khi cả hai file
+cùng tồn tại.
 
 ### `module 'helper.utils' not found`
 
@@ -784,7 +900,8 @@ Bật/tắt tạm thời:
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Mason](https://github.com/mason-org/mason.nvim)
 - [Blink completion](https://github.com/Saghen/blink.cmp)
-- [CodeCompanion](https://github.com/olimorris/codecompanion.nvim)
+- [Avante](https://github.com/yetone/avante.nvim)
+- [codex-acp](https://github.com/zed-industries/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)

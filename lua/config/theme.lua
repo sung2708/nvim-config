@@ -38,6 +38,10 @@ function M.apply_ui_highlights()
         NeoTreeDirectoryIcon = "Directory",
         NeoTreeFloatBorder = "FloatBorder",
         NeoTreeFloatTitle = "FloatTitle",
+        AvanteConflictCurrent = "DiffText",
+        AvanteConflictCurrentLabel = "DiffText",
+        AvanteConflictIncoming = "DiffAdd",
+        AvanteConflictIncomingLabel = "DiffAdd",
     }
 
     for group, link in pairs(links) do

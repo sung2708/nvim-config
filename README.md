@@ -46,7 +46,7 @@ The configuration is designed around five goals:
 | Search         | Telescope, telescope-fzf-native, FzfLua, Grug Far                 |
 | Navigation     | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history               |
-| AI             | CodeCompanion chat and inline actions through GitHub Copilot      |
+| AI             | Avante agentic chat through Codex ACP                             |
 | Diagnostics    | Trouble, Todo Comments, Lualine                                   |
 | Git            | Gitsigns, Fugitive, Diffview                                      |
 | Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
@@ -107,7 +107,7 @@ test Go code.
 | Gradle                       | Java projects without `gradlew`           |
 | Lazygit                      | `Space+gg`                                |
 | Lazydocker and Docker        | `Space+ld`                                |
-| GitHub Copilot               | Insert suggestions and CodeCompanion chat |
+| Codex CLI and `codex-acp`    | Avante agentic chat                       |
 | xclip, xsel, or wl-clipboard | System clipboard integration on Linux     |
 
 ## Install System Tools
@@ -311,7 +311,7 @@ Run these commands inside Neovim:
 :Lazy load nvim-dap
 :Lazy load neotest
 :NeotestJava setup
-:checkhealth
+:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
 ```
 
 What each command does:
@@ -322,7 +322,9 @@ What each command does:
 3. `TSUpdate` installs or updates Treesitter parsers.
 4. Loading `nvim-dap` allows Mason to install debugpy, Delve, and codelldb.
 5. `NeotestJava setup` downloads the JUnit Console required by Java tests.
-6. `checkhealth` validates providers, executables, and plugin integrations.
+6. The targeted `checkhealth` command validates the integrations used by this
+   configuration without running health checks for disabled Snacks modules or
+   Neovim's unused built-in `vim.pack` manager.
 
 Plugins can also be bootstrapped without opening the UI:
 
@@ -332,6 +334,28 @@ nvim --headless "+Lazy! sync" +qa
 
 After installation, open one file for each language you use. LSP servers and
 language-specific plugins start only when a matching buffer is opened.
+
+### Final Validation
+
+After restarting Neovim, run:
+
+```vim
+:messages
+:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+```
+
+`:messages` should not contain startup errors. The targeted health report
+should show no errors; warnings about a newer Neovim release are informational.
+For Codex ACP, also run this in a terminal:
+
+```powershell
+codex login status
+codex doctor --summary
+```
+
+`codex doctor` should report configured authentication and healthy databases.
+If it reports an authentication problem, run `codex login` again before
+opening Avante.
 
 On Windows, check dependencies before opening Neovim:
 
@@ -366,7 +390,7 @@ Plugin specifications are grouped by responsibility:
 | ---------------------------- | ------------------------------------------------ |
 | `lua/plugins/lsp.lua`        | LSP, Mason, formatting, and linting              |
 | `lua/plugins/completion.lua` | Completion, snippets, and signatures             |
-| `lua/plugins/ai.lua`         | CodeCompanion chat and inline AI through Copilot |
+| `lua/plugins/ai.lua`         | Avante agentic chat through Codex ACP            |
 | `lua/plugins/treesitter.lua` | Parsers and textobjects                          |
 | `lua/plugins/search.lua`     | Telescope, FzfLua, and Grug Far                  |
 | `lua/plugins/ui.lua`         | Dashboard, statusline, notifications, WhichKey   |
@@ -515,7 +539,6 @@ directory.
 ```text
 nvim/
 |-- init.lua
-|-- init.vim
 |-- lazy-lock.json
 |-- bin/
 |   |-- zig-cc.cmd
@@ -764,22 +787,32 @@ lists, old files, quickfix entries, windows, and Git conflict markers.
 
 ### AI Assistant
 
-CodeCompanion uses the existing GitHub Copilot login for chat and inline
-editing. It leaves model selection on Copilot's automatic default.
+Avante uses Codex through ACP. Run `codex login` once on each machine and
+complete any ACP authentication prompt shown by Avante.
 
-| Key        | Mode          | Action                                |
-| ---------- | ------------- | ------------------------------------- |
-| `Space+ia` | Normal/Visual | Open AI actions                       |
-| `Space+ic` | Normal/Visual | Toggle the chat panel                 |
-| `Space+ii` | Normal/Visual | Enter an inline AI prompt             |
-| `Space+id` | Visual        | Add the selection to the current chat |
-| `Space+ie` | Visual        | Explain the selection                 |
-| `Space+if` | Visual        | Fix the selection                     |
-| `Space+it` | Visual        | Generate tests for the selection      |
+| Key        | Mode          | Action                              |
+| ---------- | ------------- | ----------------------------------- |
+| `Space+ai` | Normal/Visual | Ask Avante                          |
+| `Space+an` | Normal/Visual | Start a new chat                    |
+| `Space+at` | Normal        | Toggle the sidebar                  |
+| `Space+af` | Normal        | Focus the sidebar                   |
+| `Space+ae` | Visual        | Edit the selection                  |
+| `Space+ah` | Normal        | Open chat history                   |
+| `Space+aM` | Normal        | Select the Codex ACP model          |
+| `Space+aE` | Normal        | Select the reasoning effort         |
+| `Space+am` | Normal        | Select the Codex permission/sandbox |
+| `Space+a?` | Normal        | Select an Avante model/provider     |
+| `Space+aS` | Normal        | Stop current request                |
 
-In chat, use `#` to add editor context, `/` for workflows such as
-`/explain` and `/fix`, and `@` for tools. Press `Enter` or `Ctrl+s` in Normal
-mode to send the prompt.
+The three ACP selectors initialize the sidebar to create a Codex session, then
+close it before showing the list if it was previously closed. The sidebar may
+briefly flash during the first launch; running `:AvanteAsk` first is
+unnecessary.
+
+The Codex account and configuration stay in the platform-default
+`~/.codex`. Avante stores only Codex's SQLite runtime in the ignored local
+directory `.nvim-data/codex-sqlite`, preventing conflicts with Codex Desktop
+without copying authentication tokens or hard-coding a user profile path.
 
 ### LSP
 
@@ -1013,23 +1046,19 @@ instead of the plugin defaults.
 
 ## Optional Features
 
-### GitHub Copilot
+### Avante with Codex ACP
 
-Copilot is enabled and supplies both Insert-mode suggestions and
-CodeCompanion's AI provider. If needed, enable it in:
+Install the Codex CLI and `codex-acp`, ensure both commands are on `PATH`,
+then authenticate on each machine:
 
-```lua
--- lua/config/init.lua
-vim.g.copilot_enabled = true
+```powershell
+codex login
+codex login status
 ```
 
-Restart Neovim, then run:
-
-```vim
-:Copilot setup
-```
-
-Use `Alt+\` in Insert mode to accept a suggestion.
+Open Neovim and use `Space+ai`. If Avante asks to authenticate the ACP
+provider, complete that prompt once. No `CODEX_HOME` environment variable is
+required.
 
 ### Catppuccin
 
@@ -1137,6 +1166,62 @@ all loading during startup.
 
 ## Troubleshooting
 
+### Generic `:checkhealth` Shows Snacks or `vim.pack` Errors
+
+This configuration uses selected Snacks modules and lazy.nvim; it does not use
+Snacks image rendering, Snacks picker/notifier, or Neovim's built-in
+`vim.pack`. A generic `:checkhealth` checks those unused components too. In a
+headless terminal it may report missing Kitty graphics, a dashboard that did
+not run, disabled picker/notifier modules, or an absent `nvim-pack-lock.json`.
+These reports do not indicate a startup failure.
+
+Use the configuration-specific check instead:
+
+```vim
+:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+```
+
+Node, Perl, and Ruby remote providers are intentionally disabled because none
+of the configured plugins use them. This does not disable Node-based language
+servers, formatters, Treesitter CLI, or ordinary Lua plugins.
+
+### Headless Commands Print a PSReadLine Prediction Error
+
+This message comes from the PowerShell profile, not Neovim. Guard prediction
+setup so it only runs in an interactive terminal:
+
+```powershell
+if ($Host.UI.SupportsVirtualTerminal -and -not [Console]::IsOutputRedirected) {
+    Set-PSReadLineOption -PredictionSource History
+}
+```
+
+Place the guard in `Microsoft.PowerShell_profile.ps1`, then restart the
+terminal. This prevents redirected commands such as headless health checks
+from printing an unrelated PSReadLine error.
+
+### Codex ACP Reports SQLite or `arg0` Access Errors
+
+Do not set `CODEX_HOME` in the Neovim configuration. Sign in with the normal
+Codex home:
+
+```powershell
+codex login
+codex doctor --summary
+```
+
+Avante keeps Codex authentication/configuration in the platform-default
+`~/.codex`, while its SQLite runtime is isolated in
+`.nvim-data/codex-sqlite`. This prevents Codex Desktop and `codex-acp` from
+competing for the same live databases. Close old Neovim/ACP processes and
+restart Neovim after changing authentication.
+
+### Markdown Leaves `E31: No such mapping`
+
+Update this configuration and restart Neovim. Neovim 0.12 provides Lua
+Markdown heading mappings, so the older duplicate Vimscript mappings are
+disabled here. `[[` and `]]` remain available for previous/next headings.
+
 ### Neovim Works Only After `:source %`
 
 Check the `VIMINIT` environment variable.
@@ -1153,9 +1238,10 @@ Linux/macOS:
 printf '%s\n' "$VIMINIT"
 ```
 
-If it points to an older configuration, remove it from the shell profile. The
-repository's `init.vim` is only a compatibility shim that loads `init.lua`;
-manual `runtimepath` or `packpath` changes are not required.
+If it points to an older configuration, remove it from the shell profile and
+restart the terminal. This repository uses `init.lua` as its only entrypoint;
+do not create an `init.vim` compatibility file. Manual `runtimepath` or
+`packpath` changes are not required.
 
 ### `module 'helper.utils' not found`
 
@@ -1328,7 +1414,8 @@ To change its color or disable Insert-mode animation, edit the
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Mason](https://github.com/mason-org/mason.nvim)
 - [Blink completion](https://github.com/Saghen/blink.cmp)
-- [CodeCompanion](https://github.com/olimorris/codecompanion.nvim)
+- [Avante](https://github.com/yetone/avante.nvim)
+- [codex-acp](https://github.com/zed-industries/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)

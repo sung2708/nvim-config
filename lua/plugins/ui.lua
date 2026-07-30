@@ -33,6 +33,10 @@ return {
         priority = 999,
         opts = {
             transparent_background = true,
+            -- Avoid invoking vim.pack.get() on Neovim 0.12. This repository
+            -- uses lazy.nvim exclusively, and the probe creates an empty
+            -- site/pack/core tree that both health checks report as a conflict.
+            auto_integrations = false,
         },
     },
     {
@@ -50,6 +54,9 @@ return {
     {
         "nvim-tree/nvim-web-devicons",
         lazy = true,
+        opts = {
+            default = true,
+        },
     },
     {
         "folke/snacks.nvim",

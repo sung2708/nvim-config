@@ -1,5 +1,17 @@
 local opt = vim.opt
 
+-- This configuration does not use the legacy Node, Perl, or Ruby remote
+-- providers. Disabling them avoids platform-specific health warnings and
+-- does not affect regular Lua plugins or external formatters/LSP servers.
+vim.g.loaded_node_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+
+-- Neovim 0.12 supplies modern Lua mappings for Markdown headings. Disable the
+-- older Vimscript duplicates so lazy.nvim can replay FileType safely without
+-- leaving E31 ("No such mapping") in v:errmsg.
+vim.g.no_markdown_maps = 1
+
 local path_separator = vim.fn.has("win32") == 1 and ";" or ":"
 
 local function prepend_path(directory)
@@ -32,11 +44,6 @@ if vim.fn.has("win32") == 1 then
     local python_provider = vim.fn.stdpath("data") .. "/python-provider/Scripts/python.exe"
     if vim.fn.filereadable(python_provider) == 1 then
         vim.g.python3_host_prog = python_provider
-    end
-
-    local node_provider = vim.fn.exepath("neovim-node-host")
-    if node_provider ~= "" then
-        vim.g.node_host_prog = node_provider
     end
 
     local scoop_jdk = scoop_home .. "/apps/temurin21-jdk/current"
@@ -79,7 +86,7 @@ opt.hlsearch = true
 opt.encoding = "utf-8"
 opt.hidden = true
 opt.updatetime = 200
-opt.timeoutlen = 400
+opt.timeoutlen = 3000
 opt.ttimeoutlen = 10
 opt.redrawtime = 1500
 opt.synmaxcol = 400

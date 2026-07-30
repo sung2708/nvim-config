@@ -171,11 +171,11 @@ vim.keymap.set({ "x", "o" }, "as", function()
     ts_textobject("nvim-treesitter-textobjects.select", "select_textobject", "@local.scope", "locals")
 end, { desc = "Select Around Scope" })
 
-vim.keymap.set("n", "<leader>a", function()
+vim.keymap.set("n", "<leader>mp", function()
     ts_textobject("nvim-treesitter-textobjects.swap", "swap_next", "@parameter.inner")
 end, { desc = "Swap Next Parameter" })
 
-vim.keymap.set("n", "<leader>A", function()
+vim.keymap.set("n", "<leader>mP", function()
     ts_textobject("nvim-treesitter-textobjects.swap", "swap_previous", "@parameter.outer")
 end, { desc = "Swap Previous Parameter" })
 
