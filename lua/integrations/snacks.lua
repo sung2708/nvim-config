@@ -91,13 +91,25 @@ if snacks then
                         key = "f",
                         desc = "Find File",
                         action = function()
-                            -- Fzf-lua keeps the preview while using a faster native picker.
-                            require("lazy").load({ plugins = { "fzf-lua" } })
-                            require("fzf-lua").files({ previewer = "builtin" })
+                            Snacks.dashboard.pick("files")
                         end,
                     },
-                    { icon = "󰱼 ", key = "g", desc = "Live Grep", action = ":lua Snacks.dashboard.pick('live_grep')" },
-                    { icon = "󰈚 ", key = "b", desc = "Buffers", action = ":Telescope buffers" },
+                    {
+                        icon = "󰱼 ",
+                        key = "g",
+                        desc = "Live Grep",
+                        action = function()
+                            Snacks.dashboard.pick("live_grep")
+                        end,
+                    },
+                    {
+                        icon = "󰈚 ",
+                        key = "b",
+                        desc = "Buffers",
+                        action = function()
+                            Snacks.dashboard.pick("buffers")
+                        end,
+                    },
                     { icon = "󰉋 ", key = "e", desc = "File Explorer", action = ":Neotree filesystem reveal left" },
                     { icon = "󰊢 ", key = "s", desc = "Git Status", action = ":Git" },
                     { icon = "󰦓 ", key = "d", desc = "Diff View", action = ":DiffviewOpen" },
@@ -107,7 +119,9 @@ if snacks then
                         icon = " ",
                         key = "c",
                         desc = "Config",
-                        action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config') })",
+                        action = function()
+                            Snacks.dashboard.pick("files", { cwd = vim.fn.stdpath("config") })
+                        end,
                     },
                     { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
                     { icon = " ", key = "q", desc = "Quit", action = ":qa" },
