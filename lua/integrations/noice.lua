@@ -52,6 +52,9 @@ require("noice").setup({
         cmdline_popup = {
             border = padded_border({ 0, 2 }),
             filter_options = {},
+            win_options = {
+                winblend = 12,
+            },
         },
         cmdline_popupmenu = {
             position = {
@@ -59,21 +62,39 @@ require("noice").setup({
                 col = "50%",
             },
             border = padded_border(),
+            win_options = {
+                winblend = 12,
+            },
         },
         popupmenu = {
             border = padded_border(),
+            win_options = {
+                winblend = 12,
+            },
         },
         cmdline_input = {
             border = padded_border({ 0, 2 }),
+            win_options = {
+                winblend = 12,
+            },
         },
         confirm = {
             border = padded_border(),
+            win_options = {
+                winblend = 12,
+            },
         },
         popup = {
             border = padded_border(),
+            win_options = {
+                winblend = 12,
+            },
         },
         hover = {
             border = padded_border(),
+            win_options = {
+                winblend = 12,
+            },
         },
     },
 })

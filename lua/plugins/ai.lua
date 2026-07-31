@@ -1,6 +1,58 @@
 local codex_sqlite_home = vim.fs.joinpath(vim.fn.stdpath("config"), ".nvim-data", "codex-sqlite")
 vim.fn.mkdir(codex_sqlite_home, "p")
 
+local codex_config_path = vim.fs.joinpath(vim.fn.expand("~"), ".codex", "config.toml")
+
+local function save_codex_default_model(model)
+    if not model or model == "" or model:find("[\r\n]") or model:find('"') then
+        return false, "invalid model name"
+    end
+
+    vim.fn.mkdir(vim.fs.dirname(codex_config_path), "p")
+    local lines = vim.fn.filereadable(codex_config_path) == 1 and vim.fn.readfile(codex_config_path) or {}
+    local replaced = false
+    for index, line in ipairs(lines) do
+        if line:match("^%s*model%s*=") then
+            lines[index] = 'model = "' .. model .. '"'
+            replaced = true
+            break
+        end
+    end
+    if not replaced then
+        table.insert(lines, 1, 'model = "' .. model .. '"')
+    end
+
+    local ok = vim.fn.writefile(lines, codex_config_path) == 0
+    return ok, ok and nil or "could not write " .. codex_config_path
+end
+
+local function install_avante_sidebar_guards()
+    local sidebar = require("avante.sidebar")
+    if sidebar._codex_sidebar_guards_installed then
+        return
+    end
+
+    local original_get_tool_use_uuid = sidebar.get_current_tool_use_message_uuid
+    sidebar.get_current_tool_use_message_uuid = function(self, ...)
+        local result = self.containers and self.containers.result
+        if not result or not result.winid or not vim.api.nvim_win_is_valid(result.winid) then
+            return nil
+        end
+        return original_get_tool_use_uuid(self, ...)
+    end
+
+    local original_render_tool_use_buttons = sidebar.render_tool_use_control_buttons
+    sidebar.render_tool_use_control_buttons = function(self, ...)
+        local result = self.containers and self.containers.result
+        if not result or not result.bufnr or not vim.api.nvim_buf_is_valid(result.bufnr) then
+            return
+        end
+        return original_render_tool_use_buttons(self, ...)
+    end
+
+    sidebar._codex_sidebar_guards_installed = true
+end
+
 local function select_acp_config(category, prompt)
     local api = require("avante.api")
     local opened_for_selector = false
@@ -67,6 +119,14 @@ local function select_acp_config(category, prompt)
                         return
                     end
                     vim.notify(config.name .. ": " .. (choice.name or choice.value), vim.log.levels.INFO)
+                    if category == "model" then
+                        local saved, save_err = save_codex_default_model(choice.value)
+                        if not saved then
+                            vim.notify("Session model changed, but default was not saved: " .. save_err, vim.log.levels.WARN)
+                        else
+                            vim.notify("Codex default model saved: " .. choice.value, vim.log.levels.INFO)
+                        end
+                    end
                     if sidebar:is_open() and sidebar.containers and sidebar.containers.result then
                         pcall(sidebar.render_result, sidebar)
                     end
@@ -139,6 +199,7 @@ return {
             "AvanteStop",
             "AvanteSwitchProvider",
             "AvanteToggle",
+            "AvanteCodexDefaultModel",
         },
         keys = {
             {
@@ -175,6 +236,13 @@ return {
                     select_acp_config("model", "Codex model> ")
                 end,
                 desc = "Avante: Select ACP Model",
+            },
+            {
+                "<leader>aD",
+                function()
+                    select_acp_config("model", "Codex default model> ")
+                end,
+                desc = "Avante: Save Default Model",
             },
             {
                 "<leader>aR",
@@ -296,6 +364,10 @@ return {
         },
         config = function(_, opts)
             require("avante").setup(opts)
+            install_avante_sidebar_guards()
+            vim.api.nvim_create_user_command("AvanteCodexDefaultModel", function()
+                select_acp_config("model", "Codex default model> ")
+            end, { desc = "Select and save Codex default model" })
         end,
         opts = {
             provider = "codex",

@@ -23,7 +23,15 @@ fzf_lua.setup({
         ["--padding"] = "1,2",
     },
     files = {
-        cmd = 'rg --files --hidden --glob "!.git/*"',
+        cmd = table.concat({
+            'rg --files --hidden --glob "!.git/*"',
+            '--glob "!node_modules/*"',
+            '--glob "!dist/*"',
+            '--glob "!build/*"',
+            '--glob "!target/*"',
+            '--glob "!.next/*"',
+            '--glob "!coverage/*"',
+        }, " "),
     },
     grep = {
         rg_opts = '--hidden --column --line-number --no-heading --color=always --smart-case --glob "!.git/*"',

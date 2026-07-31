@@ -19,6 +19,7 @@ if hlchunk then
                 { fg = "#f35336" },
             },
             chars = {
+                left_arrow = "─",
                 horizontal_line = "─",
                 vertical_line = "│",
                 left_top = "╭",
@@ -26,8 +27,9 @@ if hlchunk then
                 right_arrow = ">",
             },
             exclude_filetypes = exclude_ft,
-            duration = 200,
-            delay = 100,
+            -- Avoid the plugin's async animation path, which can produce
+            -- mismatched render state and crash on cursor moves.
+            delay = 0,
             max_file_size = 1024 * 1024,
             priority = 15,
         },

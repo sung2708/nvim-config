@@ -260,6 +260,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
                 buffer = bufnr,
                 callback = function()
                     vim.schedule(function()
+                        if not vim.api.nvim_buf_is_valid(bufnr) then
+                            pcall(vim.api.nvim_del_augroup_by_id, highlight_group)
+                            return
+                        end
+
                         local has_highlight_client = false
                         for _, attached_client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
                             if
@@ -271,7 +276,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
                         end
 
                         if not has_highlight_client then
-                            vim.lsp.util.buf_clear_references(bufnr)
+                            -- The buffer can disappear between the validity
+                            -- check above and this scheduled callback. When
+                            -- that happens, its namespaces are destroyed with
+                            -- the buffer, so there is nothing to clear.
                             pcall(vim.api.nvim_del_augroup_by_id, highlight_group)
                         end
                     end)

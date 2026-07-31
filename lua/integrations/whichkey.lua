@@ -218,6 +218,9 @@ if wk then
         { "<leader>tn", desc = "Toggle Number Highlight", icon = { icon = "󰎠", color = "yellow" } },
         { "<leader>tv", desc = "Vertical Terminal", icon = { icon = "", color = "green" } },
         { "<leader>tw", desc = "Toggle Word Diff", icon = { icon = "󰦓", color = "orange" } },
+        { "<leader>td", desc = "Todos: Global", icon = { icon = "󰄬", color = "cyan" } },
+        { "<leader>tD", desc = "Todos: Project", icon = { icon = "󰄬", color = "green" } },
+        { "<leader>tN", desc = "Todos: Due Items", icon = { icon = "󰀦", color = "yellow" } },
 
         { "<leader>x", group = "Diagnostics / Todos", icon = { icon = "󰒡", color = "yellow" } },
         { "<leader>xL", desc = "Location List", icon = { icon = "󰁨", color = "yellow" } },

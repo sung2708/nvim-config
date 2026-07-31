@@ -93,6 +93,8 @@ opt.synmaxcol = 400
 opt.confirm = true
 opt.completeopt = { "menu", "menuone", "noselect" }
 opt.pumheight = 12
+opt.winblend = 12
+opt.pumblend = 12
 
 if vim.fn.has("win32") == 1 then
     opt.clipboard = "unnamed"

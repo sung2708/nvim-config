@@ -86,7 +86,16 @@ if snacks then
             preset = {
                 header = dashboard_header(),
                 keys = {
-                    { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+                    {
+                        icon = " ",
+                        key = "f",
+                        desc = "Find File",
+                        action = function()
+                            -- Fzf-lua keeps the preview while using a faster native picker.
+                            require("lazy").load({ plugins = { "fzf-lua" } })
+                            require("fzf-lua").files({ previewer = "builtin" })
+                        end,
+                    },
                     { icon = "󰱼 ", key = "g", desc = "Live Grep", action = ":lua Snacks.dashboard.pick('live_grep')" },
                     { icon = "󰈚 ", key = "b", desc = "Buffers", action = ":Telescope buffers" },
                     { icon = "󰉋 ", key = "e", desc = "File Explorer", action = ":Neotree filesystem reveal left" },
@@ -127,6 +136,16 @@ if snacks then
                     padding = { 1, 0 },
                     ttl = 60,
                     indent = 1,
+                },
+            },
+        },
+        picker = {
+            sources = {
+                files = {
+                    cmd = "fd",
+                    hidden = false,
+                    ignored = false,
+                    exclude = { "node_modules", "dist", "build", "target", ".next", "coverage" },
                 },
             },
         },
