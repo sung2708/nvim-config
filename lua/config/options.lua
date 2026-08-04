@@ -23,6 +23,11 @@ local function prepend_path(directory)
     end
 end
 
+-- Mason owns the configured LSP/formatter/linter executables. Put its bin
+-- directory on PATH before any lazy plugin event so first-save formatting and
+-- linting work even when Mason's UI plugin has not been loaded yet.
+prepend_path(vim.fn.stdpath("data") .. "/mason/bin")
+
 for _, directory in ipairs({ vim.env.UV_PYTHON_BIN_DIR, vim.env.UV_TOOL_BIN_DIR }) do
     prepend_path(directory)
 end
@@ -61,7 +66,7 @@ end
 opt.number = true
 opt.relativenumber = true
 opt.cursorline = true
-opt.cursorcolumn = true
+opt.cursorcolumn = false
 opt.termguicolors = true
 opt.signcolumn = "yes"
 opt.laststatus = 3
@@ -85,8 +90,8 @@ opt.hlsearch = true
 
 opt.encoding = "utf-8"
 opt.hidden = true
-opt.updatetime = 200
-opt.timeoutlen = 3000
+opt.updatetime = 400
+opt.timeoutlen = 600
 opt.ttimeoutlen = 10
 opt.redrawtime = 1500
 opt.synmaxcol = 400

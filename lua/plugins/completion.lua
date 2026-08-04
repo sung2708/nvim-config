@@ -8,11 +8,21 @@ local function cmdline_position()
     return { vim.o.lines - height, 0 }
 end
 
+local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
+
 return {
     {
         "saghen/blink.cmp",
         version = "1.*",
-        event = { "BufReadPre", "BufNewFile", "CmdlineEnter" },
+        -- ModeChanged runs after Neovim is actually in Insert mode. Loading on
+        -- InsertEnter leaves get_mode() at "n", so blink misses its own first
+        -- buffer-local keymap installation and only works on the second insert.
+        event = { "ModeChanged *:i", "CmdlineEnter" },
+        -- Warm up Blink's Rust matcher after the first frame. Its Windows
+        -- version/checksum probes are asynchronous but can take a few hundred
+        -- milliseconds, so doing this in the background makes first insert
+        -- completion ready without putting Blink back on the open-file path.
+        init = defer_after_vimenter("blink.cmp", 40),
         dependencies = {
             "rafamadriz/friendly-snippets",
         },
@@ -104,6 +114,31 @@ return {
                 },
             },
         },
+        config = function(_, opts)
+            local cmp = require("blink.cmp")
+            cmp.setup(opts)
+
+            -- setup() finishes the Rust matcher probe asynchronously. Apply
+            -- the resolved mappings now so the first Insert does not need to
+            -- leave and re-enter while that probe is still running.
+            local config = require("blink.cmp.config")
+            local keymap = require("blink.cmp.keymap")
+            local mappings = keymap.get_mappings(config.keymap, "default")
+
+            local function apply_keymaps()
+                if not config.enabled() then
+                    return false
+                end
+                require("blink.cmp.keymap.apply").keymap_to_current_buffer(mappings)
+                return true
+            end
+
+            apply_keymaps()
+            vim.api.nvim_create_autocmd("InsertEnter", {
+                group = vim.api.nvim_create_augroup("SungpBlinkKeymapBootstrap", { clear = true }),
+                callback = apply_keymaps,
+            })
+        end,
         opts_extend = { "sources.default" },
     },
 }

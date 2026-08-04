@@ -1,14 +1,13 @@
+local defer_on_filetype = require("helper.utils").defer_plugin_on_filetype
+
 return {
     {
         "linux-cultist/venv-selector.nvim",
-        ft = "python",
-        cmd = { "VenvSelect", "VenvSelectCache", "VenvSelectLog" },
+        lazy = true,
+        init = defer_on_filetype("venv-selector.nvim", "python", 30),
+        cmd = { "VenvSelect", "VenvSelectLog" },
         keys = {
             { "<leader>pv", "<cmd>VenvSelect<cr>", desc = "Python: Select Virtualenv" },
-        },
-        dependencies = {
-            "ibhagwan/fzf-lua",
-            "neovim/nvim-lspconfig",
         },
         opts = {
             options = {
@@ -16,13 +15,29 @@ return {
                 notify_user_on_venv_activation = true,
             },
         },
+        config = function(_, opts)
+            require("venv-selector").setup(opts)
+
+            local bufnr = vim.api.nvim_get_current_buf()
+            if vim.bo[bufnr].filetype == "python" then
+                vim.schedule(function()
+                    for _, group in ipairs({ "VenvSelectorCachedVenv", "VenvSelectorUvDetect" }) do
+                        pcall(vim.api.nvim_exec_autocmds, "FileType", {
+                            group = group,
+                            buffer = bufnr,
+                            modeline = false,
+                        })
+                    end
+                end)
+            end
+        end,
     },
     {
         "ray-x/go.nvim",
-        ft = { "go", "gomod", "gowork", "gotmpl" },
+        lazy = true,
+        init = defer_on_filetype("go.nvim", { "go", "gomod", "gowork", "gotmpl" }, 50),
         dependencies = {
             "ray-x/guihua.lua",
-            "neovim/nvim-lspconfig",
             "nvim-treesitter/nvim-treesitter",
         },
         keys = {
@@ -41,13 +56,21 @@ return {
             lsp_document_formatting = false,
             goimports = "gopls",
             gofmt = "gofumpt",
+            lsp_inlay_hints = {
+                enable = false,
+            },
             tag_options = "json=omitempty",
             verbose = false,
         },
     },
     {
         "pmizio/typescript-tools.nvim",
-        ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+        lazy = true,
+        init = defer_on_filetype(
+            "typescript-tools.nvim",
+            { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+            50
+        ),
         keys = {
             { "<leader>Ti", "<cmd>TSToolsOrganizeImports<cr>", desc = "TypeScript: Organize Imports" },
             { "<leader>Ta", "<cmd>TSToolsAddMissingImports<cr>", desc = "TypeScript: Add Missing Imports" },
@@ -66,7 +89,8 @@ return {
     },
     {
         "mfussenegger/nvim-jdtls",
-        ft = "java",
+        lazy = true,
+        init = defer_on_filetype("nvim-jdtls", "java", 50),
         dependencies = {
             "mfussenegger/nvim-dap",
             "mason-org/mason.nvim",

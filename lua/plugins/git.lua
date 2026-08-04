@@ -1,7 +1,10 @@
+local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
+
 return {
     {
         "lewis6991/gitsigns.nvim",
-        event = { "BufReadPre", "BufNewFile" },
+        lazy = true,
+        init = defer_after_vimenter("gitsigns.nvim", 180),
         config = function()
             require("integrations.gitsigns")
         end,

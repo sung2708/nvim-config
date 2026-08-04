@@ -1,7 +1,14 @@
+local active_theme = require("config.theme").name
+local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
+
+local function is_active_theme(name)
+    return active_theme == name or vim.startswith(active_theme, name .. "-")
+end
+
 return {
     {
         "folke/tokyonight.nvim",
-        lazy = false,
+        lazy = not is_active_theme("tokyonight"),
         priority = 1000,
         opts = {
             style = "night",
@@ -14,7 +21,7 @@ return {
     {
         "shaunsingh/nord.nvim",
         name = "nord",
-        lazy = false,
+        lazy = not is_active_theme("nord"),
         priority = 1000,
         init = function()
             local opts = require("config.theme").nord
@@ -29,7 +36,7 @@ return {
     {
         "catppuccin/nvim",
         name = "catppuccin",
-        lazy = false,
+        lazy = not is_active_theme("catppuccin"),
         priority = 999,
         opts = {
             transparent_background = true,
@@ -42,7 +49,7 @@ return {
     {
         "rebelot/kanagawa.nvim",
         name = "kanagawa",
-        lazy = false,
+        lazy = not is_active_theme("kanagawa"),
         priority = 999,
         opts = function()
             return require("config.theme").kanagawa
@@ -118,7 +125,8 @@ return {
     },
     {
         "shellRaining/hlchunk.nvim",
-        event = { "BufReadPost", "BufNewFile" },
+        lazy = true,
+        init = defer_after_vimenter("hlchunk.nvim", 360),
         config = function()
             require("integrations.hlchunk")
         end,

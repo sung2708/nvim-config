@@ -1,3 +1,7 @@
+local utils = require("helper.utils")
+local defer_after_vimenter = utils.defer_plugin_after_vimenter
+local defer_on_filetype = utils.defer_plugin_on_filetype
+
 return {
     {
         "nvim-neo-tree/neo-tree.nvim",
@@ -19,7 +23,7 @@ return {
     },
     {
         "stevearc/oil.nvim",
-        lazy = false,
+        cmd = "Oil",
         keys = {
             { "-", "<cmd>Oil<cr>", desc = "Files: Open Parent Directory" },
             { "<leader>fo", "<cmd>Oil --float<cr>", desc = "Find: Oil File Browser" },
@@ -60,7 +64,6 @@ return {
     },
     {
         "folke/flash.nvim",
-        event = "VeryLazy",
         keys = {
             {
                 "s",
@@ -75,7 +78,15 @@ return {
                 function()
                     require("flash").treesitter()
                 end,
-                mode = { "n", "x", "o" },
+                mode = { "n", "o" },
+                desc = "Flash: Treesitter",
+            },
+            {
+                "<leader>mS",
+                function()
+                    require("flash").treesitter()
+                end,
+                mode = "x",
                 desc = "Flash: Treesitter",
             },
         },
@@ -85,16 +96,18 @@ return {
     },
     {
         "sphamba/smear-cursor.nvim",
-        lazy = false,
+        lazy = true,
+        init = defer_after_vimenter("smear-cursor.nvim", 800),
         opts = {
             cursor_color = "#7DCFFF",
-            smear_insert_mode = true,
+            smear_insert_mode = false,
             vertical_bar_cursor_insert_mode = true,
         },
     },
     {
         "folke/todo-comments.nvim",
-        event = { "BufReadPost", "BufNewFile" },
+        lazy = true,
+        init = defer_after_vimenter("todo-comments.nvim", 420),
         cmd = { "TodoTrouble", "TodoTelescope", "TodoFzfLua", "TodoQuickFix", "TodoLocList" },
         dependencies = {
             "nvim-lua/plenary.nvim",
@@ -114,7 +127,6 @@ return {
     },
     {
         "gbprod/yanky.nvim",
-        event = "VeryLazy",
         keys = {
             { "<leader>fy", "<cmd>YankyRingHistory<cr>", mode = { "n", "x" }, desc = "Find: Yank History" },
             { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank: Text" },
@@ -142,7 +154,7 @@ return {
     },
     {
         "kevinhwang91/nvim-ufo",
-        event = { "BufReadPost", "BufNewFile" },
+        lazy = true,
         keys = {
             {
                 "zR",
@@ -187,13 +199,21 @@ return {
             "kevinhwang91/promise-async",
         },
         init = function()
+            defer_after_vimenter("nvim-ufo", 280)()
             vim.opt.foldcolumn = "1"
             vim.opt.foldlevel = 99
             vim.opt.foldlevelstart = 99
             vim.opt.foldenable = true
         end,
         opts = {
-            provider_selector = function()
+            provider_selector = function(bufnr, _, buftype)
+                if
+                    buftype ~= ""
+                    or vim.b[bufnr].bigfile
+                    or vim.api.nvim_buf_line_count(bufnr) > 10000
+                then
+                    return ""
+                end
                 return { "treesitter", "indent" }
             end,
         },
@@ -204,6 +224,12 @@ return {
         config = function()
             require("mini.ai").setup({
                 n_lines = 100,
+                mappings = {
+                    -- Preserve Neovim 0.12's built-in `an`/`in` syntax-node
+                    -- selections instead of shadowing them.
+                    around_next = "aN",
+                    inside_next = "iN",
+                },
             })
             require("mini.splitjoin").setup()
             require("mini.move").setup({
@@ -263,7 +289,8 @@ return {
     },
     {
         "MeanderingProgrammer/render-markdown.nvim",
-        ft = { "markdown", "markdown.mdx", "Avante" },
+        lazy = true,
+        init = defer_on_filetype("render-markdown.nvim", { "markdown", "markdown.mdx", "Avante" }, 30),
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
             "nvim-tree/nvim-web-devicons",

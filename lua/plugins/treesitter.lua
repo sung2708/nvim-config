@@ -1,8 +1,11 @@
+local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
+
 return {
     {
         "nvim-treesitter/nvim-treesitter",
         branch = "main",
-        event = { "BufReadPost", "BufNewFile" },
+        lazy = true,
+        init = defer_after_vimenter("nvim-treesitter", 100),
         cmd = { "TSInstall", "TSUpdate", "TSUninstall" },
         build = ":TSUpdate",
         dependencies = {

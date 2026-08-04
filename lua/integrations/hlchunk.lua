@@ -13,7 +13,7 @@ if hlchunk then
     hlchunk.setup({
         chunk = {
             enable = true,
-            use_treesitter = true,
+            use_treesitter = false,
             style = {
                 { fg = get_color() },
                 { fg = "#f35336" },
@@ -34,7 +34,7 @@ if hlchunk then
             priority = 15,
         },
         line_num = {
-            enable = true,
+            enable = false,
             exclude_filetypes = exclude_ft,
             style = "#806d9c",
             priority = 10,
@@ -53,7 +53,7 @@ if hlchunk then
             delay = 100,
         },
         blank = {
-            enable = true,
+            enable = false,
             exclude_filetypes = exclude_ft,
             chars = {
                 " ",

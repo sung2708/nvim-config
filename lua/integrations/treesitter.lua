@@ -9,6 +9,8 @@ local required_parsers = {
     "go",
     "gomod",
     "gosum",
+    "gotmpl",
+    "gowork",
     "html",
     "javascript",
     "java",
@@ -18,6 +20,7 @@ local required_parsers = {
     "markdown_inline",
     "python",
     "query",
+    "regex",
     "toml",
     "tsx",
     "typescript",
@@ -99,20 +102,55 @@ if ok_new then
     end
 
     local function start_treesitter(bufnr)
-        if vim.bo[bufnr].filetype ~= "bigfile" and not vim.b[bufnr].bigfile then
+        if
+            vim.api.nvim_buf_is_valid(bufnr)
+            and vim.api.nvim_buf_is_loaded(bufnr)
+            and vim.bo[bufnr].buftype == ""
+            and vim.bo[bufnr].filetype ~= ""
+            and vim.bo[bufnr].filetype ~= "bigfile"
+            and not vim.b[bufnr].bigfile
+        then
             pcall(vim.treesitter.start, bufnr)
         end
     end
 
+    local pending = {}
+    local function schedule_treesitter(bufnr, delay)
+        local timer = pending[bufnr]
+        if timer and not timer:is_closing() then
+            timer:stop()
+            timer:close()
+        end
+
+        pending[bufnr] = vim.defer_fn(function()
+            pending[bufnr] = nil
+            if not vim.api.nvim_buf_is_valid(bufnr) or vim.fn.bufwinid(bufnr) == -1 then
+                return
+            end
+            start_treesitter(bufnr)
+        end, delay)
+    end
+
+    local treesitter_group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true }),
+        group = treesitter_group,
         callback = function(args)
-            start_treesitter(args.buf)
+            -- BufWinEnter below normally replaces this fallback. Keeping a
+            -- longer FileType timer also covers :setfiletype on an open buffer.
+            schedule_treesitter(args.buf, 1000)
+        end,
+    })
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+        group = treesitter_group,
+        callback = function(args)
+            schedule_treesitter(args.buf, 20)
         end,
     })
 
     if vim.bo.filetype ~= "" then
-        start_treesitter(0)
+        -- When the plugin itself was deferred until after VimEnter, the first
+        -- buffer is already visible; start highlighting shortly afterwards.
+        schedule_treesitter(vim.api.nvim_get_current_buf(), 40)
     end
 else
     local legacy_treesitter = M.safe_require("nvim-treesitter.configs")

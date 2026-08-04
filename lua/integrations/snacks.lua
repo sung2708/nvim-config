@@ -61,12 +61,6 @@ if snacks then
             relativenumber = false,
             statuscolumn = "",
         })
-
-        vim.schedule(function()
-            if vim.api.nvim_buf_is_valid(ctx.buf) then
-                vim.bo[ctx.buf].syntax = ctx.ft
-            end
-        end)
     end
 
     snacks.setup({
@@ -169,7 +163,9 @@ if snacks then
     vim.api.nvim_create_autocmd("User", {
         group = dashboard_group,
         pattern = "SnacksDashboardOpened",
-        callback = hide_dashboard_chrome,
+        callback = function()
+            hide_dashboard_chrome()
+        end,
     })
     vim.api.nvim_create_autocmd("User", {
         group = dashboard_group,

@@ -1,5 +1,4 @@
 local codex_sqlite_home = vim.fs.joinpath(vim.fn.stdpath("config"), ".nvim-data", "codex-sqlite")
-vim.fn.mkdir(codex_sqlite_home, "p")
 
 local codex_config_path = vim.fs.joinpath(vim.fn.expand("~"), ".codex", "config.toml")
 
@@ -181,7 +180,6 @@ end
 return {
     {
         "yetone/avante.nvim",
-        lazy = false,
         version = false,
         build = vim.fn.has("win32") ~= 0
                 and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
@@ -345,11 +343,9 @@ return {
             "MunifTanjim/nui.nvim",
             "nvim-tree/nvim-web-devicons",
             "folke/snacks.nvim",
-            "nvim-telescope/telescope.nvim",
             "ibhagwan/fzf-lua",
             {
                 "HakonHarnes/img-clip.nvim",
-                event = "VeryLazy",
                 opts = {
                     default = {
                         embed_image_as_base64 = false,
@@ -363,6 +359,7 @@ return {
             },
         },
         config = function(_, opts)
+            vim.fn.mkdir(codex_sqlite_home, "p")
             require("avante").setup(opts)
             install_avante_sidebar_guards()
             vim.api.nvim_create_user_command("AvanteCodexDefaultModel", function()

@@ -21,8 +21,8 @@ local function python_venv()
         return ""
     end
 
-    local ok, selector = pcall(require, "venv-selector")
-    if not ok then
+    local selector = package.loaded["venv-selector"]
+    if not selector then
         return ""
     end
 
@@ -37,6 +37,9 @@ end
 require("lualine").setup({
     options = {
         globalstatus = true,
+        refresh = {
+            refresh_time = 100,
+        },
         theme = "auto",
         component_separators = { left = "│", right = "│" },
         section_separators = { left = "", right = "" },

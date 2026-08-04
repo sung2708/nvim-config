@@ -39,7 +39,9 @@ vim.opt.termguicolors = true
 local function force_transparent()
     local hl_groups = { "NormalFloat", "FloatBorder" }
     for _, group in ipairs(hl_groups) do
-        vim.api.nvim_set_hl(0, group, { bg = "none", ctermbg = "none" })
+        -- Preserve the colorscheme's foreground and style while clearing only
+        -- the background. nvim_set_hl() replaces the complete definition.
+        vim.cmd(("highlight %s guibg=NONE ctermbg=NONE"):format(group))
     end
 end
 
@@ -129,15 +131,17 @@ function _lazygit_toggle()
     lazygit:toggle()
 end
 
--- LazyDocker
-local lazydocker = create_custom_term({
-    cmd = "lazydocker",
-    direction = "float",
-    hidden = true,
-})
+local lazydocker
+if vim.fn.executable("lazydocker") == 1 then
+    lazydocker = create_custom_term({
+        cmd = "lazydocker",
+        direction = "float",
+        hidden = true,
+    })
 
-function _lazydocker_toggle()
-    lazydocker:toggle()
+    function _lazydocker_toggle()
+        lazydocker:toggle()
+    end
 end
 
 -- =============================================================================
@@ -178,7 +182,9 @@ end
 vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
 -- Disabled temporarily: Windows terminal input/ConPTY issue with LazyGit.
 -- vim.keymap.set("n", "<leader>gg", _lazygit_toggle, { desc = "Terminal: Lazygit" })
-vim.keymap.set("n", "<leader>ld", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
+if lazydocker then
+    vim.keymap.set("n", "<leader>ld", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
+end
 
 -- Toggle different directions
 vim.keymap.set("n", "<leader>th", open_horizontal_terminal, { desc = "Terminal: Horizontal" })
@@ -196,7 +202,6 @@ end, { desc = "Terminal: Send Selection" })
 function _G.set_terminal_keymaps()
     local t_opts = { buffer = 0 }
     vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], t_opts)
-    vim.keymap.set("t", "jk", [[<C-\><C-n>]], t_opts)
 
     -- Navigation
     vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], t_opts)

@@ -1,10 +1,57 @@
 local core_group = vim.api.nvim_create_augroup("SungpCore", { clear = true })
 
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
+-- Neovim's built-in ftplugins for these filetypes start Treesitter
+-- synchronously inside FileType, which delays the first rendered frame. Defer
+-- only those built-in calls; explicit plugin/user calls keep normal semantics.
+if not vim.g.sungp_deferred_builtin_treesitter then
+    vim.g.sungp_deferred_builtin_treesitter = true
+    local treesitter_start = vim.treesitter.start
+    local deferred_filetypes = { help = true, lua = true, markdown = true, query = true }
+
+    vim.treesitter.start = function(bufnr, lang)
+        local caller = debug.getinfo(2, "S")
+        local source = caller and caller.source:gsub("\\", "/") or ""
+        local builtin_ft = source:match("/runtime/ftplugin/([%w_]+)%.lua$")
+
+        if not deferred_filetypes[builtin_ft] then
+            return treesitter_start(bufnr, lang)
+        end
+
+        bufnr = bufnr and bufnr ~= 0 and bufnr or vim.api.nvim_get_current_buf()
+        local filetype = vim.bo[bufnr].filetype
+        vim.defer_fn(function()
+            if
+                vim.api.nvim_buf_is_valid(bufnr)
+                and vim.api.nvim_buf_is_loaded(bufnr)
+                and vim.fn.bufwinid(bufnr) ~= -1
+                and vim.bo[bufnr].filetype == filetype
+                and not vim.b[bufnr].bigfile
+            then
+                pcall(treesitter_start, bufnr, lang)
+            end
+        end, 35)
+    end
+end
+
+vim.api.nvim_create_autocmd("FocusGained", {
     group = core_group,
     callback = function()
         if vim.fn.getcmdwintype() == "" then
             vim.cmd("checktime")
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("BufEnter", {
+    group = core_group,
+    callback = function(args)
+        if
+            vim.fn.getcmdwintype() == ""
+            and vim.api.nvim_buf_is_valid(args.buf)
+            and vim.bo[args.buf].buftype == ""
+            and vim.api.nvim_buf_get_name(args.buf) ~= ""
+        then
+            vim.cmd(("checktime %d"):format(args.buf))
         end
     end,
 })

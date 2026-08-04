@@ -7,6 +7,7 @@ if todo then
             keyword = "wide",
             after = "fg",
             pattern = [[.*<(KEYWORDS)\s*:]],
+            exclude = { "bigfile" },
         },
         search = {
             command = "rg",

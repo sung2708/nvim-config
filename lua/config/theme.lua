@@ -65,7 +65,10 @@ function M.apply_ui_highlights()
     }
 
     for _, group in ipairs(transparent_groups) do
-        vim.api.nvim_set_hl(0, group, { bg = "none", ctermbg = "none" })
+        -- :highlight updates only the requested fields. nvim_set_hl() would
+        -- replace the whole definition here and silently discard the
+        -- foreground/style supplied by the colorscheme.
+        vim.cmd(("highlight %s guibg=NONE ctermbg=NONE"):format(group))
     end
 
     local normal = get_hl("Normal")

@@ -1,7 +1,10 @@
+local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
+
 return {
     {
         "folke/persistence.nvim",
-        event = "BufReadPre",
+        lazy = true,
+        init = defer_after_vimenter("persistence.nvim", 520),
         keys = {
             {
                 "<leader>qs",

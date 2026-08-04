@@ -18,3 +18,8 @@ require("typescript-tools").setup({
         },
     },
 })
+
+-- The plugin normally defines these from its ftplugin. Since this setup is
+-- deliberately deferred until after the first FileType event, register them
+-- explicitly so the first TypeScript/JavaScript buffer is fully functional.
+require("typescript-tools.user_commands").setup_user_commands()

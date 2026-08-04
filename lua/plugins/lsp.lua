@@ -22,6 +22,9 @@ local lsp_filetypes = {
     "vue",
 }
 
+local defer_on_filetype = require("helper.utils").defer_plugin_on_filetype
+local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
+
 local mason_tools = {
     "clang-format",
     "eslint_d",
@@ -46,7 +49,8 @@ local mason_tools = {
 return {
     {
         "neovim/nvim-lspconfig",
-        ft = lsp_filetypes,
+        lazy = true,
+        init = defer_on_filetype("nvim-lspconfig", lsp_filetypes, 60),
         cmd = { "LspInfo", "LspRestart" },
         dependencies = {
             "saghen/blink.cmp",
@@ -59,7 +63,8 @@ return {
     },
     {
         "folke/lazydev.nvim",
-        ft = "lua",
+        lazy = true,
+        init = defer_on_filetype("lazydev.nvim", "lua", 20),
         opts = {
             library = {
                 { path = "${3rd}/luv/library", words = { "vim%.uv" } },
@@ -85,7 +90,8 @@ return {
     },
     {
         "WhoIsSethDaniel/mason-tool-installer.nvim",
-        event = "VeryLazy",
+        lazy = true,
+        init = defer_after_vimenter("mason-tool-installer.nvim", 30000),
         cmd = {
             "MasonToolsClean",
             "MasonToolsInstall",
@@ -106,7 +112,7 @@ return {
     },
     {
         "stevearc/conform.nvim",
-        event = { "BufReadPre", "BufNewFile" },
+        event = "BufWritePre",
         cmd = { "ConformInfo" },
         keys = {
             {
@@ -136,7 +142,7 @@ return {
                 c = { "clang_format" },
                 cpp = { "clang_format" },
                 go = { "goimports", "gofumpt" },
-                java = { "google_java_format" },
+                java = { "google-java-format" },
             },
             format_on_save = function(bufnr)
                 if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
@@ -172,7 +178,7 @@ return {
     },
     {
         "mfussenegger/nvim-lint",
-        ft = { "markdown", "sh" },
+        event = "BufWritePost",
         keys = {
             {
                 "<leader>cL",

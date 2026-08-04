@@ -61,7 +61,6 @@ local function clangd_cmd()
     }
 
     local candidates = {
-        "C:/Users/hd/scoop/apps/gcc/*/bin/g++.exe",
         vim.fn.exepath("g++"),
         vim.fn.exepath("clang++"),
         vim.fn.expand("~/scoop/apps/gcc/current/bin/g++.exe"),
@@ -130,12 +129,33 @@ local function clangd_fallback_flags()
     return flags
 end
 
-vim.lsp.config("clangd", {
-    cmd = clangd_cmd(),
-    init_options = {
-        fallbackFlags = clangd_fallback_flags(),
-    },
+local clangd_enabled = false
+local function enable_clangd()
+    if clangd_enabled then
+        return
+    end
+    clangd_enabled = true
+
+    vim.lsp.config("clangd", {
+        cmd = clangd_cmd(),
+        init_options = {
+            fallbackFlags = clangd_fallback_flags(),
+        },
+    })
+    vim.lsp.enable("clangd")
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("SungpClangd", { clear = true }),
+    pattern = { "c", "cpp" },
+    callback = enable_clangd,
 })
+
+vim.schedule(function()
+    if vim.bo.filetype == "c" or vim.bo.filetype == "cpp" then
+        enable_clangd()
+    end
+end)
 
 vim.lsp.config("gopls", {
     settings = {
@@ -215,7 +235,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
         map("n", "gd", telescope("lsp_definitions", vim.lsp.buf.definition), "Definitions")
         map("n", "gy", telescope("lsp_type_definitions", vim.lsp.buf.type_definition), "Type Definitions")
         map("n", "gi", telescope("lsp_implementations", vim.lsp.buf.implementation), "Implementations")
-        map("n", "gr", fzf("lsp_references", vim.lsp.buf.references), "References")
+        map("n", "grr", fzf("lsp_references", vim.lsp.buf.references), "References")
         map("n", "gO", fzf("lsp_document_symbols", vim.lsp.buf.document_symbol), "Document Symbols")
         map("n", "<leader>cS", fzf("lsp_live_workspace_symbols", workspace_symbols), "Workspace Symbols")
         map("n", "K", function()
@@ -342,7 +362,6 @@ end, {
 })
 
 local servers = {
-    "clangd",
     "cssls",
     "eslint",
     "gopls",
@@ -355,6 +374,10 @@ local servers = {
 }
 
 require("mason-lspconfig").setup({
-    ensure_installed = servers,
-    automatic_enable = servers,
+    ensure_installed = vim.list_extend({ "clangd" }, vim.deepcopy(servers)),
+    automatic_enable = false,
 })
+
+-- Enabling the list in one call makes Neovim replay FileType only once,
+-- instead of once per server through mason-lspconfig's automatic loop.
+vim.lsp.enable(servers)
