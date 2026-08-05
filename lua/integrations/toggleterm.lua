@@ -32,21 +32,7 @@ end
 vim.opt.termguicolors = true
 
 -- =============================================================================
--- 2. GLOBAL TRANSPARENCY FIX
--- =============================================================================
--- This function ensures that floating windows stay transparent even if
--- the colorscheme tries to override them.
-local function force_transparent()
-    local hl_groups = { "NormalFloat", "FloatBorder" }
-    for _, group in ipairs(hl_groups) do
-        -- Preserve the colorscheme's foreground and style while clearing only
-        -- the background. nvim_set_hl() replaces the complete definition.
-        vim.cmd(("highlight %s guibg=NONE ctermbg=NONE"):format(group))
-    end
-end
-
--- =============================================================================
--- 3. SETUP TOGGLETERM
+-- 2. SETUP TOGGLETERM
 -- =============================================================================
 toggleterm.setup({
     size = function(term)
@@ -58,8 +44,7 @@ toggleterm.setup({
     end,
     open_mapping = [[<C-\>]],
     hide_numbers = true,
-    shade_terminals = false, -- Required for transparency
-    shading_factor = 0, -- Prevent automatic darkening
+    shade_terminals = false,
     start_in_insert = true,
     insert_mappings = false,
     terminal_mappings = true,
@@ -71,24 +56,22 @@ toggleterm.setup({
     auto_scroll = true,
     float_opts = {
         border = "curved",
-        winblend = 0, -- 0 is fully transparent
+        winblend = 0,
     },
     winbar = {
         enabled = false,
     },
     highlights = {
-        -- Use 'none' to allow the terminal emulator background to show through
-        NormalFloat = {
-            link = "Normal",
-        },
-        FloatBorder = {
-            guibg = "none",
-        },
+        Normal = { link = "Normal" },
+        NormalFloat = { link = "NormalFloat" },
+        FloatBorder = { link = "FloatBorder" },
+        SignColumn = { link = "SignColumn" },
+        EndOfBuffer = { link = "EndOfBuffer" },
     },
 })
 
 -- =============================================================================
--- 4. CUSTOM TERMINAL INSTANCES
+-- 3. CUSTOM TERMINAL INSTANCES
 -- =============================================================================
 local Terminal = require("toggleterm.terminal").Terminal
 
@@ -102,10 +85,9 @@ local function python_command()
     return "python"
 end
 
--- Helper to create terminals with transparency settings
 local function create_custom_term(opts)
     opts.float_opts = opts.float_opts or {}
-    opts.float_opts.winblend = 0 -- Force transparency for custom terms
+    opts.float_opts.winblend = 0
     return Terminal:new(opts)
 end
 
@@ -145,7 +127,7 @@ if vim.fn.executable("lazydocker") == 1 then
 end
 
 -- =============================================================================
--- 5. KEYMAPS (Normal Mode)
+-- 4. KEYMAPS (Normal Mode)
 -- =============================================================================
 local opts = { noremap = true, silent = true }
 
@@ -197,7 +179,7 @@ vim.keymap.set("v", "<space>s", function()
 end, { desc = "Terminal: Send Selection" })
 
 -- =============================================================================
--- 6. TERMINAL MODE MAPPINGS & AUTOCMDS
+-- 5. TERMINAL MODE MAPPINGS & AUTOCMDS
 -- =============================================================================
 function _G.set_terminal_keymaps()
     local t_opts = { buffer = 0 }
@@ -210,20 +192,15 @@ function _G.set_terminal_keymaps()
     vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], t_opts)
 end
 
--- Apply keymaps and force transparency when terminal opens
 vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "term://*toggleterm#*",
     callback = function()
         set_terminal_keymaps()
-        force_transparent() -- Ensure it's transparent every time it opens
     end,
 })
 
 -- =============================================================================
--- 7. CUSTOM COMMANDS
+-- 6. CUSTOM COMMANDS
 -- =============================================================================
 vim.cmd([[command! -count=1 TermGitPush  lua require'toggleterm'.exec("git push",    <count>, 12)]])
 vim.cmd([[command! -count=1 TermGitPushF lua require'toggleterm'.exec("git push -f", <count>, 12)]])
-
--- Final call to ensure transparency on load
-force_transparent()

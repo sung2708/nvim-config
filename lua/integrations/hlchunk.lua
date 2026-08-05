@@ -2,9 +2,14 @@ local M = require("helper.utils")
 local hlchunk = M.safe_require("hlchunk")
 
 if hlchunk then
-    local get_color = function()
-        return "#00ffff"
+    local function get_hl(name, fallback)
+        local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+        if next(hl) ~= nil then
+            return hl
+        end
+        return vim.api.nvim_get_hl(0, { name = fallback, link = false })
     end
+
     local exclude_ft = {
         bigfile = true,
         ["neo-tree"] = true,
@@ -14,10 +19,12 @@ if hlchunk then
         chunk = {
             enable = true,
             use_treesitter = false,
-            style = {
-                { fg = get_color() },
-                { fg = "#f35336" },
-            },
+            style = function()
+                return {
+                    get_hl("Special", "Directory"),
+                    get_hl("DiagnosticError", "ErrorMsg"),
+                }
+            end,
             chars = {
                 left_arrow = "─",
                 horizontal_line = "─",
@@ -36,16 +43,15 @@ if hlchunk then
         line_num = {
             enable = false,
             exclude_filetypes = exclude_ft,
-            style = "#806d9c",
             priority = 10,
             use_treesitter = true,
         },
         indent = {
             enable = true,
             use_treesitter = false,
-            style = {
-                vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.hlID("Whitespace")), "fg", "gui") or "#2f334d",
-            },
+            style = function()
+                return { get_hl("Whitespace", "NonText") }
+            end,
             exclude_filetypes = exclude_ft,
             chars = { "│" },
             priority = 10,
@@ -57,12 +63,6 @@ if hlchunk then
             exclude_filetypes = exclude_ft,
             chars = {
                 " ",
-            },
-            style = {
-                { bg = "#434437" },
-                { bg = "#2f4440" },
-                { bg = "#433054" },
-                { bg = "#284251" },
             },
         },
     })

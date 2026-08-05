@@ -68,12 +68,21 @@ opt.relativenumber = true
 opt.cursorline = true
 opt.cursorcolumn = false
 opt.termguicolors = true
+opt.winborder = "rounded"
 opt.signcolumn = "yes"
 opt.laststatus = 3
 opt.scrolloff = 4
 opt.sidescrolloff = 4
 opt.list = false
 opt.mouse = "a"
+opt.showmode = false
+opt.fillchars:append({
+    eob = " ",
+    fold = " ",
+    foldopen = "",
+    foldclose = "",
+    foldsep = " ",
+})
 
 opt.autoindent = true
 opt.smartindent = true
@@ -98,8 +107,8 @@ opt.synmaxcol = 400
 opt.confirm = true
 opt.completeopt = { "menu", "menuone", "noselect" }
 opt.pumheight = 12
-opt.winblend = 12
-opt.pumblend = 12
+opt.winblend = 0
+opt.pumblend = 0
 
 if vim.fn.has("win32") == 1 then
     opt.clipboard = "unnamed"

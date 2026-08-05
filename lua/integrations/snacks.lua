@@ -123,7 +123,7 @@ if snacks then
             },
             sections = {
                 { section = "header", padding = { 1, 2 } },
-                { section = "keys", gap = 0, padding = { 0, 1 } },
+                { section = "keys", gap = 1, padding = { 0, 1 } },
                 {
                     icon = " ",
                     title = "Recent Files",

@@ -2,7 +2,11 @@ local dap = require("dap")
 local dapui = require("dapui")
 
 require("nvim-dap-virtual-text").setup({})
-dapui.setup({})
+dapui.setup({
+    floating = {
+        border = "rounded",
+    },
+})
 
 require("mason-nvim-dap").setup({
     ensure_installed = { "python", "delve", "codelldb" },

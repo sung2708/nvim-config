@@ -99,7 +99,6 @@ return {
         lazy = true,
         init = defer_after_vimenter("smear-cursor.nvim", 800),
         opts = {
-            cursor_color = "#7DCFFF",
             smear_insert_mode = false,
             vertical_bar_cursor_insert_mode = true,
         },

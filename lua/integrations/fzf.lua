@@ -2,10 +2,19 @@ local fzf_lua = require("fzf-lua")
 
 fzf_lua.setup({
     winopts = {
+        height = 0.78,
+        width = 0.86,
+        row = 0.5,
+        col = 0.5,
         border = "rounded",
+        backdrop = false,
+        winblend = 0,
         preview = {
             border = "rounded",
-            scrollbar = "float",
+            scrollbar = "border",
+            winopts = {
+                winblend = 0,
+            },
         },
     },
     keymap = {

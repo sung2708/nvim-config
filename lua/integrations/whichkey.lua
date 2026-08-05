@@ -13,9 +13,12 @@ if wk then
         win = {
             border = "rounded",
             padding = { 1, 2 },
+            wo = {
+                winblend = 0,
+            },
         },
         layout = {
-            spacing = 4,
+            spacing = 3,
         },
     })
 

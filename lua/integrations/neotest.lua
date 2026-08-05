@@ -28,6 +28,12 @@ neotest.setup({
     output = {
         open_on_run = false,
     },
+    floating = {
+        border = "rounded",
+        options = {
+            winblend = 0,
+        },
+    },
 })
 
 vim.api.nvim_create_user_command("NeotestSummary", function()

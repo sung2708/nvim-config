@@ -12,7 +12,7 @@ return {
         priority = 1000,
         opts = {
             style = "night",
-            transparent = true,
+            transparent = false,
         },
         config = function(_, opts)
             require("tokyonight").setup(opts)
@@ -39,7 +39,7 @@ return {
         lazy = not is_active_theme("catppuccin"),
         priority = 999,
         opts = {
-            transparent_background = true,
+            transparent_background = false,
             -- Avoid invoking vim.pack.get() on Neovim 0.12. This repository
             -- uses lazy.nvim exclusively, and the probe creates an empty
             -- site/pack/core tree that both health checks report as a conflict.

@@ -49,11 +49,16 @@ require("noice").setup({
         backend = "nui",
     },
     views = {
+        mini = {
+            win_options = {
+                winblend = 0,
+            },
+        },
         cmdline_popup = {
             border = padded_border({ 0, 2 }),
             filter_options = {},
             win_options = {
-                winblend = 12,
+                winblend = 0,
             },
         },
         cmdline_popupmenu = {
@@ -63,37 +68,49 @@ require("noice").setup({
             },
             border = padded_border(),
             win_options = {
-                winblend = 12,
+                winblend = 0,
+                winhighlight = {
+                    Normal = "NoicePopupmenu",
+                    FloatBorder = "NoicePopupmenuBorder",
+                    CursorLine = "NoicePopupmenuSelected",
+                    PmenuMatch = "NoicePopupmenuMatch",
+                },
             },
         },
         popupmenu = {
             border = padded_border(),
             win_options = {
-                winblend = 12,
+                winblend = 0,
+                winhighlight = {
+                    Normal = "NoicePopupmenu",
+                    FloatBorder = "NoicePopupmenuBorder",
+                    CursorLine = "NoicePopupmenuSelected",
+                    PmenuMatch = "NoicePopupmenuMatch",
+                },
             },
         },
         cmdline_input = {
             border = padded_border({ 0, 2 }),
             win_options = {
-                winblend = 12,
+                winblend = 0,
             },
         },
         confirm = {
             border = padded_border(),
             win_options = {
-                winblend = 12,
+                winblend = 0,
             },
         },
         popup = {
             border = padded_border(),
             win_options = {
-                winblend = 12,
+                winblend = 0,
             },
         },
         hover = {
             border = padded_border(),
             win_options = {
-                winblend = 12,
+                winblend = 0,
             },
         },
     },

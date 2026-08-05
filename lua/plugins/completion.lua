@@ -65,6 +65,7 @@ return {
                     auto_show_delay_ms = 50,
                     window = {
                         border = "rounded",
+                        winblend = 0,
                     },
                 },
                 list = {
@@ -76,9 +77,10 @@ return {
                 menu = {
                     auto_show_delay_ms = 0,
                     border = "rounded",
+                    winblend = 0,
                     cmdline_position = cmdline_position,
                     draw = {
-                        padding = { 2, 2 },
+                        padding = { 1, 1 },
                         gap = 1,
                         treesitter = { "lsp" },
                     },
@@ -88,6 +90,7 @@ return {
                 enabled = true,
                 window = {
                     border = "rounded",
+                    winblend = 0,
                 },
             },
             sources = {
