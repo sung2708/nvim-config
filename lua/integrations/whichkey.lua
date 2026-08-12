@@ -34,6 +34,8 @@ if wk then
         { "g<M-a>", desc = "Select All Matches (No Boundary)", icon = { icon = "󰗧", color = "purple" } },
         { "g<M-n>", desc = "Start Multi-cursor (No Boundary)", icon = { icon = "󰗧", color = "purple" } },
         { "<C-Down>", desc = "Decrease Window Height", icon = { icon = "󰁅", color = "cyan" } },
+        { "<C-a>", desc = "Increment Value", icon = { icon = "󰐕", color = "green" }, mode = { "n", "x" } },
+        { "<C-x>", desc = "Decrement Value", icon = { icon = "󰍴", color = "red" }, mode = { "n", "x" } },
         { "<C-Left>", desc = "Decrease Window Width", icon = { icon = "󰁍", color = "cyan" } },
         { "<C-Right>", desc = "Increase Window Width", icon = { icon = "󰁔", color = "cyan" } },
         { "<C-Up>", desc = "Increase Window Height", icon = { icon = "󰁝", color = "cyan" } },

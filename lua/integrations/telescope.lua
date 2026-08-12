@@ -47,9 +47,6 @@ telescope.setup({
             override_file_sorter = true,
             case_mode = "smart_case",
         },
-        ["ui-select"] = {
-            require("telescope.themes").get_dropdown({}),
-        },
         file_browser = {
             hijack_netrw = true,
         },
@@ -58,4 +55,3 @@ telescope.setup({
 
 pcall(telescope.load_extension, "fzf")
 pcall(telescope.load_extension, "file_browser")
-pcall(telescope.load_extension, "ui-select")

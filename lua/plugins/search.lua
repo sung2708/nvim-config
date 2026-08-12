@@ -72,7 +72,6 @@ return {
                 build = build_fzf_native,
             },
             "nvim-telescope/telescope-file-browser.nvim",
-            "nvim-telescope/telescope-ui-select.nvim",
         },
         config = function()
             require("integrations.telescope")

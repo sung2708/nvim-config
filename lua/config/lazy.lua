@@ -43,6 +43,12 @@ require("lazy").setup({
         cache = {
             enabled = true,
         },
+        rtp = {
+            disabled_plugins = {
+                "tohtml",
+                "tutor",
+            },
+        },
     },
 })
 

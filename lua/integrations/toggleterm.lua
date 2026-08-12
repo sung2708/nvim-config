@@ -102,17 +102,6 @@ function _PYTHON_TOGGLE()
     python:toggle()
 end
 
--- LazyGit
-local lazygit = create_custom_term({
-    cmd = "lazygit",
-    direction = "float",
-    hidden = true,
-})
-
-function _lazygit_toggle()
-    lazygit:toggle()
-end
-
 local lazydocker
 if vim.fn.executable("lazydocker") == 1 then
     lazydocker = create_custom_term({

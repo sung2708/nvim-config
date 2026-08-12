@@ -26,21 +26,15 @@ local function java_bundles()
 end
 
 local function root_dir(bufnr)
-    local repository_root = vim.fs.root(bufnr, {
+    return vim.fs.root(bufnr, {
         "gradlew",
         "mvnw",
-        ".git",
-    })
-    if repository_root then
-        return repository_root
-    end
-
-    return vim.fs.root(bufnr, {
         "pom.xml",
         "build.gradle",
         "build.gradle.kts",
         "settings.gradle",
         "settings.gradle.kts",
+        ".git",
     }) or vim.fn.getcwd()
 end
 

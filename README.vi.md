@@ -44,6 +44,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Lint           | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck              |
 | Tìm kiếm       | Telescope, telescope-fzf-native, FzfLua, Grug Far              |
 | Điều hướng     | Flash, Neo-tree, Oil, Bufferline, Treesitter, Mini textobjects |
+| Chỉnh sửa      | Dial, IncRename xem trước, Yanky, surround, autopairs          |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history            |
 | AI             | Avante agentic chat qua Codex ACP                              |
 | Diagnostics    | Trouble, Todo Comments, Lualine                                |
@@ -51,7 +52,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
 | Test           | Neotest cho Python, Go, Jest và Java                           |
 | UI             | Snacks dashboard, WhichKey, Noice, Notify, theme có thể chọn   |
-| Cursor         | smear-cursor.nvim, bao gồm Insert mode                         |
+| Cursor         | smear-cursor.nvim ở Normal mode; tắt khi đang nhập             |
 
 ## Yêu Cầu
 
@@ -59,7 +60,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 
 | Công cụ             | Mục đích                                       |
 | ------------------- | ---------------------------------------------- |
-| Neovim `>= 0.11`    | Native LSP API và plugin hiện đại              |
+| Neovim `>= 0.12`    | Native LSP API và nvim-treesitter nhánh `main` |
 | Git                 | Bootstrap lazy.nvim và tải plugin              |
 | Internet            | Chỉ cần cho lần cài đặt và cập nhật đầu tiên   |
 | ripgrep (`rg`)      | Tìm file, live grep, Todo, Telescope và FzfLua |
@@ -197,7 +198,7 @@ ln -s "$(command -v fdfind)" ~/.local/bin/fd
 ```
 
 Đảm bảo `~/.local/bin` có trong `PATH`. Nếu package của distro cung cấp
-Neovim thấp hơn `0.11`, hãy cài bản mới theo
+Neovim thấp hơn `0.12`, hãy cài bản mới theo
 [hướng dẫn chính thức](https://github.com/neovim/neovim/blob/master/INSTALL.md).
 
 Clipboard tùy chọn:
@@ -291,7 +292,7 @@ Chạy các lệnh này trong Neovim:
 :Lazy load nvim-dap
 :Lazy load neotest
 :NeotestJava setup
-:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
 Ý nghĩa:
@@ -301,8 +302,8 @@ Chạy các lệnh này trong Neovim:
 3. `TSUpdate` cài hoặc cập nhật Treesitter parser.
 4. Load `nvim-dap` để Mason cài debugpy, Delve và codelldb.
 5. `NeotestJava setup` tải JUnit Console cần cho test Java.
-6. Lệnh `checkhealth` theo từng mục kiểm tra đúng các tích hợp cấu hình đang
-   dùng, không chạy health-check của module Snacks đã tắt hoặc trình quản lý
+6. Lệnh `checkhealth` theo từng mục kiểm tra Neovim, LSP, Treesitter và plugin
+   manager, không chạy health-check của module Snacks đã tắt hoặc trình quản lý
    `vim.pack` không được sử dụng.
 
 Có thể bootstrap plugin không cần mở UI:
@@ -320,7 +321,7 @@ Sau khi khởi động lại Neovim, chạy:
 
 ```vim
 :messages
-:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
 `:messages` không nên chứa lỗi startup. Báo cáo health theo từng mục không nên
@@ -411,9 +412,9 @@ Các package này không cần cài global nếu bạn chỉ dùng chúng trong 
 Parser được cài tự động:
 
 ```text
-bash  c  cpp  css  go  gomod  gosum  html  javascript  java
-json  lua  markdown  markdown_inline  python  query  toml
-tsx  typescript  vim  vimdoc  yaml
+bash  c  cpp  css  go  gomod  gosum  gotmpl  gowork  html
+javascript  java  json  latex  lua  markdown  markdown_inline
+python  query  regex  toml  tsx  typescript  vim  vimdoc  yaml
 ```
 
 Trên Windows, `bin/zig-cc.cmd` và `bin/zig-cxx.cmd` cho phép dùng Zig như
@@ -521,9 +522,10 @@ Neovim từ đúng terminal đó để đảm bảo `PATH` giống nhau.
 
 ## Giao Diện
 
-Giao diện dùng Tokyonight, Lualine, Bufferline, Neo-tree, Noice, Notify,
-WhichKey và Snacks dashboard. Dashboard tự ẩn statusline/tabline khi mở và
-khôi phục khi rời dashboard.
+Theme mặc định là Kanagawa; giao diện còn dùng Lualine, Bufferline, Neo-tree,
+Noice, Notify, WhichKey và Snacks dashboard. Dashboard tự ẩn statusline/tabline
+khi mở và khôi phục khi rời dashboard. Snacks sở hữu `vim.ui.select`, tránh
+xung đột thứ tự load với Telescope.
 
 Các thông báo diagnostic dùng icon từ Nerd Font. Nếu icon bị lỗi, kiểm tra
 font terminal trước khi debug plugin.
@@ -541,12 +543,12 @@ LSP mapping chỉ tồn tại sau khi language server attach vào buffer:
 | `gd`            | Đi tới definition qua Telescope       |
 | `gy`            | Đi tới type definition qua Telescope  |
 | `gi`            | Đi tới implementation                 |
-| `gr`            | Xem references qua FzfLua             |
+| `grr`           | Xem references qua FzfLua             |
 | `gO`            | Document symbols                      |
 | `Space+cS`      | Workspace symbols                     |
 | `K` / `Space+e` | Hover documentation                   |
 | `Space+ca`      | Code action                           |
-| `Space+rn`      | Rename symbol                         |
+| `Space+rn`      | Rename symbol với xem trước trực tiếp |
 | `Space+cd`      | Diagnostic của dòng hiện tại          |
 | `]d` / `[d`     | Diagnostic kế tiếp/trước đó           |
 | `Space+ci`      | Bật/tắt inlay hints nếu server hỗ trợ |
@@ -566,22 +568,26 @@ Diagnostics không cập nhật khi đang Insert mode để việc gõ ổn đ�
 | `Ctrl+e`            | Ẩn completion                         |
 | `Ctrl+n/p`          | Chọn item tiếp theo/trước đó          |
 | `Ctrl+j/k`          | Chọn item hoặc nhảy snippet           |
-| `Tab` / `Shift+Tab` | Completion hoặc snippet next/previous |
-| `Enter`             | Chấp nhận completion                  |
+| `Tab` / `Shift+Tab` | Chấp nhận/chọn hoặc nhảy snippet      |
+| `Ctrl+y`            | Chấp nhận completion                  |
+| `Enter`             | Xuống dòng; fallback theo ngữ cảnh    |
 | `Ctrl+b/f`          | Cuộn documentation                    |
 | `Ctrl+l`            | Bật/tắt signature help                |
 
 ### Công Cụ Thường Dùng
 
-| Phím       | Hành động           |
-| ---------- | ------------------- |
-| `Space+ff` | Tìm file            |
-| `Space+fg` | Live grep           |
-| `Space+fb` | Tìm buffer          |
-| `Space+gg` | Lazygit             |
-| `Space+ld` | Lazydocker          |
-| `Space+tt` | Mở terminal         |
-| `Space+xx` | Trouble diagnostics |
+| Phím        | Hành động                       |
+| ----------- | ------------------------------- |
+| `Space+ff`  | Tìm file                        |
+| `Space+fg`  | Live grep                       |
+| `Space+fb`  | Tìm buffer                      |
+| `Space+ld`  | Lazydocker, nếu đã cài          |
+| `Ctrl+\`    | Bật/tắt terminal                |
+| `Space+xx`  | Trouble diagnostics             |
+| `Ctrl+a/x`  | Tăng/giảm số, ngày hoặc giá trị |
+
+Lazygit bị tắt trên Windows vì lỗi ConPTY không ổn định; các lệnh Git native,
+Fugitive, Gitsigns và Diffview vẫn hoạt động bình thường.
 
 ### Trợ Lý AI
 
@@ -624,14 +630,20 @@ codex login status
 Mở Neovim và dùng `Space+ai`. Nếu Avante yêu cầu đăng nhập provider ACP, hoàn
 tất yêu cầu đó một lần. Không cần đặt biến môi trường `CODEX_HOME`.
 
-Lazygit, Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow
-tương ứng.
+Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow tương
+ứng. Tích hợp Lazygit hiện bị tắt trên Windows.
 
 ## Hiệu Năng
 
-Plugin nặng nên load theo filetype, command hoặc keymap thay vì load toàn bộ
-khi startup. Với file lớn, cấu hình có thể tắt Treesitter, LSP, completion và
-một số tính năng nặng để giữ editor phản hồi tốt.
+Phần lõi khi startup chỉ gồm lazy.nvim, options/keymaps/autocmd, Kanagawa đã
+biên dịch cache, Treesitter (yêu cầu của nhánh `main`) và dashboard Snacks.
+Plugin nặng load theo filetype, command, event hoặc keymap. Devicons và Smear
+Cursor được hoãn tới sau frame đầu; animation Insert mode bị tắt.
+
+Với file lớn, cấu hình tắt hoặc không khởi động Treesitter, LSP, completion và
+một số tính năng nặng để giữ editor phản hồi tốt. LSP attach muộn cũng được
+detach khỏi buffer bigfile; buffer ảo như Diffview cũng không nhận LSP để tránh
+URI không hợp lệ.
 
 Mason tool installation chạy sau startup và được giới hạn tần suất để tránh
 kiểm tra quá thường xuyên.
@@ -646,6 +658,7 @@ Cập nhật plugin và tool:
 :MasonToolsInstall
 :MasonUpdate
 :TSUpdate
+:KanagawaCompile
 ```
 
 Khi cập nhật plugin, giữ `lazy-lock.json` trong version control để môi trường
@@ -656,18 +669,29 @@ parser bị lỗi.
 
 ### `:checkhealth` Chung Báo Lỗi Snacks Hoặc `vim.pack`
 
-Cấu hình chỉ dùng một số module Snacks và dùng lazy.nvim; không dùng Snacks
-image, Snacks picker/notifier hoặc trình quản lý `vim.pack` tích hợp của
-Neovim. `:checkhealth` không có tham số vẫn kiểm tra cả các thành phần đã tắt.
-Trong terminal headless, nó có thể báo thiếu Kitty graphics, dashboard chưa
-chạy, picker/notifier bị tắt hoặc thiếu `nvim-pack-lock.json`. Đây không phải
-lỗi khởi động của cấu hình.
+Cấu hình dùng dashboard, bigfile, quickfile, input và picker của Snacks; picker
+sở hữu `vim.ui.select`. Snacks image và notifier riêng bị tắt, còn Notify xử lý
+thông báo. Cấu hình dùng lazy.nvim thay cho `vim.pack`. `:checkhealth` không có
+tham số vẫn kiểm tra các thành phần đã tắt. Trong terminal headless, nó có thể
+báo thiếu Kitty graphics, dashboard chưa chạy, image/notifier bị tắt hoặc thiếu
+`nvim-pack-lock.json`; đây không phải lỗi khởi động của cấu hình.
 
 Hãy dùng lệnh kiểm tra đúng phạm vi:
 
 ```vim
-:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
+
+Avante được lazy-load. Muốn kiểm tra riêng, hãy load trước:
+
+```vim
+:Lazy load avante.nvim
+:checkhealth avante
+```
+
+Khi offline, `vim.provider` có thể chỉ lỗi ở bước tùy chọn kiểm tra phiên bản
+trên PyPI; Python provider vẫn dùng được nếu executable và phiên bản `pynvim`
+được báo thành công.
 
 Node, Perl và Ruby remote provider được tắt có chủ đích vì không plugin nào
 trong cấu hình sử dụng chúng. Việc này không tắt language server/formatter dùng
@@ -891,8 +915,8 @@ Bật/tắt tạm thời:
 :SmearCursorToggle
 ```
 
-Để đổi màu hoặc tắt animation trong Insert mode, sửa option của
-`sphamba/smear-cursor.nvim` trong `lua/plugins/editor.lua`.
+Animation trong Insert mode đã tắt mặc định. Để đổi màu hoặc bật lại, sửa option
+của `sphamba/smear-cursor.nvim` trong `lua/plugins/editor.lua`.
 
 ## Tham Khảo
 
@@ -904,5 +928,7 @@ Bật/tắt tạm thời:
 - [codex-acp](https://github.com/zed-industries/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
+- [Dial](https://github.com/monaqa/dial.nvim)
+- [IncRename](https://github.com/smjonas/inc-rename.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)
 - [neotest-java](https://github.com/rcasia/neotest-java)

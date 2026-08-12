@@ -4,6 +4,114 @@ local defer_on_filetype = utils.defer_plugin_on_filetype
 
 return {
     {
+        "smjonas/inc-rename.nvim",
+        cmd = "IncRename",
+        opts = {},
+    },
+    {
+        "monaqa/dial.nvim",
+        keys = {
+            {
+                "<C-a>",
+                function()
+                    return require("dial.map").inc_normal()
+                end,
+                expr = true,
+                desc = "Edit: Increment",
+            },
+            {
+                "<C-x>",
+                function()
+                    return require("dial.map").dec_normal()
+                end,
+                expr = true,
+                desc = "Edit: Decrement",
+            },
+            {
+                "g<C-a>",
+                function()
+                    return require("dial.map").inc_gnormal()
+                end,
+                expr = true,
+                desc = "Edit: Increment Sequence",
+            },
+            {
+                "g<C-x>",
+                function()
+                    return require("dial.map").dec_gnormal()
+                end,
+                expr = true,
+                desc = "Edit: Decrement Sequence",
+            },
+            {
+                "<C-a>",
+                function()
+                    return require("dial.map").inc_visual()
+                end,
+                mode = "x",
+                expr = true,
+                desc = "Edit: Increment Selection",
+            },
+            {
+                "<C-x>",
+                function()
+                    return require("dial.map").dec_visual()
+                end,
+                mode = "x",
+                expr = true,
+                desc = "Edit: Decrement Selection",
+            },
+            {
+                "g<C-a>",
+                function()
+                    return require("dial.map").inc_gvisual()
+                end,
+                mode = "x",
+                expr = true,
+                desc = "Edit: Increment Selection Sequence",
+            },
+            {
+                "g<C-x>",
+                function()
+                    return require("dial.map").dec_gvisual()
+                end,
+                mode = "x",
+                expr = true,
+                desc = "Edit: Decrement Selection Sequence",
+            },
+        },
+        config = function()
+            local augend = require("dial.augend")
+
+            require("dial.config").augends:register_group({
+                default = {
+                    augend.integer.alias.decimal_int,
+                    augend.integer.alias.hex,
+                    augend.date.alias["%Y/%m/%d"],
+                    augend.date.alias["%Y-%m-%d"],
+                    augend.constant.alias.bool,
+                    augend.constant.alias.Bool,
+                    augend.constant.new({
+                        elements = { "and", "or" },
+                        word = true,
+                        cyclic = true,
+                    }),
+                    augend.constant.new({
+                        elements = { "&&", "||" },
+                        word = false,
+                        cyclic = true,
+                    }),
+                    augend.constant.new({
+                        elements = { "[ ]", "[x]" },
+                        word = false,
+                        cyclic = true,
+                    }),
+                    augend.semver.alias.semver,
+                },
+            })
+        end,
+    },
+    {
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
         cmd = "Neotree",
@@ -206,11 +314,7 @@ return {
         end,
         opts = {
             provider_selector = function(bufnr, _, buftype)
-                if
-                    buftype ~= ""
-                    or vim.b[bufnr].bigfile
-                    or vim.api.nvim_buf_line_count(bufnr) > 10000
-                then
+                if buftype ~= "" or vim.b[bufnr].bigfile or vim.api.nvim_buf_line_count(bufnr) > 10000 then
                     return ""
                 end
                 return { "treesitter", "indent" }

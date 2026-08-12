@@ -90,6 +90,10 @@ M.defer_plugin_on_filetype = function(plugin, filetypes, delay)
             group = group,
             pattern = filetypes,
             callback = function(args)
+                if vim.b[args.buf].bigfile then
+                    return
+                end
+
                 if plugin_loaded(plugin) then
                     finish()
                     return
@@ -110,11 +114,32 @@ M.defer_plugin_on_filetype = function(plugin, filetypes, delay)
                     end
                     load_plugin(plugin)
 
-                    -- Native vim.lsp.enable() already replays FileType for
-                    -- existing buffers. Once setup succeeds, this helper has
-                    -- no remaining work and would only add duplicate timers.
                     if plugin_loaded(plugin) then
                         finish()
+
+                        -- The original FileType event completed before this
+                        -- plugin was loaded. Replay only its autocmd phase so
+                        -- LSP clients and other filetype integrations can
+                        -- attach to the buffer that triggered the load.
+                        if
+                            vim.api.nvim_buf_is_valid(bufnr)
+                            and vim.api.nvim_buf_is_loaded(bufnr)
+                            and vim.bo[bufnr].filetype == filetype
+                            and not vim.b[bufnr].bigfile
+                        then
+                            -- FileType handlers in Neovim's runtime may use
+                            -- the current buffer instead of <abuf>. Keep the
+                            -- replay inside the source buffer's context so a
+                            -- panel opened while this timer was pending (for
+                            -- example DiffviewFiles) cannot receive Lua's
+                            -- ftplugin or Treesitter parser by mistake.
+                            vim.api.nvim_buf_call(bufnr, function()
+                                vim.api.nvim_exec_autocmds("FileType", {
+                                    buffer = bufnr,
+                                    modeline = false,
+                                })
+                            end)
+                        end
                     end
                 end, delay or 40)
             end,

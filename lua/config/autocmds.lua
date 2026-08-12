@@ -3,7 +3,7 @@ local core_group = vim.api.nvim_create_augroup("SungpCore", { clear = true })
 -- Neovim's built-in ftplugins for these filetypes start Treesitter
 -- synchronously inside FileType, which delays the first rendered frame. Defer
 -- only those built-in calls; explicit plugin/user calls keep normal semantics.
-if not vim.g.sungp_deferred_builtin_treesitter then
+if vim.fn.argc() > 0 and not vim.g.sungp_deferred_builtin_treesitter then
     vim.g.sungp_deferred_builtin_treesitter = true
     local treesitter_start = vim.treesitter.start
     local deferred_filetypes = { help = true, lua = true, markdown = true, query = true }

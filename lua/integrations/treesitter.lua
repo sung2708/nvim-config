@@ -15,6 +15,7 @@ local required_parsers = {
     "javascript",
     "java",
     "json",
+    "latex",
     "lua",
     "markdown",
     "markdown_inline",

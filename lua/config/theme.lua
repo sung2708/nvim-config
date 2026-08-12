@@ -13,6 +13,7 @@ M.nord = {
 }
 
 M.kanagawa = {
+    compile = true,
     overrides = function(colors)
         local theme = colors.theme
         return {
@@ -310,12 +311,17 @@ end
 vim.api.nvim_create_autocmd("ColorScheme", {
     group = vim.api.nvim_create_augroup("SungpThemeUI", { clear = true }),
     callback = function()
+        if M.loading then
+            return
+        end
         vim.schedule(M.apply_ui_highlights)
     end,
 })
 
 function M.load()
+    M.loading = true
     vim.cmd.colorscheme(M.name)
+    M.loading = false
     M.apply_ui_highlights()
 end
 

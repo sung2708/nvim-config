@@ -10,7 +10,12 @@ local function save_codex_default_model(model)
     vim.fn.mkdir(vim.fs.dirname(codex_config_path), "p")
     local lines = vim.fn.filereadable(codex_config_path) == 1 and vim.fn.readfile(codex_config_path) or {}
     local replaced = false
+    local insert_at = #lines + 1
     for index, line in ipairs(lines) do
+        if line:match("^%s*%[") then
+            insert_at = index
+            break
+        end
         if line:match("^%s*model%s*=") then
             lines[index] = 'model = "' .. model .. '"'
             replaced = true
@@ -18,7 +23,7 @@ local function save_codex_default_model(model)
         end
     end
     if not replaced then
-        table.insert(lines, 1, 'model = "' .. model .. '"')
+        table.insert(lines, insert_at, 'model = "' .. model .. '"')
     end
 
     local ok = vim.fn.writefile(lines, codex_config_path) == 0
@@ -121,7 +126,10 @@ local function select_acp_config(category, prompt)
                     if category == "model" then
                         local saved, save_err = save_codex_default_model(choice.value)
                         if not saved then
-                            vim.notify("Session model changed, but default was not saved: " .. save_err, vim.log.levels.WARN)
+                            vim.notify(
+                                "Session model changed, but default was not saved: " .. save_err,
+                                vim.log.levels.WARN
+                            )
                         else
                             vim.notify("Codex default model saved: " .. choice.value, vim.log.levels.INFO)
                         end

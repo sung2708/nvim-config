@@ -26,10 +26,11 @@ if snacks then
     local dashboard_chrome
 
     local function hide_dashboard_chrome()
-        dashboard_chrome = dashboard_chrome or {
-            laststatus = vim.o.laststatus,
-            showtabline = vim.o.showtabline,
-        }
+        dashboard_chrome = dashboard_chrome
+            or {
+                laststatus = vim.o.laststatus,
+                showtabline = vim.o.showtabline,
+            }
         vim.o.laststatus = 0
         vim.o.showtabline = 0
     end
@@ -148,6 +149,7 @@ if snacks then
             },
         },
         picker = {
+            ui_select = true,
             sources = {
                 files = {
                     cmd = "fd",

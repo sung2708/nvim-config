@@ -69,9 +69,6 @@ return {
         "folke/snacks.nvim",
         lazy = false,
         priority = 1000,
-        dependencies = {
-            "nvim-tree/nvim-web-devicons",
-        },
         config = function()
             require("integrations.snacks")
         end,

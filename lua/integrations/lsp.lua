@@ -223,6 +223,19 @@ vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(args)
         local bufnr = args.buf
         local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+        local uri_scheme = vim.uri_from_bufnr(bufnr):match("^([%w+.-]+):")
+
+        if vim.b[bufnr].bigfile or vim.bo[bufnr].buftype ~= "" or (uri_scheme and uri_scheme ~= "file") then
+            vim.schedule(function()
+                if vim.api.nvim_buf_is_valid(bufnr) then
+                    vim.lsp.buf_detach_client(bufnr, client.id)
+                    if not next(client.attached_buffers) then
+                        client:stop()
+                    end
+                end
+            end)
+            return
+        end
 
         local function map(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, {
@@ -245,7 +258,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
             vim.lsp.buf.hover({ border = "rounded" })
         end, "Hover")
         map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
-        map("n", "<leader>rn", vim.lsp.buf.rename, "Rename")
+        vim.keymap.set("n", "<leader>rn", function()
+            return ":IncRename " .. vim.fn.expand("<cword>")
+        end, {
+            buffer = bufnr,
+            silent = false,
+            expr = true,
+            desc = "LSP: Rename with Preview",
+        })
         map("n", "<leader>cd", function()
             vim.diagnostic.open_float({ border = "rounded", source = "if_many" })
         end, "Line Diagnostics")

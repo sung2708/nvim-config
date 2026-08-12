@@ -45,6 +45,7 @@ The configuration is designed around five goals:
 | Linting        | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck                 |
 | Search         | Telescope, telescope-fzf-native, FzfLua, Grug Far                 |
 | Navigation     | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
+| Editing        | Dial cycling, IncRename previews, Yanky, surround, autopairs      |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history               |
 | AI             | Avante agentic chat through Codex ACP                             |
 | Diagnostics    | Trouble, Todo Comments, Lualine                                   |
@@ -52,7 +53,7 @@ The configuration is designed around five goals:
 | Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
 | Testing        | Neotest for Python, Go, Jest, and Java                            |
 | UI             | Snacks dashboard, WhichKey, Noice, Notify, selectable themes      |
-| Cursor         | smear-cursor.nvim, including Insert mode                          |
+| Cursor         | smear-cursor.nvim in Normal mode; disabled while inserting        |
 
 ## Requirements
 
@@ -60,7 +61,7 @@ The configuration is designed around five goals:
 
 | Tool              | Purpose                                             |
 | ----------------- | --------------------------------------------------- |
-| Neovim `>= 0.11`  | Native LSP APIs and current plugin support          |
+| Neovim `>= 0.12`  | Native LSP APIs and nvim-treesitter `main` support  |
 | Git               | Bootstrap lazy.nvim and download plugins            |
 | Internet access   | Required only for initial installation and updates  |
 | ripgrep (`rg`)    | File search, live grep, Todo, Telescope, and FzfLua |
@@ -105,7 +106,6 @@ test Go code.
 | uv                           | Python environments and the Python REPL   |
 | Maven                        | Java projects without `mvnw`              |
 | Gradle                       | Java projects without `gradlew`           |
-| Lazygit                      | `Space+gg`                                |
 | Lazydocker and Docker        | `Space+ld`                                |
 | Codex CLI and `codex-acp`    | Avante agentic chat                       |
 | xclip, xsel, or wl-clipboard | System clipboard integration on Linux     |
@@ -311,7 +311,7 @@ Run these commands inside Neovim:
 :Lazy load nvim-dap
 :Lazy load neotest
 :NeotestJava setup
-:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
 What each command does:
@@ -322,8 +322,8 @@ What each command does:
 3. `TSUpdate` installs or updates Treesitter parsers.
 4. Loading `nvim-dap` allows Mason to install debugpy, Delve, and codelldb.
 5. `NeotestJava setup` downloads the JUnit Console required by Java tests.
-6. The targeted `checkhealth` command validates the integrations used by this
-   configuration without running health checks for disabled Snacks modules or
+6. The targeted `checkhealth` command validates Neovim, LSP, Treesitter, and
+   the plugin manager without running checks for disabled Snacks modules or
    Neovim's unused built-in `vim.pack` manager.
 
 Plugins can also be bootstrapped without opening the UI:
@@ -341,7 +341,7 @@ After restarting Neovim, run:
 
 ```vim
 :messages
-:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
 `:messages` should not contain startup errors. The targeted health report
@@ -435,9 +435,9 @@ outside Neovim.
 Parsers installed automatically:
 
 ```text
-bash  c  cpp  css  go  gomod  gosum  html  javascript  java
-json  lua  markdown  markdown_inline  python  query  toml
-tsx  typescript  vim  vimdoc  yaml
+bash  c  cpp  css  go  gomod  gosum  gotmpl  gowork  html
+javascript  java  json  latex  lua  markdown  markdown_inline
+python  query  regex  toml  tsx  typescript  vim  vimdoc  yaml
 ```
 
 On Windows, `bin/zig-cc.cmd` and `bin/zig-cxx.cmd` expose Zig as a C/C++
@@ -661,11 +661,11 @@ The menu is positioned below the Noice border with a visible row of separation.
 
 ### Smear Cursor
 
-Smear Cursor starts with Neovim and remains enabled in Insert mode:
+Smear Cursor is loaded after the first frame and animates Normal-mode cursor
+movement. Insert-mode smearing is disabled to keep typing visually stable:
 
 ```lua
-cursor_color = "#7DCFFF"
-smear_insert_mode = true
+smear_insert_mode = false
 vertical_bar_cursor_insert_mode = true
 ```
 
@@ -759,7 +759,8 @@ Inside FzfLua:
 | `am` / `im` | Visual/Operator        | Around/inside function       |
 | `ac` / `ic` | Visual/Operator        | Around/inside class          |
 | `as`        | Visual/Operator        | Around scope                 |
-| `Space+a/A` | Normal                 | Swap next/previous parameter |
+| `Space+mp`  | Normal                 | Swap with next parameter     |
+| `Space+mP`  | Normal                 | Swap with previous parameter |
 | `]m` / `[m` | Normal/Visual/Operator | Next/previous function start |
 | `]M` / `[M` | Normal/Visual/Operator | Next/previous function end   |
 | `]]` / `[[` | Normal/Visual/Operator | Next/previous class start    |
@@ -823,12 +824,12 @@ LSP mappings are buffer-local and exist only after a language server attaches:
 | `gd`            | Definitions through Telescope      |
 | `gy`            | Type definitions through Telescope |
 | `gi`            | Implementations through Telescope  |
-| `gr`            | References through FzfLua          |
+| `grr`           | References through FzfLua          |
 | `gO`            | Document symbols through FzfLua    |
 | `Space+cS`      | Workspace symbols                  |
 | `K` / `Space+e` | Hover documentation                |
 | `Space+ca`      | Code action                        |
-| `Space+rn`      | Rename symbol                      |
+| `Space+rn`      | Rename symbol with live preview    |
 | `Space+cd`      | Line diagnostics                   |
 | `]d` / `[d`     | Next/previous diagnostic           |
 | `Space+ci`      | Toggle inlay hints when supported  |
@@ -849,8 +850,9 @@ stable and reduces unnecessary redraws.
 | `Ctrl+e`            | Hide completion                      |
 | `Ctrl+n/p`          | Select next/previous item            |
 | `Ctrl+j/k`          | Select item or jump through snippets |
-| `Tab` / `Shift+Tab` | Completion or snippet next/previous  |
-| `Enter`             | Accept completion                    |
+| `Tab` / `Shift+Tab` | Accept/advance or move backward      |
+| `Ctrl+y`            | Accept the selected completion       |
+| `Enter`             | Insert a normal newline              |
 | `Ctrl+b/f`          | Scroll documentation                 |
 | `Ctrl+l`            | Toggle signature help                |
 
@@ -879,6 +881,15 @@ manually.
 | `:FormatDisable!` | Disable format-on-save for the current buffer |
 | `:FormatEnable`   | Re-enable format-on-save                      |
 | `:ConformInfo`    | Show active formatter information             |
+
+Dial extends Vim's increment/decrement commands for integers, hexadecimal
+values, dates, booleans, semantic versions, logical operators, and Markdown
+checkboxes:
+
+| Key                 | Mode          | Action                              |
+| ------------------- | ------------- | ----------------------------------- |
+| `Ctrl+a` / `Ctrl+x` | Normal/Visual | Increment/decrement the value       |
+| `g Ctrl+a/x`        | Normal/Visual | Increment/decrement as a sequence   |
 
 ### Todo and Trouble
 
@@ -995,10 +1006,9 @@ Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 | `Space+tv`     | Normal          | Vertical terminal          |
 | `Space+tf`     | Normal          | Floating terminal          |
 | `Space+py`     | Normal          | Python REPL                |
-| `Space+gg`     | Normal          | Lazygit, when installed    |
 | `Space+ld`     | Normal          | Lazydocker, when installed |
 | `Space+s`      | Visual          | Send selection to terminal |
-| `Esc` or `jk`  | Terminal        | Return to Normal mode      |
+| `Esc`          | Terminal        | Return to Normal mode      |
 | `Ctrl+h/j/k/l` | Terminal        | Move between windows       |
 
 ### Tasks and Sessions
@@ -1072,11 +1082,12 @@ Catppuccin is declared but is not the default colorscheme:
 To keep it enabled, change the colorscheme in the UI integration instead of
 running the command after every restart.
 
-### Lazygit and Lazydocker
+### Lazydocker
 
-These terminals are created only when their keymaps are used. Neovim starts
-normally without either executable, but `Space+gg` or `Space+ld` will fail
-until the corresponding program is installed.
+The Lazydocker terminal is created only when `lazydocker` is executable.
+Lazygit integration is intentionally disabled on Windows because of a
+ConPTY/input issue; Git workflows remain available through Fugitive and
+Diffview.
 
 ### Python uv
 
@@ -1093,19 +1104,24 @@ UV_TOOL_BIN_DIR
 
 Enabled optimizations:
 
-- Startup loads only core configuration, the colorscheme, lazy.nvim, Snacks,
-  devicons, and Smear Cursor.
+- Startup loads core configuration, lazy.nvim, the compiled Kanagawa theme,
+  Snacks, and nvim-treesitter. Devicons and Smear Cursor load later.
 - LSP and language plugins load when matching files are opened.
 - Blink loads on Insert or command-line entry.
 - LazyDev loads only for Lua; SchemaStore loads only for JSON and JSONC.
-- Treesitter installs missing parsers in the background after buffer startup.
+- The nvim-treesitter `main` branch is intentionally non-lazy, as required by
+  upstream; highlighting is deferred until a buffer is visible and missing
+  parsers install in the background.
 - nvim-lint loads only for supported filetypes.
 - Mason tool installation checks run after startup and no more than once every
   seven days.
 - `checktime` runs only after focus returns to Neovim or the buffer changes.
 - LSP document highlights are cleared and suspended in Insert mode.
+- LSP detaches from big files and virtual plugin buffers such as Diffview.
 - Cursor line, cursor column, and relative numbers are hidden in Insert mode.
-- Smear Cursor remains enabled in Insert mode by explicit user preference.
+- Smear Cursor is disabled in Insert mode.
+- Kanagawa uses its compiled cache; run `:KanagawaCompile` after changing its
+  options or overrides.
 - `lazyredraw` is not enabled because it can conflict with Noice.
 - Dashboard statusline and tabline are hidden and restored automatically.
 
@@ -1132,6 +1148,7 @@ completely unhighlighted text.
 :MasonToolsInstall
 :MasonUpdate
 :TSUpdate
+:KanagawaCompile
 :LspInfo
 :LspRestart
 :ConformInfo
@@ -1168,18 +1185,30 @@ all loading during startup.
 
 ### Generic `:checkhealth` Shows Snacks or `vim.pack` Errors
 
-This configuration uses selected Snacks modules and lazy.nvim; it does not use
-Snacks image rendering, Snacks picker/notifier, or Neovim's built-in
-`vim.pack`. A generic `:checkhealth` checks those unused components too. In a
-headless terminal it may report missing Kitty graphics, a dashboard that did
-not run, disabled picker/notifier modules, or an absent `nvim-pack-lock.json`.
-These reports do not indicate a startup failure.
+This configuration uses Snacks dashboard, bigfile, quickfile, input, and
+picker modules with Snacks as the single `vim.ui.select` owner. It does not
+enable Snacks image rendering or notifier, and it uses lazy.nvim instead of
+Neovim's built-in `vim.pack`. A generic `:checkhealth` still checks disabled
+modules. In a headless terminal it may report missing Kitty graphics, a
+dashboard that did not run, disabled modules, or an absent
+`nvim-pack-lock.json`; those reports do not indicate a startup failure.
 
 Use the configuration-specific check instead:
 
 ```vim
-:checkhealth avante fzf_lua lazy vim.provider vim.deprecated vim.treesitter
+:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
+
+Avante is lazy-loaded. To run its own health check, load it first:
+
+```vim
+:Lazy load avante.nvim
+:checkhealth avante
+```
+
+An offline `vim.provider` run may fail only its optional PyPI version lookup;
+the configured Python provider remains usable when its executable and `pynvim`
+version are reported successfully.
 
 Node, Perl, and Ruby remote providers are intentionally disabled because none
 of the configured plugins use them. This does not disable Node-based language
