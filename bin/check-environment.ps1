@@ -1,9 +1,33 @@
 $ErrorActionPreference = "Continue"
+
+$required = @("nvim", "git", "rg")
+$optional = @("tree-sitter", "make", "zig", "g++", "node", "python", "go", "java")
+$missingRequired = 0
+
 Write-Host "Neovim environment check" -ForegroundColor Cyan
-foreach ($name in @("nvim", "git", "rg", "tree-sitter", "zig", "g++", "node", "python", "go", "java")) {
+
+foreach ($name in $required) {
     $command = Get-Command $name -ErrorAction SilentlyContinue
-    if ($command) { Write-Host "[OK]   $name -> $($command.Source)" -ForegroundColor Green }
-    else { Write-Host "[MISS] $name -> not found in PATH" -ForegroundColor Red }
+    if ($command) {
+        Write-Host "[OK]       $name -> $($command.Source)" -ForegroundColor Green
+    } else {
+        Write-Host "[REQUIRED] $name -> not found in PATH" -ForegroundColor Red
+        $missingRequired++
+    }
 }
+
+foreach ($name in $optional) {
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if ($command) {
+        Write-Host "[OK]       $name -> $($command.Source)" -ForegroundColor Green
+    } else {
+        Write-Host "[OPTIONAL] $name -> not found in PATH" -ForegroundColor Yellow
+    }
+}
+
 Write-Host ""
-Write-Host "After the first launch run: :checkhealth, :MasonToolsInstall, :TSUpdate" -ForegroundColor Yellow
+Write-Host "After the first launch run: :ConfigHealth, :MasonToolsInstall, :TSUpdate" -ForegroundColor Cyan
+
+if ($missingRequired -gt 0) {
+    exit 1
+}

@@ -82,7 +82,9 @@ local function python_command()
     if vim.fn.executable("python3") == 1 then
         return "python3"
     end
-    return "python"
+    if vim.fn.executable("python") == 1 then
+        return "python"
+    end
 end
 
 local function create_custom_term(opts)
@@ -92,13 +94,18 @@ local function create_custom_term(opts)
 end
 
 -- Python REPL
-local python = create_custom_term({
-    cmd = python_command(),
+local python_cmd = python_command()
+local python = python_cmd and create_custom_term({
+    cmd = python_cmd,
     direction = "horizontal",
     hidden = true,
 })
 
 function _PYTHON_TOGGLE()
+    if not python then
+        vim.notify("Python REPL unavailable: install uv, python3, or python", vim.log.levels.WARN)
+        return
+    end
     python:toggle()
 end
 

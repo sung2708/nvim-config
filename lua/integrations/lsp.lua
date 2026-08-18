@@ -222,7 +222,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
     group = attach_group,
     callback = function(args)
         local bufnr = args.buf
-        local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if not client then
+            return
+        end
         local uri_scheme = vim.uri_from_bufnr(bufnr):match("^([%w+.-]+):")
 
         if vim.b[bufnr].bigfile or vim.bo[bufnr].buftype ~= "" or (uri_scheme and uri_scheme ~= "file") then

@@ -320,6 +320,7 @@ theo ngôn ngữ chỉ khởi động khi mở buffer phù hợp.
 Sau khi khởi động lại Neovim, chạy:
 
 ```vim
+:ConfigHealth
 :messages
 :checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
@@ -340,6 +341,12 @@ Trên Windows, kiểm tra dependency trước khi mở Neovim:
 
 ```powershell
 .\\bin\\check-environment.ps1
+```
+
+Trên Linux hoặc macOS:
+
+```bash
+sh ./bin/check-environment.sh
 ```
 
 Nếu `tree-sitter` không được tìm thấy, mở PowerShell mới sau khi cài bằng npm
@@ -517,6 +524,19 @@ Windows được ưu tiên hỗ trợ qua Scoop. Cấu hình tự nhận một s
 phổ biến và dùng wrapper `.cmd` khi cần. Linux và macOS dựa nhiều hơn vào
 `PATH`, `CC`, `CXX`, `JAVA_HOME` và package manager của hệ thống.
 
+
+### Cấu hình riêng cho từng máy
+
+Không đưa đường dẫn hoặc sở thích chỉ dùng trên một máy vào cấu hình chung.
+Sao chép file mẫu sang `local.lua`, file này đã được Git bỏ qua:
+
+```powershell
+Copy-Item .\lua\config\local.example.lua .\lua\config\local.lua
+```
+
+Trên Linux/macOS dùng `cp ./lua/config/local.example.lua ./lua/config/local.lua`.
+
+Database và lịch sử plugin dùng `stdpath("data")`, không nằm trong repository.
 Nếu một công cụ chạy được trong terminal nhưng không chạy trong Neovim, hãy mở
 Neovim từ đúng terminal đó để đảm bảo `PATH` giống nhau.
 

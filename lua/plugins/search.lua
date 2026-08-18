@@ -20,6 +20,19 @@ local function build_fzf_native(plugin)
     end
 end
 
+local function has_executable(commands)
+    for _, command in ipairs(commands) do
+        if vim.fn.executable(command) == 1 then
+            return true
+        end
+    end
+    return false
+end
+
+local has_configured_compiler = vim.env.CC and vim.env.CC ~= ""
+local can_build_fzf_native = vim.fn.executable("make") == 1
+    and (has_configured_compiler or has_executable({ "zig", "cc", "clang", "gcc" }))
+
 return {
     {
         "nvim-telescope/telescope.nvim",
@@ -69,6 +82,7 @@ return {
             "nvim-tree/nvim-web-devicons",
             {
                 "nvim-telescope/telescope-fzf-native.nvim",
+                enabled = can_build_fzf_native,
                 build = build_fzf_native,
             },
             "nvim-telescope/telescope-file-browser.nvim",

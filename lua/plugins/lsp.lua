@@ -112,7 +112,8 @@ return {
     },
     {
         "stevearc/conform.nvim",
-        event = "BufWritePre",
+        -- Load before the first save so format_on_save is active immediately.
+        event = { "BufReadPre", "BufNewFile" },
         cmd = { "ConformInfo" },
         keys = {
             {
@@ -178,7 +179,8 @@ return {
     },
     {
         "mfussenegger/nvim-lint",
-        event = "BufWritePost",
+        -- Load before the first save so the lint autocmd is registered.
+        event = { "BufReadPre", "BufNewFile" },
         keys = {
             {
                 "<leader>cL",

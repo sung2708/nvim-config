@@ -214,7 +214,7 @@ ln -s "$(command -v fdfind)" ~/.local/bin/fd
 ```
 
 Ensure `~/.local/bin` is in `PATH`. Distribution packages may provide an older
-Neovim release. If it is below `0.11`, install a current build using the
+Neovim release. If it is below `0.12`, install a current build using the
 [official Neovim instructions](https://github.com/neovim/neovim/blob/master/INSTALL.md).
 
 Optional clipboard packages:
@@ -340,6 +340,7 @@ language-specific plugins start only when a matching buffer is opened.
 After restarting Neovim, run:
 
 ```vim
+:ConfigHealth
 :messages
 :checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
@@ -361,6 +362,12 @@ On Windows, check dependencies before opening Neovim:
 
 ```powershell
 .\\bin\\check-environment.ps1
+```
+
+On Linux or macOS:
+
+```bash
+sh ./bin/check-environment.sh
 ```
 
 If `tree-sitter` is missing, open a new PowerShell after installing it with npm
@@ -605,6 +612,25 @@ export CXX=clang++
 nvim
 ```
 
+
+### Machine-local overrides
+
+Keep paths and preferences that only apply to one machine outside the shared
+configuration. Copy the tracked example to the ignored `local.lua` file:
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .\lua\config\local.example.lua .\lua\config\local.lua
+```
+
+Linux/macOS:
+
+```bash
+cp ./lua/config/local.example.lua ./lua/config/local.lua
+```
+
+Plugin databases and history use `stdpath("data")`, not this repository.
 ### Clipboard
 
 - Windows uses `clipboard=unnamed`.

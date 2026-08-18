@@ -1,4 +1,5 @@
-local codex_sqlite_home = vim.fs.joinpath(vim.fn.stdpath("config"), ".nvim-data", "codex-sqlite")
+local plugin_data_home = vim.fs.joinpath(vim.fn.stdpath("data"), "nvim-config")
+local codex_sqlite_home = vim.fs.joinpath(plugin_data_home, "codex-sqlite")
 
 local codex_config_path = vim.fs.joinpath(vim.fn.expand("~"), ".codex", "config.toml")
 
@@ -399,7 +400,7 @@ return {
                 },
             },
             history = {
-                storage_path = vim.fs.joinpath(vim.fn.stdpath("config"), ".nvim-data", "avante"),
+                storage_path = vim.fs.joinpath(plugin_data_home, "avante"),
             },
             selector = {
                 provider = "fzf_lua",

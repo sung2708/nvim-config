@@ -17,8 +17,39 @@ local path_separator = vim.fn.has("win32") == 1 and ";" or ":"
 local function prepend_path(directory)
     if directory and vim.fn.isdirectory(directory) == 1 then
         local path_entries = vim.split(vim.env.PATH or "", path_separator, { plain = true, trimempty = true })
-        if not vim.tbl_contains(path_entries, directory) then
-            vim.env.PATH = directory .. path_separator .. vim.env.PATH
+        local normalized_directory = directory:gsub("\\\\", "/"):gsub("/+$", "")
+        if vim.fn.has("win32") == 1 then
+            normalized_directory = normalized_directory:lower()
+        end
+
+        for _, entry in ipairs(path_entries) do
+            local normalized_entry = entry:gsub("\\\\", "/"):gsub("/+$", "")
+            if vim.fn.has("win32") == 1 then
+                normalized_entry = normalized_entry:lower()
+            end
+            if normalized_entry == normalized_directory then
+                return
+            end
+        end
+
+        vim.env.PATH = directory .. path_separator .. (vim.env.PATH or "")
+    end
+end
+
+local function prepend_node_directory()
+    local candidates = {}
+    if vim.env.NVM_SYMLINK then
+        table.insert(candidates, vim.env.NVM_SYMLINK)
+    end
+    if vim.env.NVM_HOME then
+        table.insert(candidates, vim.env.NVM_HOME .. "/current")
+    end
+
+    for _, directory in ipairs(candidates) do
+        local node = directory .. (vim.fn.has("win32") == 1 and "/node.exe" or "/node")
+        if vim.fn.filereadable(node) == 1 then
+            prepend_path(directory)
+            return
         end
     end
 end
@@ -34,6 +65,11 @@ end
 
 if vim.fn.has("win32") == 1 then
     local scoop_home = vim.env.SCOOP or vim.fn.expand("~/scoop")
+
+    -- Prefer the active NVM4W link when it exists. Do not override another
+    -- Node manager or a user-selected runtime on machines without NVM4W.
+    prepend_node_directory()
+
     prepend_path(scoop_home .. "/apps/go/current/bin")
     prepend_path(scoop_home .. "/apps/maven/current/bin")
     prepend_path(scoop_home .. "/apps/imagemagick/current")

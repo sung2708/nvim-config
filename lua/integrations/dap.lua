@@ -20,9 +20,18 @@ require("mason-nvim-dap").setup({
 
 require("dap-go").setup({})
 
-local js_debug_server = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
+local function setup_js_debug()
+    local js_debug_server = vim.fn.stdpath("data")
+        .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
 
-if vim.fn.filereadable(js_debug_server) == 1 and vim.fn.executable("node") == 1 then
+    if vim.fn.filereadable(js_debug_server) ~= 1 then
+        return false
+    end
+    if vim.fn.executable("node") ~= 1 then
+        vim.notify("Node.js is required for JavaScript debugging", vim.log.levels.WARN)
+        return false
+    end
+
     dap.adapters["pwa-node"] = {
         type = "server",
         host = "127.0.0.1",
@@ -56,6 +65,19 @@ if vim.fn.filereadable(js_debug_server) == 1 and vim.fn.executable("node") == 1 
     for _, filetype in ipairs({ "javascript", "javascriptreact", "typescript", "typescriptreact" }) do
         dap.configurations[filetype] = js_configurations
     end
+    return true
+end
+
+setup_js_debug()
+vim.api.nvim_create_autocmd("User", {
+    pattern = "MasonToolsUpdateCompleted",
+    callback = setup_js_debug,
+})
+
+if vim.fn.filereadable(
+        vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
+    ) ~= 1 then
+    vim.notify("JavaScript DAP adapter is not installed yet; run :MasonToolsInstall", vim.log.levels.WARN)
 end
 
 dap.listeners.after.event_initialized["dapui_config"] = function()
