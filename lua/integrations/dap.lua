@@ -21,8 +21,7 @@ require("mason-nvim-dap").setup({
 require("dap-go").setup({})
 
 local function setup_js_debug()
-    local js_debug_server = vim.fn.stdpath("data")
-        .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
+    local js_debug_server = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
 
     if vim.fn.filereadable(js_debug_server) ~= 1 then
         return false
@@ -74,9 +73,10 @@ vim.api.nvim_create_autocmd("User", {
     callback = setup_js_debug,
 })
 
-if vim.fn.filereadable(
-        vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
-    ) ~= 1 then
+if
+    vim.fn.filereadable(vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js")
+    ~= 1
+then
     vim.notify("JavaScript DAP adapter is not installed yet; run :MasonToolsInstall", vim.log.levels.WARN)
 end
 

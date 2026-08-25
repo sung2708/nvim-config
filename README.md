@@ -4,13 +4,12 @@ Language: [English](README.md) | [Tiếng Việt](README.vi.md)
 
 An IDE-oriented Neovim configuration for Python, Go, JavaScript/TypeScript,
 Java, C/C++, Lua, and Markdown. It uses `lazy.nvim`, native LSP, Blink
-completion, Telescope, FzfLua, Treesitter, DAP, Neotest, and a compact Snacks
-dashboard.
+completion, FzfLua, Treesitter, DAP, Neotest, and a compact Snacks dashboard.
 
 The configuration is designed around five goals:
 
 - Fast startup through event, command, keymap, and filetype-based lazy loading.
-- Fast navigation with Telescope for rich workflows and FzfLua for speed.
+- Fast navigation through a single FzfLua picker stack.
 - Complete coding support with LSP, completion, formatting, linting, testing,
   debugging, and Git integrations.
 - One configuration for Windows, Linux, and macOS.
@@ -43,7 +42,7 @@ The configuration is designed around five goals:
 | Completion     | blink.cmp, friendly-snippets, signature help                      |
 | Formatting     | Conform, Ruff, Prettier, Stylua, gofumpt, goimports               |
 | Linting        | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck                 |
-| Search         | Telescope, telescope-fzf-native, FzfLua, Grug Far                 |
+| Search         | FzfLua, Snacks Picker, Grug Far                                  |
 | Navigation     | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
 | Editing        | Dial cycling, IncRename previews, Yanky, surround, autopairs      |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history               |
@@ -52,7 +51,7 @@ The configuration is designed around five goals:
 | Git            | Gitsigns, Fugitive, Diffview                                      |
 | Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
 | Testing        | Neotest for Python, Go, Jest, and Java                            |
-| UI             | Snacks dashboard, WhichKey, Noice, Notify, selectable themes      |
+| UI             | Catppuccin, Snacks dashboard, WhichKey, Noice, Notify             |
 | Cursor         | smear-cursor.nvim in Normal mode; disabled while inserting        |
 
 ## Requirements
@@ -64,16 +63,15 @@ The configuration is designed around five goals:
 | Neovim `>= 0.12`  | Native LSP APIs and nvim-treesitter `main` support  |
 | Git               | Bootstrap lazy.nvim and download plugins            |
 | Internet access   | Required only for initial installation and updates  |
-| ripgrep (`rg`)    | File search, live grep, Todo, Telescope, and FzfLua |
+| ripgrep (`rg`)    | File search, live grep, Todo, and FzfLua            |
 | fzf               | FzfLua backend                                      |
-| make              | Build telescope-fzf-native                          |
 | C compiler or Zig | Build native extensions and Treesitter parsers      |
 | tree-sitter-cli   | Compile and update Treesitter parsers               |
 | unzip, gzip, tar  | Extract packages installed by Mason                 |
 | curl or wget      | Download packages installed by Mason                |
 
-`fd` is optional. The current Telescope and FzfLua file pickers use
-`rg --files`, but other picker configurations may still benefit from `fd`.
+`fd` is optional. The current FzfLua file picker uses `rg --files`, but other
+picker configurations may still benefit from `fd`.
 
 A Nerd Font is not required for Neovim itself, but it is strongly recommended.
 Without one, icons in WhichKey, Neo-tree, Trouble, Lualine, and the dashboard
@@ -399,7 +397,7 @@ Plugin specifications are grouped by responsibility:
 | `lua/plugins/completion.lua` | Completion, snippets, and signatures             |
 | `lua/plugins/ai.lua`         | Avante agentic chat through Codex ACP            |
 | `lua/plugins/treesitter.lua` | Parsers and textobjects                          |
-| `lua/plugins/search.lua`     | Telescope, FzfLua, and Grug Far                  |
+| `lua/plugins/search.lua`     | FzfLua and Grug Far                              |
 | `lua/plugins/ui.lua`         | Dashboard, statusline, notifications, WhichKey   |
 | `lua/plugins/git.lua`        | Gitsigns, Fugitive, and Diffview                 |
 | `lua/plugins/editor.lua`     | Explorers, Trouble, Flash, Todo, folds, editing  |
@@ -681,7 +679,6 @@ The menu is positioned below the Noice border with a visible row of separation.
 - Noice content popups use rounded borders and inner padding.
 - WhichKey uses one row and two columns of padding.
 - FzfLua uses one row and two columns of internal padding.
-- Telescope adds left-side spacing to prompts and results.
 - Trouble adds top and left spacing to result views.
 - Notify uses its wrapped renderer for message padding.
 
@@ -755,19 +752,13 @@ Dashboard keys:
 
 | Key        | Action                                   |
 | ---------- | ---------------------------------------- |
-| `Space+ff` | Find files with Telescope                |
-| `Space+fg` | Live grep with Telescope                 |
-| `Space+fb` | Find buffers with Telescope              |
+| `Space+ff` | Find files with FzfLua                   |
+| `Space+fg` | Live grep with FzfLua                    |
+| `Space+fb` | Find buffers with FzfLua                 |
 | `Space+fh` | Search help tags                         |
-| `Space+fe` | Telescope file browser                   |
-| `Space+fF` | Fast file search with FzfLua             |
-| `Space+fG` | Fast live grep with FzfLua               |
-| `Space+fB` | Fast buffer search with FzfLua           |
+| `Space+fe` | Find files from the buffer directory     |
 | `Space+fr` | Project search and replace with Grug Far |
 | `Space+fy` | Open yank history                        |
-
-Convention: lowercase `f` mappings use Telescope; uppercase variants use
-FzfLua.
 
 Inside FzfLua:
 
@@ -847,9 +838,9 @@ LSP mappings are buffer-local and exist only after a language server attaches:
 
 | Key             | Action                             |
 | --------------- | ---------------------------------- |
-| `gd`            | Definitions through Telescope      |
-| `gy`            | Type definitions through Telescope |
-| `gi`            | Implementations through Telescope  |
+| `gd`            | Definitions through FzfLua         |
+| `gy`            | Type definitions through FzfLua    |
+| `gi`            | Implementations through FzfLua     |
 | `grr`           | References through FzfLua          |
 | `gO`            | Document symbols through FzfLua    |
 | `Space+cS`      | Workspace symbols                  |
@@ -927,7 +918,6 @@ checkboxes:
 | `Space+xQ`    | Quickfix list                   |
 | `]t` / `[t`   | Next/previous Todo              |
 | `Space+xt`    | All Todos in Trouble            |
-| `Space+xT`    | All Todos in Telescope          |
 | `Space+xf`    | All Todos in FzfLua             |
 | `Space+xF`    | TODO/FIX/FIXME only in FzfLua   |
 | `Space+xR`    | TODO/FIX/FIXME only in Trouble  |
@@ -1071,14 +1061,12 @@ remote impact are understood.
 | `S{char}`          | Surround Visual selection           |
 | `Alt+n`            | Start/select next word occurrence   |
 | `Alt+a`            | Select all matching words           |
-| `g Alt+n`          | Start without word boundaries       |
-| `g Alt+a`          | Select all without word boundaries  |
 | `Alt+p`            | Previous multiple-cursor occurrence |
 | `Alt+x`            | Skip current occurrence             |
 | `Esc`              | Exit multiple cursors               |
 
-`Ctrl+n` is reserved for Neo-tree, so multiple cursors use custom mappings
-instead of the plugin defaults.
+`Ctrl+n` is reserved for Neo-tree, so vim-visual-multi uses the custom Alt
+mappings above instead of its defaults.
 
 ## Optional Features
 
@@ -1098,15 +1086,8 @@ required.
 
 ### Catppuccin
 
-Catppuccin is declared but is not the default colorscheme:
-
-```vim
-:Lazy load catppuccin
-:colorscheme catppuccin
-```
-
-To keep it enabled, change the colorscheme in the UI integration instead of
-running the command after every restart.
+The default colorscheme is `catppuccin-frappe`. Change `M.name` in
+`lua/config/theme.lua` to another Catppuccin flavor if desired.
 
 ### Lazydocker
 
@@ -1130,8 +1111,8 @@ UV_TOOL_BIN_DIR
 
 Enabled optimizations:
 
-- Startup loads core configuration, lazy.nvim, the compiled Kanagawa theme,
-  Snacks, and nvim-treesitter. Devicons and Smear Cursor load later.
+- Startup loads core configuration, lazy.nvim, Catppuccin, Snacks, and
+  nvim-treesitter. Devicons and Smear Cursor load later.
 - LSP and language plugins load when matching files are opened.
 - Blink loads on Insert or command-line entry.
 - LazyDev loads only for Lua; SchemaStore loads only for JSON and JSONC.
@@ -1146,8 +1127,6 @@ Enabled optimizations:
 - LSP detaches from big files and virtual plugin buffers such as Diffview.
 - Cursor line, cursor column, and relative numbers are hidden in Insert mode.
 - Smear Cursor is disabled in Insert mode.
-- Kanagawa uses its compiled cache; run `:KanagawaCompile` after changing its
-  options or overrides.
 - `lazyredraw` is not enabled because it can conflict with Noice.
 - Dashboard statusline and tabline are hidden and restored automatically.
 
@@ -1174,7 +1153,6 @@ completely unhighlighted text.
 :MasonToolsInstall
 :MasonUpdate
 :TSUpdate
-:KanagawaCompile
 :LspInfo
 :LspRestart
 :ConformInfo
@@ -1424,8 +1402,8 @@ Check:
 :echo executable('fzf')
 ```
 
-Both Telescope and FzfLua currently use `rg` for files and live grep. Ensure
-the command is available in the environment that starts Neovim.
+FzfLua uses `rg` for files and live grep. Ensure the command is available in
+the environment that starts Neovim.
 
 ### Linux Clipboard Does Not Work
 

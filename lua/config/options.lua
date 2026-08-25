@@ -8,8 +8,7 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 
 -- Neovim 0.12 supplies modern Lua mappings for Markdown headings. Disable the
--- older Vimscript duplicates so lazy.nvim can replay FileType safely without
--- leaving E31 ("No such mapping") in v:errmsg.
+-- older Vimscript duplicates to avoid conflicting mappings.
 vim.g.no_markdown_maps = 1
 
 local path_separator = vim.fn.has("win32") == 1 and ";" or ":"
@@ -22,17 +21,21 @@ local function prepend_path(directory)
             normalized_directory = normalized_directory:lower()
         end
 
+        local remaining_entries = {}
         for _, entry in ipairs(path_entries) do
             local normalized_entry = entry:gsub("\\\\", "/"):gsub("/+$", "")
             if vim.fn.has("win32") == 1 then
                 normalized_entry = normalized_entry:lower()
             end
-            if normalized_entry == normalized_directory then
-                return
+            if normalized_entry ~= normalized_directory then
+                table.insert(remaining_entries, entry)
             end
         end
 
-        vim.env.PATH = directory .. path_separator .. (vim.env.PATH or "")
+        vim.env.PATH = directory
+        if #remaining_entries > 0 then
+            vim.env.PATH = vim.env.PATH .. path_separator .. table.concat(remaining_entries, path_separator)
+        end
     end
 end
 
@@ -154,7 +157,7 @@ end
 
 opt.backup = false
 opt.writebackup = false
-opt.swapfile = false
+opt.swapfile = true
 opt.undofile = true
 
 opt.splitright = true

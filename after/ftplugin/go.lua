@@ -30,6 +30,13 @@ local function organize_imports(bufnr)
     })
 end
 
+-- FileType may legitimately be re-applied by :setfiletype or an LSP plugin.
+-- Keep the buffer-local hook idempotent so each Go buffer owns one timer.
+if vim.b.sungp_go_organize_imports_configured then
+    return
+end
+vim.b.sungp_go_organize_imports_configured = true
+
 local organize_timer = vim.uv.new_timer()
 local group = vim.api.nvim_create_augroup("SungpGoOrganizeImports" .. vim.api.nvim_get_current_buf(), {
     clear = true,

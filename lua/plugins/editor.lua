@@ -215,7 +215,7 @@ return {
         "folke/todo-comments.nvim",
         lazy = true,
         init = defer_after_vimenter("todo-comments.nvim", 420),
-        cmd = { "TodoTrouble", "TodoTelescope", "TodoFzfLua", "TodoQuickFix", "TodoLocList" },
+        cmd = { "TodoTrouble", "TodoFzfLua", "TodoQuickFix", "TodoLocList" },
         dependencies = {
             "nvim-lua/plenary.nvim",
         },
@@ -228,7 +228,7 @@ return {
         event = "InsertEnter",
         opts = {
             check_ts = true,
-            disable_filetype = { "TelescopePrompt", "snacks_picker_input" },
+            disable_filetype = { "snacks_picker_input" },
             fast_wrap = {},
         },
     },
@@ -357,25 +357,23 @@ return {
         end,
     },
     {
-        "tpope/vim-commentary",
-        event = "VeryLazy",
-    },
-    {
         "tpope/vim-surround",
         event = "VeryLazy",
     },
     {
-        "terryma/vim-multiple-cursors",
+        "mg979/vim-visual-multi",
         event = "VeryLazy",
         init = function()
-            vim.g.multi_cursor_start_word_key = "<M-n>"
-            vim.g.multi_cursor_select_all_word_key = "<M-a>"
-            vim.g.multi_cursor_start_key = "g<M-n>"
-            vim.g.multi_cursor_select_all_key = "g<M-a>"
-            vim.g.multi_cursor_next_key = "<M-n>"
-            vim.g.multi_cursor_prev_key = "<M-p>"
-            vim.g.multi_cursor_skip_key = "<M-x>"
-            vim.g.multi_cursor_quit_key = "<Esc>"
+            vim.g.VM_default_mappings = 0
+            vim.g.VM_maps = {
+                ["Find Under"] = "<M-n>",
+                ["Find Subword Under"] = "<M-n>",
+                ["Select All"] = "<M-a>",
+                ["Visual All"] = "<M-a>",
+                ["Find Prev"] = "<M-p>",
+                ["Skip Region"] = "<M-x>",
+                ["Exit"] = "<Esc>",
+            }
         end,
     },
     {

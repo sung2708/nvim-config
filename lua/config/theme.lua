@@ -3,29 +3,6 @@ local M = {}
 -- Chỉ cần đổi dòng này để chọn theme.
 M.name = "catppuccin-frappe"
 
-M.nord = {
-    contrast = false,
-    borders = true,
-    disable_background = false,
-    italic = true,
-    uniform_diff_background = true,
-    bold = true,
-}
-
-M.kanagawa = {
-    compile = true,
-    overrides = function(colors)
-        local theme = colors.theme
-        return {
-            NoiceCmdlinePopup = { fg = theme.ui.fg, bg = theme.ui.bg_p1 },
-            NoiceCmdlinePopupBorder = { fg = theme.ui.fg_dim, bg = theme.ui.bg_p1 },
-            NoiceCmdlinePopupTitle = { fg = theme.ui.special, bg = theme.ui.bg_p1 },
-            NoiceCmdlinePrompt = { fg = theme.ui.special },
-            NoiceCmdlineIcon = { fg = theme.ui.special },
-        }
-    end,
-}
-
 local function get_hl(name)
     local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
     return ok and hl or {}
@@ -99,25 +76,6 @@ function M.apply_ui_highlights()
         NotifyINFOBody = "NormalFloat",
         NotifyDEBUGBody = "NormalFloat",
         NotifyTRACEBody = "NormalFloat",
-
-        -- Telescope.
-        TelescopeNormal = "NormalFloat",
-        TelescopeBorder = "FloatBorder",
-        TelescopePromptNormal = "NormalFloat",
-        TelescopePromptBorder = "FloatBorder",
-        TelescopePromptTitle = "FloatTitle",
-        TelescopePreviewNormal = "NormalFloat",
-        TelescopePreviewBorder = "FloatBorder",
-        TelescopePreviewTitle = "FloatTitle",
-        TelescopeResultsNormal = "NormalFloat",
-        TelescopeResultsBorder = "FloatBorder",
-        TelescopeResultsTitle = "FloatTitle",
-        TelescopeSelection = "PmenuSel",
-        TelescopeMatching = "Special",
-        TelescopePromptPrefix = "Special",
-        TelescopeSelectionCaret = "Special",
-        TelescopePreviewLine = "PmenuSel",
-        TelescopePreviewMatch = "Search",
 
         -- FzfLua uses these groups for its main window, preview and border.
         FzfLuaNormal = "NormalFloat",

@@ -1,6 +1,7 @@
 local fzf_lua = require("fzf-lua")
 
 fzf_lua.setup({
+    { "telescope", "hide" },
     winopts = {
         height = 0.78,
         width = 0.86,

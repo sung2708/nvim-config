@@ -54,6 +54,7 @@ vim.lsp.config("ruff", {
 local function clangd_cmd()
     local cmd = {
         "clangd",
+        "--log=error",
         "--background-index",
         "--clang-tidy",
         "--completion-style=detailed",
@@ -186,17 +187,6 @@ vim.lsp.config("jsonls", {
     },
 })
 
-local function telescope(method, fallback)
-    return function()
-        local ok, builtin = pcall(require, "telescope.builtin")
-        if ok then
-            builtin[method]({ reuse_win = true })
-        else
-            fallback()
-        end
-    end
-end
-
 local function fzf(method, fallback)
     return function()
         local ok, picker = pcall(require, "fzf-lua")
@@ -248,9 +238,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
             })
         end
 
-        map("n", "gd", telescope("lsp_definitions", vim.lsp.buf.definition), "Definitions")
-        map("n", "gy", telescope("lsp_type_definitions", vim.lsp.buf.type_definition), "Type Definitions")
-        map("n", "gi", telescope("lsp_implementations", vim.lsp.buf.implementation), "Implementations")
+        map("n", "gd", fzf("lsp_definitions", vim.lsp.buf.definition), "Definitions")
+        map("n", "gy", fzf("lsp_typedefs", vim.lsp.buf.type_definition), "Type Definitions")
+        map("n", "gi", fzf("lsp_implementations", vim.lsp.buf.implementation), "Implementations")
         map("n", "grr", fzf("lsp_references", vim.lsp.buf.references), "References")
         map("n", "gO", fzf("lsp_document_symbols", vim.lsp.buf.document_symbol), "Document Symbols")
         map("n", "<leader>cS", fzf("lsp_live_workspace_symbols", workspace_symbols), "Workspace Symbols")

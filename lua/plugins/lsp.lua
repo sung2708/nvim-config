@@ -179,8 +179,8 @@ return {
     },
     {
         "mfussenegger/nvim-lint",
-        -- Load before the first save so the lint autocmd is registered.
-        event = { "BufReadPre", "BufNewFile" },
+        lazy = true,
+        init = defer_on_filetype("nvim-lint", { "markdown", "sh" }, 30),
         keys = {
             {
                 "<leader>cL",

@@ -29,7 +29,6 @@ if todo then
         todo.jump_prev()
     end, { desc = "Todo: Previous" })
     vim.keymap.set("n", "<leader>xt", "<cmd>Trouble todo toggle<cr>", { desc = "Todo: Trouble" })
-    vim.keymap.set("n", "<leader>xT", "<cmd>TodoTelescope<cr>", { desc = "Todo: Telescope" })
     vim.keymap.set("n", "<leader>xf", function()
         require("lazy").load({ plugins = { "fzf-lua" } })
         vim.cmd("TodoFzfLua")

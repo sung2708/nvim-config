@@ -4,13 +4,12 @@ Ngôn ngữ: [English](README.md) | [Tiếng Việt](README.vi.md)
 
 Một cấu hình Neovim theo hướng IDE cho Python, Go, JavaScript/TypeScript,
 Java, C/C++, Lua và Markdown. Cấu hình dùng `lazy.nvim`, native LSP, Blink
-completion, Telescope, FzfLua, Treesitter, DAP, Neotest và dashboard gọn của
-Snacks.
+completion, FzfLua, Treesitter, DAP, Neotest và dashboard gọn của Snacks.
 
 Cấu hình này tập trung vào năm mục tiêu:
 
 - Khởi động nhanh nhờ lazy-load theo sự kiện, lệnh, phím tắt và filetype.
-- Điều hướng nhanh với Telescope cho workflow giàu tính năng và FzfLua cho tốc độ.
+- Điều hướng nhanh qua một hệ picker FzfLua duy nhất.
 - Hỗ trợ lập trình đầy đủ: LSP, completion, format, lint, test, debug và Git.
 - Một cấu hình dùng được trên Windows, Linux và macOS.
 - Phân chia rõ trách nhiệm giữa file khai báo plugin và file tích hợp chi tiết.
@@ -42,7 +41,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Completion     | blink.cmp, friendly-snippets, signature help                   |
 | Format         | Conform, Ruff, Prettier, Stylua, gofumpt, goimports            |
 | Lint           | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck              |
-| Tìm kiếm       | Telescope, telescope-fzf-native, FzfLua, Grug Far              |
+| Tìm kiếm       | FzfLua, Snacks Picker, Grug Far                               |
 | Điều hướng     | Flash, Neo-tree, Oil, Bufferline, Treesitter, Mini textobjects |
 | Chỉnh sửa      | Dial, IncRename xem trước, Yanky, surround, autopairs          |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history            |
@@ -51,7 +50,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Git            | Gitsigns, Fugitive, Diffview                                   |
 | Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
 | Test           | Neotest cho Python, Go, Jest và Java                           |
-| UI             | Snacks dashboard, WhichKey, Noice, Notify, theme có thể chọn   |
+| UI             | Catppuccin, Snacks dashboard, WhichKey, Noice, Notify          |
 | Cursor         | smear-cursor.nvim ở Normal mode; tắt khi đang nhập             |
 
 ## Yêu Cầu
@@ -63,16 +62,15 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Neovim `>= 0.12`    | Native LSP API và nvim-treesitter nhánh `main` |
 | Git                 | Bootstrap lazy.nvim và tải plugin              |
 | Internet            | Chỉ cần cho lần cài đặt và cập nhật đầu tiên   |
-| ripgrep (`rg`)      | Tìm file, live grep, Todo, Telescope và FzfLua |
+| ripgrep (`rg`)      | Tìm file, live grep, Todo và FzfLua            |
 | fzf                 | Backend cho FzfLua                             |
-| make                | Build telescope-fzf-native                     |
 | C compiler hoặc Zig | Build native extension và Treesitter parser    |
 | tree-sitter-cli     | Biên dịch/cập nhật Treesitter parser           |
 | unzip, gzip, tar    | Giải nén package do Mason cài                  |
 | curl hoặc wget      | Tải package do Mason cài                       |
 
-`fd` là tùy chọn. Cấu hình hiện dùng `rg --files` cho Telescope và FzfLua,
-nhưng một số picker khác vẫn có thể dùng `fd`.
+`fd` là tùy chọn. Cấu hình hiện dùng `rg --files` cho FzfLua, nhưng một số
+picker khác vẫn có thể dùng `fd`.
 
 Nerd Font không bắt buộc để chạy Neovim, nhưng rất nên cài. Nếu không có,
 icon trong WhichKey, Neo-tree, Trouble, Lualine hoặc dashboard có thể hiện
@@ -377,7 +375,7 @@ Các file plugin được nhóm theo trách nhiệm:
 | `lua/plugins/completion.lua` | Completion, snippet và signature              |
 | `lua/plugins/ai.lua`         | Avante agentic chat qua Codex ACP             |
 | `lua/plugins/treesitter.lua` | Parser và textobject                          |
-| `lua/plugins/search.lua`     | Telescope, FzfLua và Grug Far                 |
+| `lua/plugins/search.lua`     | FzfLua và Grug Far                            |
 | `lua/plugins/ui.lua`         | Dashboard, statusline, notification, WhichKey |
 | `lua/plugins/git.lua`        | Gitsigns, Fugitive và Diffview                |
 | `lua/plugins/editor.lua`     | Explorer, Trouble, Flash, Todo, fold, editing |
@@ -542,10 +540,9 @@ Neovim từ đúng terminal đó để đảm bảo `PATH` giống nhau.
 
 ## Giao Diện
 
-Theme mặc định là Kanagawa; giao diện còn dùng Lualine, Bufferline, Neo-tree,
+Theme mặc định là Catppuccin Frappe; giao diện còn dùng Lualine, Bufferline, Neo-tree,
 Noice, Notify, WhichKey và Snacks dashboard. Dashboard tự ẩn statusline/tabline
-khi mở và khôi phục khi rời dashboard. Snacks sở hữu `vim.ui.select`, tránh
-xung đột thứ tự load với Telescope.
+khi mở và khôi phục khi rời dashboard. Snacks sở hữu `vim.ui.select`.
 
 Các thông báo diagnostic dùng icon từ Nerd Font. Nếu icon bị lỗi, kiểm tra
 font terminal trước khi debug plugin.
@@ -560,9 +557,9 @@ LSP mapping chỉ tồn tại sau khi language server attach vào buffer:
 
 | Phím            | Hành động                             |
 | --------------- | ------------------------------------- |
-| `gd`            | Đi tới definition qua Telescope       |
-| `gy`            | Đi tới type definition qua Telescope  |
-| `gi`            | Đi tới implementation                 |
+| `gd`            | Đi tới definition qua FzfLua          |
+| `gy`            | Đi tới type definition qua FzfLua     |
+| `gi`            | Đi tới implementation qua FzfLua      |
 | `grr`           | Xem references qua FzfLua             |
 | `gO`            | Document symbols                      |
 | `Space+cS`      | Workspace symbols                     |
@@ -655,8 +652,8 @@ Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow
 
 ## Hiệu Năng
 
-Phần lõi khi startup chỉ gồm lazy.nvim, options/keymaps/autocmd, Kanagawa đã
-biên dịch cache, Treesitter (yêu cầu của nhánh `main`) và dashboard Snacks.
+Phần lõi khi startup chỉ gồm lazy.nvim, options/keymaps/autocmd, Catppuccin,
+Treesitter (yêu cầu của nhánh `main`) và dashboard Snacks.
 Plugin nặng load theo filetype, command, event hoặc keymap. Devicons và Smear
 Cursor được hoãn tới sau frame đầu; animation Insert mode bị tắt.
 
@@ -678,7 +675,6 @@ Cập nhật plugin và tool:
 :MasonToolsInstall
 :MasonUpdate
 :TSUpdate
-:KanagawaCompile
 ```
 
 Khi cập nhật plugin, giữ `lazy-lock.json` trong version control để môi trường
@@ -899,8 +895,8 @@ Kiểm tra:
 :echo executable('fzf')
 ```
 
-Telescope và FzfLua hiện dùng `rg` cho file và live grep. Hãy đảm bảo lệnh có
-trong môi trường khởi động Neovim.
+FzfLua dùng `rg` cho file và live grep. Hãy đảm bảo lệnh có trong môi trường
+khởi động Neovim.
 
 ### Clipboard Linux Không Hoạt Động
 

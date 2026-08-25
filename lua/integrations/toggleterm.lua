@@ -95,11 +95,12 @@ end
 
 -- Python REPL
 local python_cmd = python_command()
-local python = python_cmd and create_custom_term({
-    cmd = python_cmd,
-    direction = "horizontal",
-    hidden = true,
-})
+local python = python_cmd
+    and create_custom_term({
+        cmd = python_cmd,
+        direction = "horizontal",
+        hidden = true,
+    })
 
 function _PYTHON_TOGGLE()
     if not python then
