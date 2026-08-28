@@ -41,11 +41,11 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Completion     | blink.cmp, friendly-snippets, signature help                   |
 | Format         | Conform, Ruff, Prettier, Stylua, gofumpt, goimports            |
 | Lint           | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck              |
-| Tìm kiếm       | FzfLua, Snacks Picker, Grug Far                               |
+| Tìm kiếm       | FzfLua, Snacks Picker, Grug Far                                |
 | Điều hướng     | Flash, Neo-tree, Oil, Bufferline, Treesitter, Mini textobjects |
 | Chỉnh sửa      | Dial, IncRename xem trước, Yanky, surround, autopairs          |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history            |
-| AI             | Avante agentic chat qua Codex ACP                              |
+| AI             | CodeCompanion v19 agent chat qua Codex ACP                     |
 | Diagnostics    | Trouble, Todo Comments, Lualine                                |
 | Git            | Gitsigns, Fugitive, Diffview                                   |
 | Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
@@ -67,7 +67,7 @@ Cấu hình này tập trung vào năm mục tiêu:
 | C compiler hoặc Zig | Build native extension và Treesitter parser    |
 | tree-sitter-cli     | Biên dịch/cập nhật Treesitter parser           |
 | unzip, gzip, tar    | Giải nén package do Mason cài                  |
-| curl hoặc wget      | Tải package do Mason cài                       |
+| curl                | CodeCompanion và tải package qua Mason         |
 
 `fd` là tùy chọn. Cấu hình hiện dùng `rg --files` cho FzfLua, nhưng một số
 picker khác vẫn có thể dùng `fd`.
@@ -105,7 +105,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
 
 scoop bucket add java
-scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
+scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip curl
 scoop install java/temurin21-jdk
 npm install --global tree-sitter-cli@0.26.11
 ```
@@ -222,7 +222,7 @@ Cài Xcode Command Line Tools và các package Homebrew:
 
 ```bash
 xcode-select --install
-brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven
+brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven pngpaste
 ```
 
 Thêm JDK 21 vào shell profile:
@@ -324,16 +324,17 @@ Sau khi khởi động lại Neovim, chạy:
 ```
 
 `:messages` không nên chứa lỗi startup. Báo cáo health theo từng mục không nên
-có lỗi; cảnh báo có bản Neovim mới hơn chỉ mang tính thông tin. Với Codex ACP,
-chạy thêm trong terminal:
+có lỗi; cảnh báo có bản Neovim mới hơn chỉ mang tính thông tin. Với
+CodeCompanion qua Codex ACP, chạy thêm trong terminal:
 
 ```powershell
+codex login
 codex login status
 codex doctor --summary
 ```
 
 `codex doctor` cần báo authentication đã cấu hình và database khỏe. Nếu báo
-lỗi đăng nhập, chạy lại `codex login` trước khi mở Avante.
+lỗi đăng nhập, chạy lại `codex login` trước khi mở CodeCompanion.
 
 Trên Windows, kiểm tra dependency trước khi mở Neovim:
 
@@ -373,7 +374,7 @@ Các file plugin được nhóm theo trách nhiệm:
 | ---------------------------- | --------------------------------------------- |
 | `lua/plugins/lsp.lua`        | LSP, Mason, format và lint                    |
 | `lua/plugins/completion.lua` | Completion, snippet và signature              |
-| `lua/plugins/ai.lua`         | Avante agentic chat qua Codex ACP             |
+| `lua/plugins/ai.lua`         | CodeCompanion v19 chat qua Codex ACP          |
 | `lua/plugins/treesitter.lua` | Parser và textobject                          |
 | `lua/plugins/search.lua`     | FzfLua và Grug Far                            |
 | `lua/plugins/ui.lua`         | Dashboard, statusline, notification, WhichKey |
@@ -522,7 +523,6 @@ Windows được ưu tiên hỗ trợ qua Scoop. Cấu hình tự nhận một s
 phổ biến và dùng wrapper `.cmd` khi cần. Linux và macOS dựa nhiều hơn vào
 `PATH`, `CC`, `CXX`, `JAVA_HOME` và package manager của hệ thống.
 
-
 ### Cấu hình riêng cho từng máy
 
 Không đưa đường dẫn hoặc sở thích chỉ dùng trên một máy vào cấu hình chung.
@@ -608,44 +608,100 @@ Fugitive, Gitsigns và Diffview vẫn hoạt động bình thường.
 
 ### Trợ Lý AI
 
-Avante dùng Codex qua ACP. Trên mỗi máy chỉ cần chạy `codex login` một lần và
-hoàn tất yêu cầu đăng nhập ACP nếu Avante hiển thị.
+CodeCompanion v19 dùng Codex qua ACP cho buffer chat. Bảo đảm `curl`, `codex` và
+`codex-acp` đều có trong `PATH`, rồi chạy `codex login` một lần trên mỗi máy
+trước khi bắt đầu chat.
 
-| Phím       | Chế độ        | Hành động                       |
-| ---------- | ------------- | ------------------------------- |
-| `Space+ai` | Normal/Visual | Hỏi Avante                      |
-| `Space+an` | Normal/Visual | Tạo cuộc trò chuyện mới         |
-| `Space+at` | Normal        | Bật/tắt sidebar                 |
-| `Space+af` | Normal        | Focus sidebar                   |
-| `Space+ae` | Visual        | Chỉnh sửa vùng đang chọn        |
-| `Space+ah` | Normal        | Mở lịch sử trò chuyện           |
-| `Space+aM` | Normal        | Chọn model của Codex ACP        |
-| `Space+aE` | Normal        | Chọn mức reasoning effort       |
-| `Space+am` | Normal        | Chọn chế độ quyền/sandbox Codex |
-| `Space+a?` | Normal        | Chọn model/provider của Avante  |
-| `Space+aS` | Normal        | Dừng yêu cầu hiện tại           |
+| Phím       | Chế độ        | Hành động                                       |
+| ---------- | ------------- | ----------------------------------------------- |
+| `Space+a?` | Normal/Visual | Mở action palette của CodeCompanion             |
+| `Space+aa` | Normal        | Mở action palette của CodeCompanion             |
+| `Space+aa` | Visual        | Thêm vùng chọn vào chat hiện tại                |
+| `Space+am` | Visual        | Mở menu hành động vùng chọn bằng NUI            |
+| `Space+aq` | Visual        | Hỏi tự do về đoạn mã đã chọn                    |
+| `Space+ae` | Visual        | Giải thích đoạn mã đã chọn                      |
+| `Space+af` | Visual        | Tìm và sửa lỗi trong đoạn mã đã chọn            |
+| `Space+al` | Visual        | Giải thích chẩn đoán LSP trong vùng chọn        |
+| `Space+at` | Visual        | Tạo test cho đoạn mã đã chọn                    |
+| `Space+aR` | Visual        | Refactor đoạn mã đã chọn                        |
+| `Space+ac` | Normal/Visual | Ghi nhận xét review cho dòng hoặc vùng chọn     |
+| `Space+ai` | Normal/Visual | Bật/tắt chat hiện tại                           |
+| `Space+an` | Normal/Visual | Tạo chat mới                                    |
+| `Space+ar` | Normal        | Làm mới cache tính năng/tool chat               |
+| `Space+av` | Normal        | Review thay đổi do agent hiện tại tạo           |
+| `Space+aV` | Normal        | Review mọi thay đổi từ mốc baseline             |
+| `Space+ax` | Normal        | Liệt kê file CodeCompanion đã thay đổi          |
+| `Space+aS` | Normal        | Dừng yêu cầu của chat gần nhất                  |
 
-Ba bộ chọn ACP sẽ tự khởi tạo sidebar để tạo phiên Codex, sau đó đóng lại trước
-khi hiện danh sách nếu sidebar đang đóng. Lần đầu có thể thấy sidebar lóe lên
-trong vài giây; không cần chạy `:AvanteAsk` trước.
+`Space+am` mở menu NUI gọn với Ask, Explain, Diagnostics, Fix, Refactor,
+Tests, Documentation và Code workflow ba bước. Menu lưu vùng chọn trước khi
+mở popup nên đoạn mã vẫn được đính kèm sau khi chọn hành động. `Space+aq` mở
+thẳng ô nhập câu hỏi NUI.
+
+Action palette vẫn dùng Snacks nhưng chỉ liệt kê prompt chạy được qua chat ACP
+của Codex: Explain, Fix, Diagnostics, Tests, Refactor, Documentation,
+selection workflow và Commit message. Các prompt inline có sẵn trong repo được
+ẩn vì chúng cần một HTTP adapter cấu hình riêng.
+
+Chat mới không tự thêm file hiện tại. Chèn `#{buffer}` vào prompt để gửi ngữ
+cảnh file và theo dõi phần thay đổi; dùng `#{buffer}{all}` nếu mỗi lượt cần gửi
+toàn bộ file. Dùng `/buffer` để chọn buffer đang mở hoặc `/file` để chọn file
+trong thư mục làm việc.
+
+Buffer chat và prompt xác nhận thay đổi bổ sung keymap cục bộ, nên các phím này
+không ghi đè keymap editor ở nơi khác:
+
+| Phím                    | Phạm vi                        | Hành động                                      |
+| ----------------------- | ------------------------------ | ---------------------------------------------- |
+| `<CR>` hoặc `<C-s>`     | Normal; `<C-s>` dùng cả Insert | Gửi prompt                                     |
+| `q`                     | Chat, Normal                   | Dừng yêu cầu hiện tại                          |
+| `ga`                    | Chat, Normal                   | Chọn adapter và model                          |
+| `Space+ab`              | Chat, Normal                   | Chọn buffer đang mở bằng FzfLua                |
+| `Space+af`              | Chat, Normal                   | Chọn file bằng FzfLua                          |
+| `Space+ah`              | Chat, Normal                   | Chọn tài liệu Neovim bằng FzfLua               |
+| `Space+am`              | Chat, Normal                   | Đổi model, mode hoặc reasoning của ACP         |
+| `Space+ap`              | Chat, Normal                   | Chọn ảnh bằng Snacks                           |
+| `Space+aP`              | Chat, Normal                   | Dán ảnh clipboard qua img-clip                 |
+| `Space+aR`              | Chat mới, Normal               | Tiếp tục một phiên ACP trước đó                |
+| `Space+as`              | Chat, Normal                   | Chọn symbol trong file bằng FzfLua             |
+| `Space+ad`              | Xác nhận trong chat, Normal    | Xem diff được đề xuất                          |
+| `?`                     | Chat, Normal                   | Xem các tùy chọn và keymap có trong chat       |
+
+Blink cung cấp completion trong chat. Action palette và bộ chọn ảnh dùng
+Snacks; các bộ chọn liên quan đến file dùng FzfLua. Trong quickfix code review,
+`d` mở hunk đang chọn so với baseline của CodeCompanion bằng Diffview; các phím
+`a`, `c` và `x` có sẵn để chấp nhận, ghi nhận xét hoặc bỏ qua hunk đó.
+
+Dùng `Space+aP` (hoặc `:PasteImage`) trong chat để đính kèm ảnh từ clipboard,
+hoặc `Space+ap` (hay `/image`) để chọn ảnh từ file hay URL. Dán ảnh cần
+`pngpaste` trên macOS và `xclip` hoặc `wl-clipboard` trên Linux.
+
+Adapter ACP chỉ dùng được với tương tác chat của CodeCompanion. Hãy dùng action
+palette, action trên vùng chọn hoặc `:CodeCompanion /<alias>`; prompt inline
+`:CodeCompanion` thông thường, `CodeCompanionCmd` và CLI interaction cần HTTP
+hoặc CLI adapter được cấu hình riêng.
 
 Tài khoản và cấu hình Codex vẫn nằm trong `~/.codex` mặc định của từng hệ điều
-hành. Avante chỉ đặt SQLite runtime vào thư mục local đã được bỏ qua bởi Git:
-`.nvim-data/codex-sqlite`. Cách này tránh xung đột với Codex Desktop mà không
-sao chép token và không gắn cứng đường dẫn của một người dùng cụ thể.
+hành. Cấu hình đặt `CODEX_SQLITE_HOME` thành
+`stdpath("data")/nvim-config/codex-sqlite` để tách SQLite đang chạy của ACP khỏi
+Codex Desktop mà không sao chép token hoặc đặt `CODEX_HOME`.
 
 ## Tính Năng Tùy Chọn
 
-Để dùng Avante, cài Codex CLI và `codex-acp`, bảo đảm hai lệnh có trong `PATH`,
-sau đó chạy:
+### CodeCompanion v19 Với Codex ACP
+
+Để dùng CodeCompanion v19, cần có `curl`. Cài Codex CLI và bản `codex-acp` hiện
+hành, bảo đảm cả ba lệnh có trong `PATH`, sau đó chạy:
 
 ```powershell
+npm install --global @openai/codex @agentclientprotocol/codex-acp
 codex login
 codex login status
 ```
 
-Mở Neovim và dùng `Space+ai`. Nếu Avante yêu cầu đăng nhập provider ACP, hoàn
-tất yêu cầu đó một lần. Không cần đặt biến môi trường `CODEX_HOME`.
+Mở Neovim và dùng `Space+an` để tạo chat mới hoặc `Space+ai` để bật/tắt chat.
+Nếu CodeCompanion yêu cầu đăng nhập provider ACP, hoàn tất yêu cầu đó một lần.
+Codex ACP chỉ dùng cho chat và không cần đặt biến môi trường `CODEX_HOME`.
 
 Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow tương
 ứng. Tích hợp Lazygit hiện bị tắt trên Windows.
@@ -698,11 +754,11 @@ Hãy dùng lệnh kiểm tra đúng phạm vi:
 :checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
-Avante được lazy-load. Muốn kiểm tra riêng, hãy load trước:
+CodeCompanion được lazy-load. Muốn kiểm tra riêng, hãy load trước:
 
 ```vim
-:Lazy load avante.nvim
-:checkhealth avante
+:Lazy load codecompanion.nvim
+:checkhealth codecompanion
 ```
 
 Khi offline, `vim.provider` có thể chỉ lỗi ở bước tùy chọn kiểm tra phiên bản
@@ -738,10 +794,11 @@ codex login
 codex doctor --summary
 ```
 
-Avante vẫn dùng tài khoản/cấu hình trong `~/.codex` mặc định của hệ điều hành,
-nhưng tách SQLite runtime vào `.nvim-data/codex-sqlite`. Cách này tránh Codex
-Desktop và `codex-acp` tranh chấp cùng database. Sau khi đổi đăng nhập, đóng
-Neovim/ACP cũ rồi mở lại Neovim.
+CodeCompanion vẫn dùng tài khoản/cấu hình Codex trong `~/.codex` mặc định của hệ
+điều hành, nhưng `CODEX_SQLITE_HOME` tách runtime ACP vào
+`stdpath("data")/nvim-config/codex-sqlite`. Cách này tránh Codex Desktop và
+`codex-acp` tranh chấp cùng database. Sau khi đổi đăng nhập, đóng Neovim/ACP cũ
+rồi mở lại Neovim.
 
 ### Markdown Để Lại `E31: No such mapping`
 
@@ -940,8 +997,9 @@ của `sphamba/smear-cursor.nvim` trong `lua/plugins/editor.lua`.
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Mason](https://github.com/mason-org/mason.nvim)
 - [Blink completion](https://github.com/Saghen/blink.cmp)
-- [Avante](https://github.com/yetone/avante.nvim)
-- [codex-acp](https://github.com/zed-industries/codex-acp)
+- [CodeCompanion](https://github.com/olimorris/codecompanion.nvim)
+- [Tài liệu CodeCompanion](https://codecompanion.olimorris.dev/)
+- [codex-acp](https://github.com/agentclientprotocol/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [Dial](https://github.com/monaqa/dial.nvim)

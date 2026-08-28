@@ -42,11 +42,11 @@ The configuration is designed around five goals:
 | Completion     | blink.cmp, friendly-snippets, signature help                      |
 | Formatting     | Conform, Ruff, Prettier, Stylua, gofumpt, goimports               |
 | Linting        | nvim-lint, ESLint, Ruff, markdownlint, ShellCheck                 |
-| Search         | FzfLua, Snacks Picker, Grug Far                                  |
+| Search         | FzfLua, Snacks Picker, Grug Far                                   |
 | Navigation     | Flash, Neo-tree, Oil, Bufferline, Treesitter and Mini textobjects |
 | Editing        | Dial cycling, IncRename previews, Yanky, surround, autopairs      |
 | Workflow       | Overseer tasks, Persistence sessions, Yanky history               |
-| AI             | Avante agentic chat through Codex ACP                             |
+| AI             | CodeCompanion v19 agent chat through Codex ACP                    |
 | Diagnostics    | Trouble, Todo Comments, Lualine                                   |
 | Git            | Gitsigns, Fugitive, Diffview                                      |
 | Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
@@ -68,7 +68,7 @@ The configuration is designed around five goals:
 | C compiler or Zig | Build native extensions and Treesitter parsers      |
 | tree-sitter-cli   | Compile and update Treesitter parsers               |
 | unzip, gzip, tar  | Extract packages installed by Mason                 |
-| curl or wget      | Download packages installed by Mason                |
+| curl              | CodeCompanion HTTP requests and Mason downloads     |
 
 `fd` is optional. The current FzfLua file picker uses `rg --files`, but other
 picker configurations may still benefit from `fd`.
@@ -105,7 +105,8 @@ test Go code.
 | Maven                        | Java projects without `mvnw`              |
 | Gradle                       | Java projects without `gradlew`           |
 | Lazydocker and Docker        | `Space+ld`                                |
-| Codex CLI and `codex-acp`    | Avante agentic chat                       |
+| Codex CLI and `codex-acp`    | CodeCompanion chat through Codex ACP      |
+| pngpaste                     | CodeCompanion clipboard images on macOS   |
 | xclip, xsel, or wl-clipboard | System clipboard integration on Linux     |
 
 ## Install System Tools
@@ -121,7 +122,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
 
 scoop bucket add java
-scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip
+scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip curl
 scoop install java/temurin21-jdk
 npm install --global tree-sitter-cli@0.26.11
 ```
@@ -239,7 +240,7 @@ Install Xcode Command Line Tools and Homebrew packages:
 
 ```bash
 xcode-select --install
-brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven
+brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven pngpaste
 ```
 
 Add JDK 21 to the shell profile:
@@ -345,16 +346,17 @@ After restarting Neovim, run:
 
 `:messages` should not contain startup errors. The targeted health report
 should show no errors; warnings about a newer Neovim release are informational.
-For Codex ACP, also run this in a terminal:
+For CodeCompanion with Codex ACP, also run this in a terminal:
 
 ```powershell
+codex login
 codex login status
 codex doctor --summary
 ```
 
 `codex doctor` should report configured authentication and healthy databases.
 If it reports an authentication problem, run `codex login` again before
-opening Avante.
+opening CodeCompanion.
 
 On Windows, check dependencies before opening Neovim:
 
@@ -395,7 +397,7 @@ Plugin specifications are grouped by responsibility:
 | ---------------------------- | ------------------------------------------------ |
 | `lua/plugins/lsp.lua`        | LSP, Mason, formatting, and linting              |
 | `lua/plugins/completion.lua` | Completion, snippets, and signatures             |
-| `lua/plugins/ai.lua`         | Avante agentic chat through Codex ACP            |
+| `lua/plugins/ai.lua`         | CodeCompanion v19 chat through Codex ACP         |
 | `lua/plugins/treesitter.lua` | Parsers and textobjects                          |
 | `lua/plugins/search.lua`     | FzfLua and Grug Far                              |
 | `lua/plugins/ui.lua`         | Dashboard, statusline, notifications, WhichKey   |
@@ -610,7 +612,6 @@ export CXX=clang++
 nvim
 ```
 
-
 ### Machine-local overrides
 
 Keep paths and preferences that only apply to one machine outside the shared
@@ -629,6 +630,7 @@ cp ./lua/config/local.example.lua ./lua/config/local.lua
 ```
 
 Plugin databases and history use `stdpath("data")`, not this repository.
+
 ### Clipboard
 
 - Windows uses `clipboard=unnamed`.
@@ -805,32 +807,86 @@ lists, old files, quickfix entries, windows, and Git conflict markers.
 
 ### AI Assistant
 
-Avante uses Codex through ACP. Run `codex login` once on each machine and
-complete any ACP authentication prompt shown by Avante.
+CodeCompanion v19 uses Codex through ACP for chat buffers. Ensure `curl`,
+`codex`, and `codex-acp` are on `PATH`, then run `codex login` once on each
+machine before starting a chat.
 
-| Key        | Mode          | Action                              |
-| ---------- | ------------- | ----------------------------------- |
-| `Space+ai` | Normal/Visual | Ask Avante                          |
-| `Space+an` | Normal/Visual | Start a new chat                    |
-| `Space+at` | Normal        | Toggle the sidebar                  |
-| `Space+af` | Normal        | Focus the sidebar                   |
-| `Space+ae` | Visual        | Edit the selection                  |
-| `Space+ah` | Normal        | Open chat history                   |
-| `Space+aM` | Normal        | Select the Codex ACP model          |
-| `Space+aE` | Normal        | Select the reasoning effort         |
-| `Space+am` | Normal        | Select the Codex permission/sandbox |
-| `Space+a?` | Normal        | Select an Avante model/provider     |
-| `Space+aS` | Normal        | Stop current request                |
+| Key        | Mode          | Action                                        |
+| ---------- | ------------- | --------------------------------------------- |
+| `Space+a?` | Normal/Visual | Open the CodeCompanion action palette         |
+| `Space+aa` | Normal        | Open the CodeCompanion action palette         |
+| `Space+aa` | Visual        | Add the selection to the current chat         |
+| `Space+am` | Visual        | Open the NUI selection-action menu            |
+| `Space+aq` | Visual        | Ask a free-form question about selected code  |
+| `Space+ae` | Visual        | Explain selected code                         |
+| `Space+af` | Visual        | Find and fix issues in selected code          |
+| `Space+al` | Visual        | Explain LSP diagnostics in the selection      |
+| `Space+at` | Visual        | Generate tests for selected code              |
+| `Space+aR` | Visual        | Refactor selected code                        |
+| `Space+ac` | Normal/Visual | Add a review comment to the line or selection |
+| `Space+ai` | Normal/Visual | Toggle the current chat                       |
+| `Space+an` | Normal/Visual | Start a new chat                              |
+| `Space+ar` | Normal        | Refresh cached chat/tool availability         |
+| `Space+av` | Normal        | Review changes made by the current agent      |
+| `Space+aV` | Normal        | Review every worktree change since baseline   |
+| `Space+ax` | Normal        | List files changed by CodeCompanion           |
+| `Space+aS` | Normal        | Stop the latest chat request                  |
 
-The three ACP selectors initialize the sidebar to create a Codex session, then
-close it before showing the list if it was previously closed. The sidebar may
-briefly flash during the first launch; running `:AvanteAsk` first is
-unnecessary.
+`Space+am` is a compact NUI menu with Ask, Explain, Diagnostics, Fix,
+Refactor, Tests, Documentation, and a three-step Code workflow. It captures
+the selection before opening the popup, so the selected code remains attached
+after choosing an action. `Space+aq` opens the NUI question input directly.
 
-The Codex account and configuration stay in the platform-default
-`~/.codex`. Avante stores only Codex's SQLite runtime in the ignored local
-directory `.nvim-data/codex-sqlite`, preventing conflicts with Codex Desktop
-without copying authentication tokens or hard-coding a user profile path.
+The action palette keeps its Snacks interface but lists only prompts that work
+with the Codex ACP chat adapter: Explain, Fix, Diagnostics, Tests, Refactor,
+Documentation, the selection workflow, and Commit message. The repository's
+inline-only prompt entries are intentionally hidden because they require a
+separately configured HTTP adapter.
+
+New chats do not include the current file automatically. Add live file context
+with `#{buffer}` in the prompt; use `#{buffer}{all}` when every turn should send
+the complete file. Use `/buffer` to select open buffers or `/file` to select
+files from the working directory.
+
+The chat buffer and its approval prompts add scoped mappings, so these keys do
+not replace editor mappings elsewhere:
+
+| Key                    | Scope                       | Action                                         |
+| ---------------------- | --------------------------- | ---------------------------------------------- |
+| `<CR>` or `<C-s>`      | Normal; `<C-s>` also Insert | Submit the prompt                              |
+| `q`                    | Chat, Normal                | Stop the current request                       |
+| `ga`                   | Chat, Normal                | Select the adapter and model                   |
+| `Space+ab`             | Chat, Normal                | Select an open buffer with FzfLua              |
+| `Space+af`             | Chat, Normal                | Select a file with FzfLua                      |
+| `Space+ah`             | Chat, Normal                | Select Neovim help with FzfLua                 |
+| `Space+am`             | Chat, Normal                | Change ACP model, mode, or reasoning           |
+| `Space+ap`             | Chat, Normal                | Select an image with Snacks                    |
+| `Space+aP`             | Chat, Normal                | Paste a clipboard image through img-clip       |
+| `Space+aR`             | Fresh chat, Normal          | Resume a previous ACP session                  |
+| `Space+as`             | Chat, Normal                | Select file symbols with FzfLua                |
+| `Space+ad`             | Chat approval, Normal       | View the proposed diff                         |
+| `?`                    | Chat, Normal                | Show available chat options and keymaps        |
+
+Blink supplies completion inside chat. The action palette and image picker use
+Snacks, while file-oriented pickers use FzfLua. In a code-review quickfix list,
+`d` opens the selected hunk against CodeCompanion's baseline in Diffview; the
+built-in `a`, `c`, and `x` mappings accept, comment on, or ignore that hunk.
+
+Use `Space+aP` (or `:PasteImage`) in a chat to attach an image from the
+clipboard, or `Space+ap` (or `/image`) to select an image from a file or URL.
+Clipboard images require `pngpaste` on macOS and `xclip` or `wl-clipboard` on
+Linux.
+
+ACP adapters are available only to CodeCompanion's chat interaction. Use the
+action palette, a visual selection action, or `:CodeCompanion /<alias>` here;
+the generic inline `:CodeCompanion` prompt, `CodeCompanionCmd`, and CLI
+interaction need a separately configured HTTP or CLI adapter.
+
+Codex authentication and configuration stay in the platform-default
+`~/.codex`. The configuration sets `CODEX_SQLITE_HOME` to
+`stdpath("data")/nvim-config/codex-sqlite`, isolating ACP's live SQLite files
+from Codex Desktop without copying authentication tokens or setting
+`CODEX_HOME`.
 
 ### LSP
 
@@ -1070,19 +1126,21 @@ mappings above instead of its defaults.
 
 ## Optional Features
 
-### Avante with Codex ACP
+### CodeCompanion v19 with Codex ACP
 
-Install the Codex CLI and `codex-acp`, ensure both commands are on `PATH`,
-then authenticate on each machine:
+CodeCompanion requires `curl`. Install the Codex CLI and the current
+`codex-acp`, ensure all three commands are on `PATH`, then authenticate on each
+machine:
 
 ```powershell
+npm install --global @openai/codex @agentclientprotocol/codex-acp
 codex login
 codex login status
 ```
 
-Open Neovim and use `Space+ai`. If Avante asks to authenticate the ACP
-provider, complete that prompt once. No `CODEX_HOME` environment variable is
-required.
+Open Neovim and use `Space+an` for a new chat or `Space+ai` to toggle it. If
+CodeCompanion asks to authenticate the ACP provider, complete that prompt once.
+Codex ACP is chat-only, and no `CODEX_HOME` environment variable is required.
 
 ### Catppuccin
 
@@ -1203,11 +1261,11 @@ Use the configuration-specific check instead:
 :checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
-Avante is lazy-loaded. To run its own health check, load it first:
+CodeCompanion is lazy-loaded. To run its own health check, load it first:
 
 ```vim
-:Lazy load avante.nvim
-:checkhealth avante
+:Lazy load codecompanion.nvim
+:checkhealth codecompanion
 ```
 
 An offline `vim.provider` run may fail only its optional PyPI version lookup;
@@ -1243,11 +1301,11 @@ codex login
 codex doctor --summary
 ```
 
-Avante keeps Codex authentication/configuration in the platform-default
-`~/.codex`, while its SQLite runtime is isolated in
-`.nvim-data/codex-sqlite`. This prevents Codex Desktop and `codex-acp` from
-competing for the same live databases. Close old Neovim/ACP processes and
-restart Neovim after changing authentication.
+CodeCompanion keeps Codex authentication/configuration in the platform-default
+`~/.codex`, while `CODEX_SQLITE_HOME` isolates ACP's runtime in
+`stdpath("data")/nvim-config/codex-sqlite`. This prevents Codex Desktop and
+`codex-acp` from competing for the same live databases. Close old Neovim/ACP
+processes and restart Neovim after changing authentication.
 
 ### Markdown Leaves `E31: No such mapping`
 
@@ -1447,8 +1505,9 @@ To change its color or disable Insert-mode animation, edit the
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Mason](https://github.com/mason-org/mason.nvim)
 - [Blink completion](https://github.com/Saghen/blink.cmp)
-- [Avante](https://github.com/yetone/avante.nvim)
-- [codex-acp](https://github.com/zed-industries/codex-acp)
+- [CodeCompanion](https://github.com/olimorris/codecompanion.nvim)
+- [CodeCompanion documentation](https://codecompanion.olimorris.dev/)
+- [codex-acp](https://github.com/agentclientprotocol/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)

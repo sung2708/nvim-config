@@ -1,4 +1,5 @@
 require("render-markdown").setup({
+    file_types = { "markdown", "markdown.mdx", "codecompanion" },
     heading = {
         width = "block",
         left_pad = 1,

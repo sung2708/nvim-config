@@ -15,11 +15,12 @@ function M.apply_ui_highlights()
     local float_title = get_hl("FloatTitle")
     local non_text = get_hl("NonText")
 
-    -- Keep every floating surface opaque while preserving all other
-    -- colorscheme attributes. Border cells use the same surface background,
-    -- so no foreign color can appear between the content and its outline.
+    -- Give every floating UI the editor's surface. NUI is used by Noice,
+    -- Neo-tree and CodeCompanion, and some consumers use NormalFloat while
+    -- others use Normal directly. Keeping NormalFloat on Normal's background
+    -- removes a second, plugin-specific surface across all colorschemes.
     normal_float.fg = normal_float.fg or normal.fg
-    normal_float.bg = normal_float.bg or normal.bg
+    normal_float.bg = normal.bg
     vim.api.nvim_set_hl(0, "NormalFloat", normal_float)
 
     float_border.fg = float_border.fg or non_text.fg or normal.fg
@@ -49,8 +50,10 @@ function M.apply_ui_highlights()
         NoiceConfirmBorder = "FloatBorder",
         NoicePopup = "NormalFloat",
         NoicePopupBorder = "FloatBorder",
-        NoicePopupmenu = "Pmenu",
-        NoicePopupmenuBorder = "FloatBorder",
+        -- Noice's popup menus are NUI windows too. Keep their normal rows on
+        -- the editor surface while retaining PmenuSel for the active row.
+        NoicePopupmenu = "Normal",
+        NoicePopupmenuBorder = "WinSeparator",
         NoicePopupmenuMatch = "Special",
         NoicePopupmenuSelected = "PmenuSel",
         NoiceSplitBorder = "WinSeparator",
@@ -66,10 +69,6 @@ function M.apply_ui_highlights()
         NeoTreeFloatTitle = "FloatTitle",
         NeoTreeWinSeparator = "WinSeparator",
         NeoTreeVertSplit = "WinSeparator",
-        AvanteConflictCurrent = "DiffText",
-        AvanteConflictCurrentLabel = "DiffText",
-        AvanteConflictIncoming = "DiffAdd",
-        AvanteConflictIncomingLabel = "DiffAdd",
         NotifyBackground = "NormalFloat",
         NotifyERRORBody = "NormalFloat",
         NotifyWARNBody = "NormalFloat",
@@ -145,24 +144,36 @@ function M.apply_ui_highlights()
         TroubleNormal = "NormalFloat",
         TroubleNormalNC = "NormalFloat",
 
-        -- Avante defines hard-coded fallback colors. Pre-defining its shell
-        -- groups keeps the sidebar and prompt tied to the active colorscheme.
-        AvantePopupHint = "NormalFloat",
-        AvanteSuggestion = "Comment",
-        AvanteAnnotation = "Comment",
-        AvanteInlineHint = "Keyword",
-        AvanteToBeDeleted = "DiffDelete",
-        AvanteToBeDeletedWOStrikethrough = "DiffDelete",
-        AvanteCommentFg = "Comment",
-        AvantePromptInput = "NormalFloat",
-        AvantePromptInputBorder = "FloatBorder",
-        AvanteSidebarNormal = "NormalFloat",
-        AvanteSidebarWinSeparator = "WinSeparator",
-        AvanteSidebarWinHorizontalSeparator = "WinSeparator",
-        AvanteTaskRunning = "DiagnosticWarn",
-        AvanteTaskCompleted = "DiagnosticOk",
-        AvanteTaskFailed = "DiagnosticError",
-        AvanteThinking = "DiagnosticHint",
+        -- CodeCompanion uses semantic groups for chat, tools, and diffs.
+        CodeCompanionChatError = "DiagnosticError",
+        CodeCompanionChatFold = "Comment",
+        CodeCompanionChatHeader = "Title",
+        CodeCompanionChatInfo = "DiagnosticInfo",
+        CodeCompanionChatSeparator = "WinSeparator",
+        CodeCompanionChatSubtext = "Comment",
+        CodeCompanionChatTokens = "Comment",
+        CodeCompanionChatTool = "Special",
+        CodeCompanionChatToolFailure = "DiagnosticError",
+        CodeCompanionChatToolFailureIcon = "DiagnosticError",
+        CodeCompanionChatToolGroup = "Constant",
+        CodeCompanionChatToolInProgress = "DiagnosticInfo",
+        CodeCompanionChatToolInProgressIcon = "DiagnosticInfo",
+        CodeCompanionChatToolPending = "DiagnosticWarn",
+        CodeCompanionChatToolPendingIcon = "DiagnosticWarn",
+        CodeCompanionChatToolSuccess = "DiagnosticOk",
+        CodeCompanionChatToolSuccessIcon = "DiagnosticOk",
+        CodeCompanionChatToolText = "Comment",
+        CodeCompanionChatEditorContext = "Identifier",
+        CodeCompanionChatWarn = "DiagnosticWarn",
+        CodeCompanionDiffAdd = "DiffAdd",
+        CodeCompanionDiffDelete = "DiffDelete",
+        CodeCompanionDiffText = "DiffText",
+        CodeCompanionDiffTextDelete = "DiffDelete",
+        CodeCompanionDiffBanner = "DiagnosticHint",
+        CodeCompanionDiffBannerInline = "Comment",
+        CodeCompanionCLIPath = "Include",
+        CodeCompanionCodeReviewComment = "DiagnosticHint",
+        CodeCompanionVirtualText = "Comment",
     }
 
     for group, link in pairs(links) do
@@ -211,59 +222,6 @@ function M.apply_ui_highlights()
         fg = search_accent,
         bg = normal_float.bg,
     })
-
-    -- Avante ships OneDark fallback colors. Define its color blocks from
-    -- semantic colorscheme groups before the plugin loads, so buttons,
-    -- headers and activity states match every supported theme.
-    local avante_blocks = {
-        AvanteTitle = "DiagnosticOk",
-        AvanteSubtitle = "DiagnosticInfo",
-        AvanteThirdTitle = "DiagnosticHint",
-        AvanteConfirmTitle = "DiagnosticError",
-        AvanteButtonDefault = "Comment",
-        AvanteButtonDefaultHover = "DiagnosticHint",
-        AvanteButtonPrimary = "DiagnosticInfo",
-        AvanteButtonPrimaryHover = "Special",
-        AvanteButtonDanger = "DiagnosticWarn",
-        AvanteButtonDangerHover = "DiagnosticError",
-        AvanteStateSpinnerGenerating = "Special",
-        AvanteStateSpinnerToolCalling = "DiagnosticInfo",
-        AvanteStateSpinnerFailed = "DiagnosticError",
-        AvanteStateSpinnerSucceeded = "DiagnosticOk",
-        AvanteStateSpinnerSearching = "DiagnosticHint",
-        AvanteStateSpinnerThinking = "DiagnosticHint",
-        AvanteStateSpinnerCompacting = "DiagnosticHint",
-    }
-    for group, target in pairs(avante_blocks) do
-        local accent = get_hl(target).fg or float_title.fg
-        vim.api.nvim_set_hl(0, group, {
-            fg = normal.bg or normal_float.bg,
-            bg = accent,
-            bold = true,
-        })
-    end
-
-    local avante_reversed = {
-        AvanteReversedTitle = "DiagnosticOk",
-        AvanteReversedSubtitle = "DiagnosticInfo",
-        AvanteReversedThirdTitle = "DiagnosticHint",
-    }
-    for group, target in pairs(avante_reversed) do
-        vim.api.nvim_set_hl(0, group, {
-            fg = get_hl(target).fg or float_title.fg,
-            bg = normal_float.bg,
-        })
-    end
-
-    local logo_colors = {
-        normal_float.fg or normal.fg,
-        get_hl("Comment").fg or normal.fg,
-        non_text.fg or float_border.fg,
-    }
-    for index = 1, 14 do
-        local color_index = index <= 4 and 1 or (index <= 9 and 2 or 3)
-        vim.api.nvim_set_hl(0, "AvanteLogoLine" .. index, { fg = logo_colors[color_index] })
-    end
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
