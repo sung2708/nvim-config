@@ -57,6 +57,7 @@ function M.check()
 
     vim.health.start("Required tools")
     check_tool("Git", { "git" }, true, "plugin installation")
+    check_tool("curl", { "curl" }, true, "CodeCompanion and package downloads")
     check_tool("ripgrep", { "rg" }, true, "file search and live grep")
     check_tool("fzf", { "fzf" }, true, "interactive pickers")
 
@@ -64,12 +65,16 @@ function M.check()
     check_tool("Tree-sitter CLI", { "tree-sitter" }, false, "parser installation")
     check_tool("C compiler", { "cc", "clang", "gcc", "zig", "cl" }, false, "Treesitter/native plugins")
     check_tool("Node.js", { "node" }, false, "JavaScript tooling and debugging")
+    check_tool("Codex CLI", { "codex" }, false, "CodeCompanion Codex authentication")
+    check_tool("Codex ACP", { "codex-acp" }, false, "CodeCompanion Codex chat")
     check_tool("Python", { "python3", "python" }, false, "Python provider, tests, and REPL")
     check_tool("Ruff", { "ruff" }, false, "Python LSP and formatting")
     check_tool("Go", { "go" }, false, "Go tooling")
     check_tool("Java", { "java" }, false, "Java tooling")
 
-    if vim.fn.has("win32") == 1 or vim.fn.has("mac") == 1 then
+    if vim.fn.has("mac") == 1 then
+        check_tool("pngpaste", { "pngpaste" }, false, "CodeCompanion clipboard images")
+    elseif vim.fn.has("win32") == 1 then
         vim.health.ok("System clipboard support is provided by the platform")
     else
         check_tool("Clipboard", { "wl-copy", "xclip", "xsel" }, false, "system clipboard")

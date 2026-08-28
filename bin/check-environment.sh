@@ -21,13 +21,17 @@ check_optional() {
 }
 
 printf '%s\n' 'Neovim environment check'
-for command_name in nvim git rg; do
+for command_name in nvim git curl rg; do
     check_required "$command_name"
 done
 
-for command_name in tree-sitter make cc clang gcc node python3 python go java; do
+for command_name in tree-sitter make cc clang gcc node codex codex-acp python3 python go java; do
     check_optional "$command_name"
 done
+
+if [ "$(uname -s)" = "Darwin" ]; then
+    check_optional pngpaste
+fi
 
 printf '\n%s\n' 'After the first launch run: :ConfigHealth, :MasonToolsInstall, :TSUpdate'
 exit "$missing_required"

@@ -98,12 +98,13 @@ if snacks then
 
     local dashboard_chrome
 
-    local function hide_dashboard_chrome()
-        dashboard_chrome = dashboard_chrome
-            or {
+    local function hide_dashboard_chrome(refresh)
+        if refresh or not dashboard_chrome then
+            dashboard_chrome = {
                 laststatus = vim.o.laststatus,
                 showtabline = vim.o.showtabline,
             }
+        end
         vim.o.laststatus = 0
         vim.o.showtabline = 0
     end
@@ -197,8 +198,11 @@ if snacks then
                 },
             },
             sections = {
-                { section = "header", padding = { 1, 2 } },
-                { section = "keys", gap = 1, padding = { 0, 1 } },
+                -- Keep the blank row below the header on the header itself.
+                -- Snacks positions an item's cursor on its first rendered
+                -- line, which would otherwise be the keys section's padding.
+                { section = "header", padding = { 2, 2 } },
+                { section = "keys", gap = 1 },
                 {
                     icon = " ",
                     title = "Recent Files",
@@ -252,11 +256,12 @@ if snacks then
         group = dashboard_group,
         pattern = "VeryLazy",
         callback = function()
-            vim.schedule(function()
-                if vim.bo.filetype == "snacks_dashboard" then
-                    hide_dashboard_chrome()
-                end
-            end)
+            if vim.bo.filetype == "snacks_dashboard" then
+                -- Bufferline and Lualine finish their setup earlier in this
+                -- event. Hide their global UI before Neovim renders again.
+                -- Scheduling this leaves one visible tabline frame.
+                hide_dashboard_chrome(true)
+            end
         end,
     })
 

@@ -207,6 +207,9 @@ return {
         lazy = true,
         init = defer_after_vimenter("smear-cursor.nvim", 800),
         opts = {
+            -- A dashboard has no meaningful cursor position. Avoid the
+            -- startup buffer-switch smear across the top of the screen.
+            filetypes_disabled = { "snacks_dashboard" },
             smear_insert_mode = false,
             vertical_bar_cursor_insert_mode = true,
         },
@@ -391,7 +394,7 @@ return {
     {
         "MeanderingProgrammer/render-markdown.nvim",
         lazy = true,
-        init = defer_on_filetype("render-markdown.nvim", { "markdown", "markdown.mdx", "Avante" }, 30),
+        init = defer_on_filetype("render-markdown.nvim", { "markdown", "markdown.mdx", "codecompanion" }, 30),
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
             "nvim-tree/nvim-web-devicons",

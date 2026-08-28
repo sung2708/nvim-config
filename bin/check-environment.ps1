@@ -1,7 +1,10 @@
 $ErrorActionPreference = "Continue"
 
-$required = @("nvim", "git", "rg")
-$optional = @("tree-sitter", "make", "zig", "g++", "node", "python", "go", "java")
+$required = @("nvim", "git", "curl", "rg")
+$optional = @("tree-sitter", "make", "zig", "g++", "node", "codex", "codex-acp", "python", "go", "java")
+if ($IsMacOS) {
+    $optional += "pngpaste"
+}
 $missingRequired = 0
 
 Write-Host "Neovim environment check" -ForegroundColor Cyan
