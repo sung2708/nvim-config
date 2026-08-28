@@ -59,8 +59,21 @@ if snacks then
                             ok, err = pcall(function()
                                 assert(bufnr and bufnr ~= 0, "Unable to resolve selected file")
                                 vim.bo[bufnr].buflisted = true
-                                vim.api.nvim_win_set_buf(source_win, bufnr)
                                 vim.api.nvim_set_current_win(source_win)
+                                -- :buffer runs the swap recovery dialog; the buffer API does not.
+                                local opened, open_err = pcall(vim.cmd.buffer, bufnr)
+                                if not opened then
+                                    if open_err == "Keyboard interrupt" then
+                                        return
+                                    end
+                                    -- E325 is reported even after a successful recovery choice.
+                                    if not tostring(open_err):match("^Vim:E325:") then
+                                        error(open_err)
+                                    end
+                                end
+                                if vim.api.nvim_win_get_buf(source_win) ~= bufnr then
+                                    return
+                                end
 
                                 if entry.line and entry.line > 0 then
                                     vim.api.nvim_win_set_cursor(source_win, {
