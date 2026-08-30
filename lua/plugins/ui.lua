@@ -22,6 +22,39 @@ return {
         },
     },
     {
+        "Bekaboo/dropbar.nvim",
+        event = { "BufReadPre", "BufNewFile" },
+        dependencies = {
+            "nvim-tree/nvim-web-devicons",
+        },
+        keys = {
+            {
+                "<leader>;",
+                function()
+                    require("dropbar.api").pick()
+                end,
+                desc = "Breadcrumb: Pick Symbol",
+            },
+            {
+                "[;",
+                function()
+                    require("dropbar.api").goto_context_start()
+                end,
+                desc = "Breadcrumb: Context Start",
+            },
+            {
+                "];",
+                function()
+                    require("dropbar.api").select_next_context()
+                end,
+                desc = "Breadcrumb: Next Context",
+            },
+        },
+        config = function()
+            require("integrations.dropbar")
+        end,
+    },
+    {
         "folke/snacks.nvim",
         lazy = false,
         priority = 1000,

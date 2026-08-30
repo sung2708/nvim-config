@@ -250,7 +250,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
         map("n", "<leader>e", function()
             vim.lsp.buf.hover({ border = "rounded" })
         end, "Hover")
-        map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
+        map({ "n", "v" }, "<leader>ca", function()
+            require("tiny-code-action").code_action()
+        end, "Code Action")
         vim.keymap.set("n", "<leader>rn", function()
             return ":IncRename " .. vim.fn.expand("<cword>")
         end, {

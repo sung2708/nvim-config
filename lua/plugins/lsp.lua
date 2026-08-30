@@ -62,6 +62,16 @@ return {
         end,
     },
     {
+        "rachartier/tiny-code-action.nvim",
+        event = "LspAttach",
+        dependencies = {
+            "ibhagwan/fzf-lua",
+        },
+        config = function()
+            require("integrations.tiny-code-action")
+        end,
+    },
+    {
         "folke/lazydev.nvim",
         lazy = true,
         init = defer_on_filetype("lazydev.nvim", "lua", 20),

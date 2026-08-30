@@ -94,6 +94,24 @@ function M.apply_ui_highlights()
         FzfLuaFzfPrompt = "Special",
         FzfLuaFzfPointer = "Special",
 
+        -- Breadcrumb bar and its symbol menus.
+        DropBarCurrentContext = "PmenuSel",
+        DropBarCurrentContextIcon = "PmenuSel",
+        DropBarCurrentContextName = "PmenuSel",
+        DropBarHover = "Visual",
+        DropBarIconKindDefault = "Special",
+        DropBarIconKindDefaultNC = "WinBarNC",
+        DropBarIconUIIndicator = "SpecialChar",
+        DropBarIconUIPickPivot = "DiagnosticError",
+        DropBarIconUISeparator = "NonText",
+        DropBarIconUISeparatorMenu = "NonText",
+        DropBarMenuCurrentContext = "PmenuSel",
+        DropBarMenuFloatBorder = "FloatBorder",
+        DropBarMenuNormalFloat = "NormalFloat",
+        DropBarMenuSbar = "PmenuSbar",
+        DropBarMenuThumb = "PmenuThumb",
+        DropBarPreview = "Visual",
+
         -- Completion, documentation and signature-help windows.
         BlinkCmpMenu = "Pmenu",
         BlinkCmpMenuBorder = "FloatBorder",

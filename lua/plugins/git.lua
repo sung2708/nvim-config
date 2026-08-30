@@ -39,4 +39,19 @@ return {
             "nvim-tree/nvim-web-devicons",
         },
     },
+    {
+        "NeogitOrg/neogit",
+        cmd = "Neogit",
+        keys = {
+            { "<leader>gg", "<cmd>Neogit<cr>", desc = "Git: Neogit" },
+        },
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "sindrets/diffview.nvim",
+            "ibhagwan/fzf-lua",
+        },
+        config = function()
+            require("integrations.neogit")
+        end,
+    },
 }
