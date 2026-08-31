@@ -1,0 +1,10 @@
+#include <iostream>
+int main() {
+  int n;
+  while (n--) {
+    int num;
+    for (int a : a) {
+      std::cout << a;
+    }
+  }
+}
