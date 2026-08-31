@@ -6,14 +6,36 @@ return {
             {
                 "<leader>ff",
                 function()
-                    require("fzf-lua").files()
+                    require("fzf-lua").files({
+                        file_icons = true,
+                        git_icons = true,
+                        previewer = "builtin",
+                        winopts = {
+                            preview = {
+                                delay = 100,
+                            },
+                        },
+                    })
                 end,
                 desc = "Find: Files",
             },
             {
                 "<leader>fg",
                 function()
-                    require("fzf-lua").live_grep()
+                    -- Native live_grep is faster but deliberately disables
+                    -- file/git icons. Use the processed provider here so
+                    -- file icons remain available.
+                    require("fzf-lua").live_grep({
+                        file_icons = true,
+                        -- Git status would run during every live reload.
+                        git_icons = false,
+                        previewer = "builtin",
+                        winopts = {
+                            preview = {
+                                delay = 100,
+                            },
+                        },
+                    })
                 end,
                 desc = "Find: Grep",
             },
