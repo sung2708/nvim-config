@@ -171,6 +171,60 @@ return {
         end,
     },
     {
+        "stevearc/quicker.nvim",
+        -- Quickfix lists are uncommon during startup. Loading on their
+        -- filetype keeps the normal editor path unchanged.
+        ft = "qf",
+        keys = {
+            {
+                "<leader>qf",
+                function()
+                    require("quicker").toggle({ focus = false })
+                end,
+                desc = "Quickfix: Toggle",
+            },
+            {
+                "<leader>qF",
+                function()
+                    require("quicker").toggle({ focus = true })
+                end,
+                desc = "Quickfix: Focus",
+            },
+        },
+        opts = {
+            edit = {
+                enabled = true,
+                -- Write only source buffers that were already unmodified;
+                -- quickfix edits never silently overwrite user changes.
+                autosave = "unmodified",
+            },
+            constrain_cursor = true,
+            follow = { enabled = false },
+            highlight = {
+                treesitter = true,
+                lsp = true,
+                -- Avoid loading every referenced file just to paint the list.
+                load_buffers = false,
+            },
+            keys = {
+                {
+                    ">",
+                    function()
+                        require("quicker").expand({ before = 2, after = 2, add_to_existing = true })
+                    end,
+                    desc = "Quickfix: Expand Context",
+                },
+                {
+                    "<",
+                    function()
+                        require("quicker").collapse()
+                    end,
+                    desc = "Quickfix: Collapse Context",
+                },
+            },
+        },
+    },
+    {
         "folke/flash.nvim",
         keys = {
             {
@@ -206,7 +260,17 @@ return {
         "sphamba/smear-cursor.nvim",
         lazy = true,
         init = defer_after_vimenter("smear-cursor.nvim", 800),
+        keys = {
+            {
+                "<leader>ua",
+                function()
+                    require("smear_cursor").toggle()
+                end,
+                desc = "UI: Toggle Cursor Animation",
+            },
+        },
         opts = {
+            enabled = vim.g.sungp_animations ~= false,
             -- A dashboard has no meaningful cursor position. Avoid the
             -- startup buffer-switch smear across the top of the screen.
             filetypes_disabled = { "snacks_dashboard" },

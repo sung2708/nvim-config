@@ -53,3 +53,21 @@ vim.keymap.set("n", "<leader>ns", neotest.summary.toggle, { desc = "Test: Summar
 vim.keymap.set("n", "<leader>no", neotest.output.open, { desc = "Test: Output" })
 vim.keymap.set("n", "<leader>nO", neotest.output_panel.toggle, { desc = "Test: Output Panel" })
 vim.keymap.set("n", "<leader>nw", neotest.watch.toggle, { desc = "Test: Watch" })
+
+local function debug_test(target)
+    -- Keep DAP lazy; load it only when a test is explicitly debugged.
+    local ok, err = pcall(function()
+        require("lazy").load({ plugins = { "nvim-dap" } })
+        neotest.run.run({ target, strategy = "dap" })
+    end)
+    if not ok then
+        vim.notify("Neotest DAP strategy is unavailable: " .. tostring(err), vim.log.levels.WARN)
+    end
+end
+
+vim.keymap.set("n", "<leader>nd", function()
+    debug_test(nil)
+end, { desc = "Test: Debug Nearest" })
+vim.keymap.set("n", "<leader>nD", function()
+    debug_test(vim.fn.expand("%"))
+end, { desc = "Test: Debug File" })

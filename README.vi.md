@@ -595,16 +595,102 @@ Diagnostics không cập nhật khi đang Insert mode để việc gõ ổn đ�
 
 | Phím        | Hành động                       |
 | ----------- | ------------------------------- |
-| `Space+ff`  | Tìm file                        |
-| `Space+fg`  | Live grep                       |
+| `Space+ff`  | Tìm file trong project          |
+| `Space+fg`  | Live grep trong project         |
 | `Space+fb`  | Tìm buffer                      |
 | `Space+ld`  | Lazydocker, nếu đã cài          |
 | `Ctrl+\`    | Bật/tắt terminal                |
 | `Space+xx`  | Trouble diagnostics             |
 | `Ctrl+a/x`  | Tăng/giảm số, ngày hoặc giá trị |
 
+### Quickfix Với Quicker
+
+Các nguồn này dùng chung một workflow Quickfix: kết quả từ FzfLua (`Ctrl+q`),
+Grug Far (`\\q`), comment TODO (`Space+xq`), Git hunk (`Space+hq`/`Space+hQ`)
+và diagnostics của LSP (`Space+xD`) đều có thể rà soát bằng `Space+qF`,
+`Enter`, `]q`, `[q`. Nhờ vậy chỉ cần nhớ một cách duyệt danh sách giữa các
+plugin.
+
+Neotest cũng nối với DAP: `Space+nt`/`Space+nf` chạy test bình thường, còn
+`Space+nd`/`Space+nD` chạy test gần con trỏ hoặc cả file dưới debugger. DAP vẫn
+được lazy-load và chỉ tải khi dùng luồng debug test này.
+
+Quicker cải thiện quickfix chuẩn mà không thay thế Trouble. Dùng `Space+qf`
+để bật/tắt quickfix, hoặc `Space+qF` để bật/tắt và đưa focus vào đó. Trong
+cửa sổ quickfix, nhấn `>` để mở thêm hai dòng ngữ cảnh quanh kết quả và `<` để
+thu gọn. Danh sách giữ tô màu grep, cột file/dòng và icon diagnostics. Có thể
+sửa dòng nguồn trực tiếp trong buffer quickfix rồi `:w`; chỉ các buffer nguồn
+chưa bị sửa lúc mở danh sách mới được tự ghi. `Space+xQ` vẫn là cây diagnostics
+đầy đủ của Trouble.
+
+Quicker yêu cầu Neovim 0.10 trở lên và quản lý `quickfixtextfunc`; tránh thêm
+plugin quickfix có khả năng chỉnh sửa trùng như quickfix-reflector hoặc
+replacer. Plugin dùng chung được với Trouble, nhưng nên chọn một giao diện cho
+mỗi danh sách.
+
+`Space+xD` đưa toàn bộ diagnostics LSP vào Quickfix. Dùng `]q` và `[q` để đi
+qua kết quả tiếp theo/trước đó từ mọi nguồn.
+
 Lazygit bị tắt trên Windows vì lỗi ConPTY không ổn định; các lệnh Git native,
 Fugitive, Gitsigns và Diffview vẫn hoạt động bình thường.
+
+### Tìm Kiếm Theo Phạm Vi
+
+| Phím | Hành động |
+| --- | --- |
+| `Space+fF` / `Space+fG` | Tìm file / grep theo thư mục hiện hành (cwd) |
+| `Space+fe` / `Space+fE` | Tìm file / grep theo thư mục file đang mở |
+| `Space+fN` | Grep nhanh trong project, bỏ icon file/Git |
+| `Space+fR` | Mở lại picker trước, giữ query và phạm vi cũ |
+| `Space+fw` | Tìm từ dưới con trỏ; ở Visual mode, tìm vùng chọn |
+| `Space+fl` | Tìm dòng trong buffer hiện tại |
+| `Space+fO` | File mở gần đây, trên các project |
+| `Space+fk` | Tìm phím tắt |
+
+Project được xác định từ file đang mở: thư mục cha gần nhất có `.git`
+(hỗ trợ cả Git worktree), rồi marker ngôn ngữ như `package.json`,
+`pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml` hoặc `.project-root`,
+sau cùng là cwd. Trong monorepo Git, `ff/fg` tìm toàn repo; dùng `fe/fE`
+để giới hạn theo thư mục package. Buffer chưa đặt tên hoặc buffer đặc biệt
+dùng cwd làm điểm bắt đầu. Search không đổi `:pwd`, thư mục terminal hay session.
+`fr` giữ phạm vi cwd của Grug Far; kiểm tra ô Paths trước khi thay thế.
+
+Đường dẫn truyền trực tiếp qua tùy chọn picker, không ghép lệnh shell `cd`.
+Giữ xử lý escape ripgrep trên Windows và fallback fd/rg. Grep nhanh vẫn theo
+quy tắc ignore của ripgrep, nhưng bỏ icon và bước xử lý kết quả Lua;
+`fg` thường vẫn có icon file. `Alt+h` bật/tắt tìm file ẩn.
+
+### Điều Khiển UI Và Hiệu Năng
+
+| Phím | Hành động |
+| --- | --- |
+| `Space+uz` / `Space+uZ` | Zen / phóng to cửa sổ; thoát để khôi phục bố cục |
+| `Space+u.` / `Space+uS` | Ghi chú Markdown nhanh / chọn scratch đã lưu |
+| `Space+uw` | Bật/tắt wrap cho cửa sổ hiện tại |
+| `Space+ud` | Bật/tắt diagnostics toàn cục |
+| `Space+ua` | Bật/tắt hiệu ứng con trỏ |
+| `Space+ui` / `Space+uc` | Bật/tắt đường indent / highlight khối |
+| `Space+ub` | Bật/tắt breadcrumbs |
+| `Space+uf` / `Space+uF` | Bật/tắt autoformat toàn cục / buffer |
+| `Space+up` | Xem thời gian tải plugin (`Lazy profile`) |
+| `Space+uP` | Bắt đầu/dừng profiler Lua và xem kết quả |
+
+Phím `Space+ci` hiện có vẫn bật/tắt inlay hints khi LSP hỗ trợ. Scratch lưu
+trong thư mục data của Neovim, phân theo cwd, nhánh Git và count; copy config
+không tự copy ghi chú. Zen không bật hiệu ứng dim. Máy chậm có thể đặt
+`vim.g.sungp_animations = false` trong `lua/config/local.lua` (được Git bỏ qua);
+vẫn có thể bật hiệu ứng con trỏ trong phiên bằng `ua`.
+
+Autoformat khi lưu có timeout 1000 ms, riêng Java 3000 ms để khởi động JVM.
+Bỏ qua buffer đặc biệt/không cho sửa, cờ `bigfile`, file trên 1 MiB hoặc
+trung bình trên 500 byte/dòng, kể cả file lớn lên sau khi mở. `Space+cf`
+vẫn format thủ công bất đồng bộ cho file lớn. Autoformat khi lưu vẫn đồng bộ,
+để công cụ theo dõi file nhận nội dung đã format.
+
+Nếu formatter timeout, xem `:ConformInfo`, dùng format thủ công hoặc đặt
+`vim.g.autoformat_timeout_ms = 2000` trong `lua/config/local.lua`.
+`vim.b.autoformat_timeout_ms` ưu tiên hơn thiết lập toàn cục. Tắt autoformat
+toàn cục có ưu tiên hơn toggle buffer; `:FormatEnable` xóa cả hai cờ tắt.
 
 ### Trợ Lý AI
 
@@ -721,7 +807,28 @@ URI không hợp lệ.
 Mason tool installation chạy sau startup và được giới hạn tần suất để tránh
 kiểm tra quá thường xuyên.
 
+Đo cả thao tác mở file rồi gõ ngay, grep repo lớn và lưu file có formatter.
+Hoãn tải plugin chỉ chuyển công việc sang sau frame đầu. `Space+uP` chỉ ghi
+lại lời gọi Lua khi được bật và có thêm overhead; dùng để tìm hàm tốn thời
+gian, không xem đó là benchmark độ trễ tuyệt đối. Profiler không tự chạy.
+
 ## Bảo Trì
+
+Kiểm tra hồi quy từ thư mục config:
+
+```sh
+nvim --headless -u NONE -i NONE -l tests/upgrades.lua
+nvim --headless -u NONE -i NONE -l tests/startup.lua
+nvim --headless -u NONE -i NONE -l tests/dashboard_pick.lua
+```
+
+Bài kiểm tra startup cần `fzf`, `rg` và các plugin đã cài; kiểm tra lần Insert
+đầu và kết quả picker bằng chế độ headless.
+Bài kiểm tra nâng cấp dùng dữ liệu tạm và plugin đã cài, không update plugin
+hay ghi vào scratch/session thật. Khi mang sang máy khác, giữ `lazy-lock.json`
+và chạy `:Lazy restore`. Giữ workaround Treesitter cho frame đầu và Blink
+cho lần Insert đầu; kiểm tra completion ngay lần gõ đầu và chọn file từ
+dashboard sau khi update plugin.
 
 Cập nhật plugin và tool:
 

@@ -11,6 +11,8 @@ return {
             { "<leader>dr", desc = "Debug: Open REPL" },
             { "<leader>dl", desc = "Debug: Run Last" },
             { "<leader>du", desc = "Debug: Toggle UI" },
+            { "<leader>nd", desc = "Test: Debug Nearest" },
+            { "<leader>nD", desc = "Test: Debug File" },
         },
         dependencies = {
             "nvim-neotest/nvim-nio",

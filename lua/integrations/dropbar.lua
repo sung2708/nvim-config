@@ -20,6 +20,9 @@ local function is_enabled(bufnr, winid)
     if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_win_is_valid(winid) then
         return false
     end
+    if vim.g.sungp_breadcrumbs == false or vim.b[bufnr].bigfile then
+        return false
+    end
 
     -- Leave plugin-owned windows alone. This keeps the dashboard, explorers,
     -- pickers, terminals, help and quickfix windows visually focused.
@@ -123,3 +126,21 @@ dropbar.setup({
         },
     },
 })
+
+local M = {}
+function M.toggle()
+    vim.g.sungp_breadcrumbs = vim.g.sungp_breadcrumbs == false
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        if vim.g.sungp_breadcrumbs then
+            require("dropbar.utils").bar.attach(buf, win)
+        elseif vim.wo[win].winbar:find("v:lua.dropbar", 1, true) then
+            vim.wo[win].winbar = ""
+            local bar = require("dropbar.api").get_dropbar(buf, win)
+            if bar then
+                bar:del()
+            end
+        end
+    end
+end
+return M

@@ -574,6 +574,8 @@ Responsibilities:
 - `lua/config/`: global options, keymaps, autocmds, and lazy bootstrap.
 - `lua/plugins/`: plugin specifications, dependencies, and lazy-load rules.
 - `lua/integrations/`: plugin setup and cross-plugin integration.
+- `lua/helper/project.lua`: portable search directory/root resolution.
+- `lua/helper/format.lua`: autoformat size guards and timeout policy.
 - `after/ftplugin/`: per-filetype options.
 - `lazy-lock.json`: pinned plugin commits.
 
@@ -754,13 +756,35 @@ Dashboard keys:
 
 | Key        | Action                                   |
 | ---------- | ---------------------------------------- |
-| `Space+ff` | Find files with FzfLua                   |
-| `Space+fg` | Live grep with FzfLua                    |
+| `Space+ff` | Find files in the project               |
+| `Space+fg` | Live grep in the project                |
 | `Space+fb` | Find buffers with FzfLua                 |
 | `Space+fh` | Search help tags                         |
 | `Space+fe` | Find files from the buffer directory     |
 | `Space+fr` | Project search and replace with Grug Far |
 | `Space+fy` | Open yank history                        |
+| `Space+fF` / `Space+fG` | Files / grep in the current working directory |
+| `Space+fE` | Grep from the buffer directory |
+| `Space+fN` | Fast project grep without file/git icons |
+| `Space+fR` | Resume the last picker, including query and original scope |
+| `Space+fw` | Grep the word under the cursor; in Visual mode, the selection |
+| `Space+fl` | Search lines in the current buffer |
+| `Space+fO` | Recent files across projects |
+| `Space+fk` | Search keymaps |
+
+Project search resolves the nearest `.git` ancestor of the current file
+(including worktrees), then the nearest language marker such as `package.json`,
+`pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, or `.project-root`, then
+falls back to the current working directory. Inside a Git monorepo, this means
+the repository root; use `fe`/`fE` for a package directory. Unnamed and special
+buffers resolve from the current working directory. Search never changes
+`:pwd`, terminal directories, or session scope. `fr` retains Grug Far's current
+working directory scope; inspect its Paths field before replacing.
+
+All paths are passed as picker options, with no shell-specific `cd` commands.
+The existing Windows ripgrep escaping and fd/rg fallback remain in effect.
+Fast grep retains ripgrep's ignore behavior but omits icons and Lua result
+processing; regular `fg` keeps file icons. Toggle hidden files with `Alt+h`.
 
 Inside FzfLua:
 
@@ -768,6 +792,27 @@ Inside FzfLua:
 | ---------- | ---------------------- |
 | `Ctrl+d/u` | Scroll preview down/up |
 | `Ctrl+q`   | Select all and accept  |
+
+### UI and Performance Controls
+
+| Key | Action |
+| --- | --- |
+| `Space+uz` / `Space+uZ` | Toggle Zen / zoom, restoring the previous layout on exit |
+| `Space+u.` / `Space+uS` | Markdown scratch notes / select a saved scratch |
+| `Space+uw` | Toggle wrap in this window |
+| `Space+ud` | Toggle diagnostics globally |
+| `Space+ua` | Toggle cursor animation |
+| `Space+ui` / `Space+uc` | Toggle indent guides / chunk highlighting |
+| `Space+ub` | Toggle breadcrumbs |
+| `Space+uf` / `Space+uF` | Toggle autoformat globally / for this buffer |
+| `Space+up` | Show plugin load timings (`Lazy profile`) |
+| `Space+uP` | Start/stop the Lua runtime profiler and inspect results |
+
+The existing `Space+ci` toggles LSP inlay hints when supported. Scratch notes
+are saved under Neovim's data directory, keyed by cwd, Git branch, and count;
+copying this config does not copy the notes. Zen does not enable dim animation.
+For a slower machine, set `vim.g.sungp_animations = false` in the ignored
+`lua/config/local.lua`; `ua` can still enable cursor animation during a session.
 
 ### Flash and Treesitter
 
@@ -955,6 +1000,16 @@ manually.
 | `:FormatEnable`   | Re-enable format-on-save                      |
 | `:ConformInfo`    | Show active formatter information             |
 
+Autoformat waits up to 1000 ms (3000 ms for Java's JVM startup). It skips
+special/unmodifiable buffers, buffers marked `bigfile`, files over 1 MiB,
+and buffers averaging over 500 bytes per line, including files that grow after
+opening. Manual `Space+cf` remains asynchronous and available for large files.
+Saving remains synchronous with formatting so watchers see the formatted file.
+If a formatter times out, inspect `:ConformInfo`, format manually, or set
+`vim.g.autoformat_timeout_ms = 2000` in `lua/config/local.lua`. A buffer-local
+`vim.b.autoformat_timeout_ms` overrides that setting. A global autoformat disable
+takes precedence over the buffer toggle; `:FormatEnable` clears both disables.
+
 Dial extends Vim's increment/decrement commands for integers, hexadecimal
 values, dates, booleans, semantic versions, logical operators, and Markdown
 checkboxes:
@@ -965,6 +1020,30 @@ checkboxes:
 | `g Ctrl+a/x`        | Normal/Visual | Increment/decrement as a sequence   |
 
 ### Todo and Trouble
+
+These producers share the same Quickfix workflow: search results from FzfLua
+(`Ctrl+q`), Grug Far (`\\q`), TODO comments (`Space+xq`), Git hunks
+(`Space+hq`/`Space+hQ`), and LSP diagnostics (`Space+xD`) can all be reviewed
+with `Space+qF`, `Enter`, `]q`, and `[q`. This keeps the list useful as a common
+handoff between plugins instead of requiring a separate navigation scheme.
+
+Neotest also bridges to DAP: `Space+nt`/`Space+nf` runs tests normally, while
+`Space+nd`/`Space+nD` runs the nearest test or current file under the debugger.
+DAP remains lazy and loads only when this debug-test path is used.
+
+### Quickfix with Quicker
+
+Quicker improves the normal quickfix list without replacing Trouble. Use
+`Space+qf` to toggle quickfix, or `Space+qF` to toggle and focus it. Inside the
+quickfix window, press `>` to show two context lines around results and `<` to
+collapse them. The list keeps grep syntax highlighting, file/line columns and
+diagnostic icons. You can edit source lines directly in the quickfix buffer and
+write with `:w`; only source buffers that were unmodified when the list opened
+are autosaved. `Space+xQ` remains Trouble's richer tree view.
+
+Quicker requires Neovim 0.10+. It owns `quickfixtextfunc`; avoid adding another
+editable quickfix plugin such as quickfix-reflector or replacer. It coexists
+with Trouble, but choose one view for each list.
 
 | Key           | Action                          |
 | ------------- | ------------------------------- |
@@ -978,6 +1057,8 @@ checkboxes:
 | `Space+xF`    | TODO/FIX/FIXME only in FzfLua   |
 | `Space+xR`    | TODO/FIX/FIXME only in Trouble  |
 | `Space+xq/xl` | Todos in quickfix/location list |
+| `Space+xD`    | LSP diagnostics in quickfix        |
+| `]q` / `[q`   | Next/previous quickfix entry      |
 
 Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 `NOTE:`.
@@ -1242,6 +1323,28 @@ Inside Neovim:
 
 Heavy plugins should load through filetypes, commands, or keymaps instead of
 all loading during startup.
+
+Also profile opening a file and typing immediately, grep in a large repository,
+and saving with a formatter. Deferred loading moves work after the first frame;
+it does not eliminate that work. `Space+uP` records Lua calls only while enabled;
+profiling adds overhead, so use it to locate expensive calls rather than as an
+unbiased latency benchmark. No profiler runs automatically.
+
+Regression checks (from the configuration directory):
+
+```sh
+nvim --headless -u NONE -i NONE -l tests/upgrades.lua
+nvim --headless -u NONE -i NONE -l tests/startup.lua
+nvim --headless -u NONE -i NONE -l tests/dashboard_pick.lua
+```
+
+The upgrade check uses temporary fixtures and installed plugins, without
+updating plugins or writing to your real scratch/session data. Keep
+the installed `fzf`, `rg`, and plugin dependencies available for the startup
+test, which checks the first Insert and real picker results headlessly. Keep
+`lazy-lock.json` when copying the config and run `:Lazy restore`. The existing
+Treesitter first-frame deferral and Blink first-insert workaround are retained;
+verify first insert/completion and dashboard selection after plugin updates.
 
 ## Troubleshooting
 

@@ -23,11 +23,19 @@ return {
     },
     {
         "Bekaboo/dropbar.nvim",
-        event = { "BufReadPre", "BufNewFile" },
+        lazy = true,
+        init = defer_after_vimenter("dropbar.nvim", 240),
         dependencies = {
             "nvim-tree/nvim-web-devicons",
         },
         keys = {
+            {
+                "<leader>ub",
+                function()
+                    require("integrations.dropbar").toggle()
+                end,
+                desc = "UI: Toggle Breadcrumbs",
+            },
             {
                 "<leader>;",
                 function()
@@ -58,6 +66,78 @@ return {
         "folke/snacks.nvim",
         lazy = false,
         priority = 1000,
+        keys = {
+            {
+                "<leader>uz",
+                function()
+                    Snacks.zen({ toggles = { dim = false, git_signs = false, mini_diff_signs = false } })
+                end,
+                desc = "UI: Zen Mode",
+            },
+            {
+                "<leader>uZ",
+                function()
+                    Snacks.zen.zoom()
+                end,
+                desc = "UI: Zoom Window",
+            },
+            {
+                "<leader>u.",
+                function()
+                    Snacks.scratch({ ft = "markdown" })
+                end,
+                desc = "UI: Scratch Notes",
+            },
+            {
+                "<leader>uS",
+                function()
+                    Snacks.scratch.select()
+                end,
+                desc = "UI: Select Scratch",
+            },
+            {
+                "<leader>uw",
+                function()
+                    Snacks.toggle.option("wrap"):toggle()
+                end,
+                desc = "UI: Toggle Wrap (Window)",
+            },
+            {
+                "<leader>ud",
+                function()
+                    Snacks.toggle.diagnostics():toggle()
+                end,
+                desc = "UI: Toggle Diagnostics",
+            },
+            {
+                "<leader>uf",
+                function()
+                    vim.g.disable_autoformat = not vim.g.disable_autoformat
+                    vim.notify("Autoformat globally: " .. (vim.g.disable_autoformat and "off" or "on"))
+                end,
+                desc = "UI: Toggle Autoformat (Global)",
+            },
+            {
+                "<leader>uF",
+                function()
+                    vim.b.disable_autoformat = not vim.b.disable_autoformat
+                    vim.notify(
+                        "Autoformat for buffer: "
+                            .. (vim.b.disable_autoformat and "off" or "on")
+                            .. (vim.g.disable_autoformat and " (globally disabled)" or "")
+                    )
+                end,
+                desc = "UI: Toggle Autoformat (Buffer)",
+            },
+            {
+                "<leader>uP",
+                function()
+                    Snacks.profiler.toggle()
+                end,
+                desc = "UI: Toggle Lua Profiler",
+            },
+            { "<leader>up", "<cmd>Lazy profile<cr>", desc = "UI: Plugin Load Profile" },
+        },
         config = function()
             require("integrations.snacks")
         end,
@@ -113,6 +193,28 @@ return {
         "shellRaining/hlchunk.nvim",
         lazy = true,
         init = defer_after_vimenter("hlchunk.nvim", 360),
+        keys = {
+            {
+                "<leader>ui",
+                function()
+                    local group = "hlchunk_indent"
+                    local ok, events = pcall(vim.api.nvim_get_autocmds, { group = group })
+                    local enabled = ok and #events > 0
+                    vim.cmd(enabled and "DisableHLIndent" or "EnableHLIndent")
+                end,
+                desc = "UI: Toggle Indent Guides",
+            },
+            {
+                "<leader>uc",
+                function()
+                    local group = "hlchunk_chunk"
+                    local ok, events = pcall(vim.api.nvim_get_autocmds, { group = group })
+                    local enabled = ok and #events > 0
+                    vim.cmd(enabled and "DisableHLChunk" or "EnableHLChunk")
+                end,
+                desc = "UI: Toggle Chunk Highlight",
+            },
+        },
         config = function()
             require("integrations.hlchunk")
         end,

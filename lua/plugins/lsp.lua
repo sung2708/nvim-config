@@ -156,14 +156,7 @@ return {
                 java = { "google-java-format" },
             },
             format_on_save = function(bufnr)
-                if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
-                    return nil
-                end
-                return {
-                    bufnr = bufnr,
-                    timeout_ms = 5000,
-                    lsp_format = "fallback",
-                }
+                return require("helper.format").on_save(bufnr)
             end,
             notify_on_error = true,
             notify_no_formatters = false,
@@ -209,7 +202,7 @@ return {
             vim.api.nvim_create_autocmd("BufWritePost", {
                 group = vim.api.nvim_create_augroup("SungpLint", { clear = true }),
                 callback = function(args)
-                    if lint.linters_by_ft[vim.bo[args.buf].filetype] then
+                    if not vim.b[args.buf].bigfile and lint.linters_by_ft[vim.bo[args.buf].filetype] then
                         lint.try_lint(nil, { bufnr = args.buf })
                     end
                 end,

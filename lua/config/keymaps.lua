@@ -23,6 +23,15 @@ map("n", "<C-d>", "<C-d>zz", { desc = "Half Page Down" })
 map("n", "<C-u>", "<C-u>zz", { desc = "Half Page Up" })
 map("n", "<Esc>", "<cmd>nohlsearch<cr>", { silent = true, desc = "Clear Search" })
 
+-- Keep every producer (search, TODO, Git, LSP) usable through the same list
+-- navigation. Quicker improves the qf window when it is opened.
+map("n", "]q", "<cmd>cnext<cr>", { desc = "Quickfix: Next" })
+map("n", "[q", "<cmd>cprev<cr>", { desc = "Quickfix: Previous" })
+
+map("n", "<leader>xD", function()
+    vim.diagnostic.setqflist({ open = true })
+end, { desc = "Diagnostics: Quickfix" })
+
 map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
 map("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
 map("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })

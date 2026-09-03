@@ -13,6 +13,8 @@ neotree.setup({
         },
     },
     filesystem = {
+        -- The default "auto" still scans synchronously on the initial open.
+        async_directory_scan = "always",
         filtered_items = { visible = true, hide_dotfiles = false },
         follow_current_file = { enabled = true },
     },

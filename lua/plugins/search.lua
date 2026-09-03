@@ -1,3 +1,17 @@
+local function find(provider, scope, opts)
+    return function()
+        local options = vim.deepcopy(opts or {})
+        if scope == "project" then
+            options.cwd = require("helper.project").root()
+        elseif scope == "buffer" then
+            options.cwd = require("helper.project").directory()
+        elseif scope == "cwd" then
+            options.cwd = vim.fn.getcwd()
+        end
+        return require("fzf-lua")[provider](options)
+    end
+end
+
 return {
     {
         "ibhagwan/fzf-lua",
@@ -7,8 +21,9 @@ return {
                 "<leader>ff",
                 function()
                     require("fzf-lua").files({
+                        cwd = require("helper.project").root(),
                         file_icons = true,
-                        git_icons = true,
+                        git_icons = false,
                         previewer = "builtin",
                         winopts = {
                             preview = {
@@ -17,15 +32,14 @@ return {
                         },
                     })
                 end,
-                desc = "Find: Files",
+                desc = "Find: Project Files",
             },
             {
                 "<leader>fg",
                 function()
-                    -- Native live_grep is faster but deliberately disables
-                    -- file/git icons. Use the processed provider here so
-                    -- file icons remain available.
+                    -- Keep file icons; avoid a Git status scan on every query.
                     require("fzf-lua").live_grep({
+                        cwd = require("helper.project").root(),
                         file_icons = true,
                         -- Git status would run during every live reload.
                         git_icons = false,
@@ -37,7 +51,7 @@ return {
                         },
                     })
                 end,
-                desc = "Find: Grep",
+                desc = "Find: Project Grep",
             },
             {
                 "<leader>fb",
@@ -55,11 +69,19 @@ return {
             },
             {
                 "<leader>fe",
-                function()
-                    require("fzf-lua").files({ cwd = vim.fn.expand("%:p:h") })
-                end,
+                find("files", "buffer"),
                 desc = "Find: Files From Buffer Directory",
             },
+            { "<leader>fF", find("files", "cwd"), desc = "Find: Files (CWD)" },
+            { "<leader>fG", find("live_grep", "cwd"), desc = "Find: Grep (CWD)" },
+            { "<leader>fE", find("live_grep", "buffer"), desc = "Find: Grep From Buffer Directory" },
+            { "<leader>fN", find("live_grep_native", "project"), desc = "Find: Fast Project Grep (No Icons)" },
+            { "<leader>fR", find("resume"), desc = "Find: Resume Last Picker" },
+            { "<leader>fw", find("grep_cword", "project"), desc = "Find: Word in Project" },
+            { "<leader>fw", find("grep_visual", "project"), mode = "x", desc = "Find: Selection in Project" },
+            { "<leader>fl", find("blines"), desc = "Find: Lines in Buffer" },
+            { "<leader>fO", find("oldfiles"), desc = "Find: Recent Files" },
+            { "<leader>fk", find("keymaps"), desc = "Find: Keymaps" },
         },
         dependencies = {
             "nvim-tree/nvim-web-devicons",

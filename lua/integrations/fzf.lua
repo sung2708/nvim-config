@@ -37,6 +37,7 @@ fzf_lua.setup({
         backdrop = false,
         winblend = 0,
         preview = {
+            delay = 100,
             border = "rounded",
             scrollbar = "border",
             winopts = {
@@ -58,7 +59,18 @@ fzf_lua.setup({
         ["--info"] = "inline",
         ["--padding"] = "1,2",
     },
+    previewers = {
+        builtin = {
+            -- Keep moving through results cheap, especially for generated files.
+            syntax_delay = 100,
+            syntax_limit_l = 2000,
+            syntax_limit_b = 256 * 1024,
+            limit_b = 1024 * 1024,
+            treesitter = { enabled = false },
+        },
+    },
     files = {
+        git_icons = false,
         -- Let fzf-lua prefer fd. It respects .gitignore and is faster for
         -- file listing; <A-h> still toggles hidden files when needed.
         hidden = false,
@@ -67,6 +79,8 @@ fzf_lua.setup({
         rg_opts = "--color=never --files " .. rg_excludes,
     },
     grep = {
+        file_icons = true,
+        git_icons = false,
         -- Avoid scanning hidden/generated/dependency trees by default.
         -- <A-h> can be used to include hidden files for the current picker.
         hidden = false,
