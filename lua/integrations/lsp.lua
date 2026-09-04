@@ -33,7 +33,29 @@ vim.lsp.config("lua_ls", {
     },
 })
 
+local function project_python(root_dir)
+    if type(root_dir) ~= "string" or root_dir == "" then
+        return nil
+    end
+
+    local python = vim.fn.has("win32") == 1 and vim.fs.joinpath(root_dir, ".venv", "Scripts", "python.exe")
+        or vim.fs.joinpath(root_dir, ".venv", "bin", "python")
+
+    return vim.fn.filereadable(python) == 1 and python or nil
+end
+
 vim.lsp.config("pyright", {
+    on_init = function(client)
+        local python = project_python(client.config.root_dir)
+        if python then
+            local settings = {
+                python = { pythonPath = python },
+            }
+            client.settings = vim.tbl_deep_extend("force", client.settings or {}, settings)
+            client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
+            client:notify("workspace/didChangeConfiguration", { settings = client.settings })
+        end
+    end,
     settings = {
         python = {
             analysis = {
