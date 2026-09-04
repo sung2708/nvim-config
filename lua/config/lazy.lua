@@ -44,10 +44,27 @@ require("lazy").setup({
             enabled = true,
         },
         rtp = {
-            disabled_plugins = {
-                "tohtml",
-                "tutor",
-            },
+            disabled_plugins = vim.g.sungp_low_spec
+                    and {
+                        "2html_plugin",
+                        "getscript",
+                        "getscriptPlugin",
+                        "gzip",
+                        "logipat",
+                        "matchit",
+                        "matchparen",
+                        "netrwPlugin",
+                        "rrhelper",
+                        "spellfile_plugin",
+                        "tarPlugin",
+                        "tohtml",
+                        "tutor",
+                        "vimball",
+                        "vimballPlugin",
+                        "zip",
+                        "zipPlugin",
+                    }
+                or { "tohtml", "tutor" },
         },
     },
 })

@@ -3,8 +3,9 @@ local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
 return {
     {
         "lewis6991/gitsigns.nvim",
-        lazy = true,
-        init = defer_after_vimenter("gitsigns.nvim", 180),
+        -- Git diff/sign scanning is useful only after a real buffer exists.
+        event = vim.g.sungp_low_spec and { "BufReadPost", "BufNewFile" } or nil,
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("gitsigns.nvim", 180) or nil,
         config = function()
             require("integrations.gitsigns")
         end,

@@ -3,8 +3,6 @@ vim.loader.enable()
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
-require("config.options")
-
 local local_config = vim.fs.joinpath(vim.fn.stdpath("config"), "lua", "config", "local.lua")
 if vim.uv.fs_stat(local_config) then
     local ok, err = pcall(require, "config.local")
@@ -17,6 +15,8 @@ if vim.uv.fs_stat(local_config) then
 else
     vim.g.config_local_loaded = false
 end
+
+require("config.options")
 
 vim.api.nvim_create_user_command("ConfigHealth", function()
     vim.cmd.checkhealth("config")

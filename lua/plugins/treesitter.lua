@@ -2,7 +2,9 @@ return {
     {
         "nvim-treesitter/nvim-treesitter",
         branch = "main",
-        lazy = false,
+        -- Do not parse the dashboard or the first file before it is visible.
+        lazy = vim.g.sungp_low_spec,
+        event = vim.g.sungp_low_spec and { "BufReadPost", "BufNewFile" } or nil,
         cmd = { "TSInstall", "TSUpdate", "TSUninstall" },
         build = ":TSUpdate",
         dependencies = {

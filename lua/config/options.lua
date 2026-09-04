@@ -1,5 +1,15 @@
 local opt = vim.opt
 
+-- The machine-local profile is loaded before this file. Keep the fast profile
+-- opt-in so capable machines retain the full UI/LSP experience.
+vim.g.sungp_low_spec = vim.g.sungp_low_spec == true
+if vim.g.sungp_animations == nil then
+    vim.g.sungp_animations = not vim.g.sungp_low_spec
+end
+if vim.g.sungp_breadcrumbs == nil then
+    vim.g.sungp_breadcrumbs = not vim.g.sungp_low_spec
+end
+
 -- This configuration does not use the legacy Node, Perl, or Ruby remote
 -- providers. Disabling them avoids platform-specific health warnings and
 -- does not affect regular Lua plugins or external formatters/LSP servers.
@@ -105,7 +115,7 @@ end
 opt.number = true
 opt.relativenumber = true
 opt.cursorline = true
-opt.cursorcolumn = false
+opt.cursorcolumn = true
 opt.termguicolors = true
 opt.winborder = "rounded"
 opt.signcolumn = "yes"
@@ -166,3 +176,11 @@ opt.splitkeep = "screen"
 
 opt.foldlevel = 99
 opt.foldmethod = "manual"
+
+if vim.g.sungp_low_spec then
+    opt.relativenumber = false
+    opt.updatetime = 800
+    opt.timeoutlen = 400
+    opt.redrawtime = 800
+    opt.synmaxcol = 200
+end

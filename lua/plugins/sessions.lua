@@ -4,7 +4,7 @@ return {
     {
         "folke/persistence.nvim",
         lazy = true,
-        init = defer_after_vimenter("persistence.nvim", 520),
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("persistence.nvim", 520) or nil,
         keys = {
             {
                 "<leader>qs",

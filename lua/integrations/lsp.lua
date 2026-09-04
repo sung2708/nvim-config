@@ -77,11 +77,14 @@ local function clangd_cmd()
     local cmd = {
         "clangd",
         "--log=error",
-        "--background-index",
-        "--clang-tidy",
         "--completion-style=detailed",
         "--header-insertion=never",
     }
+
+    if not vim.g.sungp_low_spec then
+        table.insert(cmd, "--background-index")
+        table.insert(cmd, "--clang-tidy")
+    end
 
     local candidates = {
         vim.fn.exepath("g++"),
@@ -188,9 +191,9 @@ vim.lsp.config("gopls", {
                 unusedparams = true,
                 unusedwrite = true,
             },
-            completeUnimported = true,
+            completeUnimported = not vim.g.sungp_low_spec,
             gofumpt = true,
-            staticcheck = true,
+            staticcheck = not vim.g.sungp_low_spec,
             usePlaceholders = true,
         },
     },

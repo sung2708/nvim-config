@@ -22,7 +22,7 @@ return {
         -- version/checksum probes are asynchronous but can take a few hundred
         -- milliseconds, so doing this in the background makes first insert
         -- completion ready without putting Blink back on the open-file path.
-        init = defer_after_vimenter("blink.cmp", 40),
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("blink.cmp", 40) or nil,
         dependencies = {
             "rafamadriz/friendly-snippets",
         },

@@ -259,7 +259,7 @@ return {
     {
         "sphamba/smear-cursor.nvim",
         lazy = true,
-        init = defer_after_vimenter("smear-cursor.nvim", 800),
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("smear-cursor.nvim", 800) or nil,
         keys = {
             {
                 "<leader>ua",
@@ -281,7 +281,7 @@ return {
     {
         "folke/todo-comments.nvim",
         lazy = true,
-        init = defer_after_vimenter("todo-comments.nvim", 420),
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("todo-comments.nvim", 420) or nil,
         cmd = { "TodoTrouble", "TodoFzfLua", "TodoQuickFix", "TodoLocList" },
         dependencies = {
             "nvim-lua/plenary.nvim",
@@ -373,7 +373,9 @@ return {
             "kevinhwang91/promise-async",
         },
         init = function()
-            defer_after_vimenter("nvim-ufo", 280)()
+            if not vim.g.sungp_low_spec then
+                defer_after_vimenter("nvim-ufo", 280)()
+            end
             vim.opt.foldcolumn = "1"
             vim.opt.foldlevel = 99
             vim.opt.foldlevelstart = 99

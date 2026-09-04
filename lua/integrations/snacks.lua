@@ -131,36 +131,17 @@ if snacks then
         dashboard_chrome = nil
     end
 
-    local function setup_bigfile(ctx)
-        vim.b[ctx.buf].bigfile = true
-        vim.b[ctx.buf].completion = false
-        vim.b[ctx.buf].minianimate_disable = true
-        vim.b[ctx.buf].minihipatterns_disable = true
-
-        if vim.fn.exists(":NoMatchParen") ~= 0 then
-            vim.cmd("NoMatchParen")
-        end
-
-        snacks.util.wo(0, {
-            conceallevel = 0,
-            cursorcolumn = false,
-            cursorline = false,
-            foldmethod = "manual",
-            relativenumber = false,
-            statuscolumn = "",
-        })
-    end
-
     snacks.setup({
         bigfile = {
-            enabled = true,
-            line_length = 500,
-            setup = setup_bigfile,
-            size = 1024 * 1024,
+            -- bigfile.nvim handles this before BufRead to avoid duplicate
+            -- detection and conflicting buffer-local state.
+            enabled = false,
         },
         quickfile = { enabled = true },
         dashboard = {
-            enabled = true,
+            -- Avoid rendering a large dashboard on startup; it remains easy
+            -- to re-enable locally when this profile is not needed.
+            enabled = false,
             width = 58,
             row = nil,
             col = nil,

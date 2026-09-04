@@ -24,7 +24,7 @@ return {
     {
         "Bekaboo/dropbar.nvim",
         lazy = true,
-        init = defer_after_vimenter("dropbar.nvim", 240),
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("dropbar.nvim", 240) or nil,
         dependencies = {
             "nvim-tree/nvim-web-devicons",
         },
@@ -64,8 +64,11 @@ return {
     },
     {
         "folke/snacks.nvim",
-        lazy = false,
-        priority = 1000,
+        -- Load after the first frame; its dashboard/UI is optional on a
+        -- low-spec machine and key mappings still load it on demand.
+        lazy = vim.g.sungp_low_spec,
+        event = vim.g.sungp_low_spec and "VeryLazy" or nil,
+        priority = vim.g.sungp_low_spec and nil or 1000,
         keys = {
             {
                 "<leader>uz",
@@ -143,6 +146,37 @@ return {
         end,
     },
     {
+        "LunarVim/bigfile.nvim",
+        event = "BufReadPre",
+        opts = {
+            -- Keep the existing 1 MiB policy, but handle it before expensive
+            -- filetype/LSP/Treesitter work starts.
+            filesize = 1,
+            features = {
+                "indent_blankline",
+                "illuminate",
+                "lsp",
+                "treesitter",
+                "syntax",
+                "matchparen",
+                "vimopts",
+                "filetype",
+                {
+                    name = "sungp_bigfile_marker",
+                    disable = function(buf)
+                        vim.b[buf].bigfile = true
+                        vim.b[buf].completion = false
+                        vim.b[buf].minianimate_disable = true
+                        vim.b[buf].minihipatterns_disable = true
+                        vim.opt_local.conceallevel = 0
+                        vim.opt_local.relativenumber = false
+                        vim.opt_local.statuscolumn = ""
+                    end,
+                },
+            },
+        },
+    },
+    {
         "nvim-lualine/lualine.nvim",
         event = "VeryLazy",
         dependencies = {
@@ -192,7 +226,7 @@ return {
     {
         "shellRaining/hlchunk.nvim",
         lazy = true,
-        init = defer_after_vimenter("hlchunk.nvim", 360),
+        init = not vim.g.sungp_low_spec and defer_after_vimenter("hlchunk.nvim", 360) or nil,
         keys = {
             {
                 "<leader>ui",
