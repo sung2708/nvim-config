@@ -261,6 +261,19 @@ return {
             require("codecompanion").setup(opts)
         end,
         opts = {
+            mcp = {
+                servers = {
+                    exa = {
+                        cmd = { "npx", "-y", "exa-mcp-server" },
+                        env = {
+                            EXA_API_KEY = vim.env.EXA_API_KEY,
+                        },
+                    },
+                },
+                opts = {
+                    default_servers = { "exa" },
+                },
+            },
             adapters = {
                 acp = {
                     codex = function()

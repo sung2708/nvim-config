@@ -18,7 +18,7 @@ if bufferline then
                 delay = 200,
                 reveal = { "close" },
             },
-            separator_style = "thin",
+            separator_style = "slope",
             always_show_bufferline = true,
             diagnostics = "nvim_lsp",
             numbers = "ordinal",

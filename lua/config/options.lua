@@ -107,11 +107,6 @@ if vim.fn.has("win32") == 1 then
     end
 end
 
-local machine = vim.uv.os_uname().machine:lower()
-if vim.fn.has("win32") == 1 and not vim.env.GOARCH and (machine == "x86_64" or machine == "amd64") then
-    vim.env.GOARCH = "amd64"
-end
-
 opt.number = true
 opt.relativenumber = true
 opt.cursorline = true
@@ -161,6 +156,11 @@ opt.pumblend = 0
 
 if vim.fn.has("win32") == 1 then
     opt.clipboard = "unnamed"
+    if vim.fn.executable("pwsh") == 1 then
+        opt.shell = "pwsh"
+        opt.shellcmdflag = "-NoLogo -NoProfile -Command"
+        opt.shellxquote = ""
+    end
 else
     opt.clipboard = "unnamedplus"
 end

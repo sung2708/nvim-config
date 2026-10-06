@@ -28,6 +28,10 @@ end, ignored_dirs), " ")
 
 fzf_lua.setup({
     { "telescope", "hide" },
+    hls = {
+        search = "IncSearch",
+        cursor = "IncSearch",
+    },
     winopts = {
         height = 0.78,
         width = 0.86,
@@ -62,14 +66,18 @@ fzf_lua.setup({
     previewers = {
         builtin = {
             -- Keep moving through results cheap, especially for generated files.
+            syntax = true,
             syntax_delay = 100,
             syntax_limit_l = 2000,
             syntax_limit_b = 256 * 1024,
             limit_b = 1024 * 1024,
             treesitter = { enabled = false },
+            render_markdown = { enabled = false },
+            snacks_image = { enabled = false },
         },
     },
     files = {
+        file_icons = false,
         git_icons = false,
         -- Let fzf-lua prefer fd. It respects .gitignore and is faster for
         -- file listing; <A-h> still toggles hidden files when needed.

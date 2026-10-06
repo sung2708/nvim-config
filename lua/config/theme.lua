@@ -1,7 +1,7 @@
 local M = {}
 
 -- Chỉ cần đổi dòng này để chọn theme.
-M.name = "catppuccin-frappe"
+M.name = "catppuccin-macchiato"
 
 local function get_hl(name)
     local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })

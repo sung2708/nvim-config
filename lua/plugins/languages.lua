@@ -67,26 +67,6 @@ return {
         },
     },
     {
-        "pmizio/typescript-tools.nvim",
-        enabled = false,
-        ft = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-        keys = {
-            { "<leader>Ti", "<cmd>TSToolsOrganizeImports<cr>", desc = "TypeScript: Organize Imports" },
-            { "<leader>Ta", "<cmd>TSToolsAddMissingImports<cr>", desc = "TypeScript: Add Missing Imports" },
-            { "<leader>Tu", "<cmd>TSToolsRemoveUnused<cr>", desc = "TypeScript: Remove Unused" },
-            { "<leader>Tf", "<cmd>TSToolsFixAll<cr>", desc = "TypeScript: Fix All" },
-            { "<leader>Tr", "<cmd>TSToolsRenameFile<cr>", desc = "TypeScript: Rename File" },
-        },
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "neovim/nvim-lspconfig",
-            "saghen/blink.cmp",
-        },
-        config = function()
-            require("integrations.typescript")
-        end,
-    },
-    {
         "mfussenegger/nvim-jdtls",
         lazy = true,
         init = defer_on_filetype("nvim-jdtls", "java", 50),

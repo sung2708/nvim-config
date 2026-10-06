@@ -48,11 +48,10 @@ return {
             {
                 "<leader>fg",
                 function()
-                    -- Keep file icons without running a Git status scan per query.
-                    require("fzf-lua").live_grep({
+                    -- Native reload skips the headless Neovim result-processing wrapper.
+                    require("fzf-lua").live_grep_native({
                         cwd = require("helper.project").root(),
-                        file_icons = true,
-                        -- Git status would run during every live reload.
+                        file_icons = false,
                         git_icons = false,
                         previewer = "builtin",
                         winopts = {
@@ -84,9 +83,10 @@ return {
                 desc = "Find: Files From Buffer Directory",
             },
             { "<leader>fF", find("files", "cwd"), desc = "Find: Files (CWD)" },
-            { "<leader>fG", find("live_grep", "cwd"), desc = "Find: Grep (CWD)" },
-            { "<leader>fE", find("live_grep", "buffer"), desc = "Find: Grep From Buffer Directory" },
+            { "<leader>fG", find("live_grep_native", "cwd"), desc = "Find: Grep (CWD)" },
+            { "<leader>fE", find("live_grep_native", "buffer"), desc = "Find: Grep From Buffer Directory" },
             { "<leader>fN", find("live_grep_native", "project"), desc = "Find: Fast Project Grep (No Icons)" },
+            { "<leader>fI", find("live_grep", "project"), desc = "Find: Project Grep (Icons / Globs)" },
             { "<leader>fR", find("resume"), desc = "Find: Resume Last Picker" },
             {
                 "<leader>fw",

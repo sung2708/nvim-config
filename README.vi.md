@@ -69,8 +69,8 @@ Cấu hình này tập trung vào năm mục tiêu:
 | unzip, gzip, tar    | Giải nén package do Mason cài                  |
 | curl                | CodeCompanion và tải package qua Mason         |
 
-`fd` là tùy chọn. Cấu hình hiện dùng `rg --files` cho FzfLua, nhưng một số
-picker khác vẫn có thể dùng `fd`.
+`fd` là tùy chọn. FzfLua ưu tiên `fd` khi tìm file và dùng `rg --files`
+nếu thiếu `fd`. Live grep dùng `rg`.
 
 Nerd Font không bắt buộc để chạy Neovim, nhưng rất nên cài. Nếu không có,
 icon trong WhichKey, Neo-tree, Trouble, Lualine hoặc dashboard có thể hiện
@@ -469,11 +469,9 @@ Python terminal chọn interpreter theo thứ tự:
 | ---------------- | ----------------------------------------------- |
 | LSP              | gopls                                           |
 | Format và import | gofumpt, goimports                              |
-| Sinh code        | gopher.nvim, gomodifytags, gotests, impl, iferr |
+| Sinh code        | go.nvim, gomodifytags, gotests, impl, iferr     |
 | Debug            | Delve                                           |
 | Test             | neotest-golang                                  |
-
-Trên Windows x86_64, cấu hình đặt `GOARCH=amd64` nếu biến này chưa tồn tại.
 
 ### JavaScript/TypeScript
 
@@ -486,7 +484,7 @@ Trên Windows x86_64, cấu hình đặt `GOARCH=amd64` nếu biến này chưa 
 | Test         | neotest-jest          |
 | JSX/TSX tags | nvim-ts-autotag       |
 
-`ts_ls` là server TypeScript đang dùng; cấu hình `typescript-tools.nvim` được tắt.
+`ts_ls` là server TypeScript đang dùng.
 Khi LSP đã gắn vào buffer: `Space+Ti` sắp xếp import, `Space+Ta` thêm import thiếu,
 `Space+Tu` bỏ code không dùng, `Space+Tf` sửa lỗi mà server hỗ trợ.
 
@@ -835,15 +833,18 @@ Cập nhật plugin và tool:
 
 ```vim
 :Lazy sync
+:Lazy update
+:Lazy restore
 :Mason
 :MasonToolsInstall
 :MasonUpdate
 :TSUpdate
 ```
 
-Khi cập nhật plugin, giữ `lazy-lock.json` trong version control để môi trường
-có thể tái lập. Nếu có lỗi parser Treesitter sau cập nhật, thử gỡ và cài lại
-parser bị lỗi.
+Khi cập nhật plugin, chạy `:Lazy update` để lấy commit mới và cập nhật
+`lazy-lock.json`. Trên máy mới, dùng `:Lazy sync` để cài theo lockfile.
+Giữ lockfile trong Git để môi trường có thể tái lập. Nếu có lỗi parser
+Treesitter sau cập nhật, thử gỡ và cài lại parser bị lỗi.
 
 ## Xử Lý Lỗi
 
@@ -1060,8 +1061,8 @@ Kiểm tra:
 :echo executable('fzf')
 ```
 
-FzfLua dùng `rg` cho file và live grep. Hãy đảm bảo lệnh có trong môi trường
-khởi động Neovim.
+FzfLua ưu tiên `fd` để tìm file, dùng `rg --files` khi thiếu `fd`, và
+dùng `rg` cho live grep. Hãy đảm bảo `rg` có trong môi trường khởi động Neovim.
 
 ### Clipboard Linux Không Hoạt Động
 
@@ -1128,7 +1129,6 @@ của `sphamba/smear-cursor.nvim` trong `lua/plugins/editor.lua`.
 
 ### Rà soát toàn bộ cấu hình
 
-Xem [CONFIG_AUDIT.md](CONFIG_AUDIT.md) để biết danh mục plugin, các lỗi đã sửa và phạm vi kiểm tra.
 `Tab` ưu tiên menu completion, rồi snippet, rồi gợi ý AI; `Ctrl-y` luôn dùng để chấp nhận completion.
 Go dùng gopls cho auto-import completion và goimports khi lưu, không sửa import bằng timer InsertLeave.
 `:LspRestart` giữ nội dung chưa lưu và khởi động lại các buffer vốn gắn vào client.

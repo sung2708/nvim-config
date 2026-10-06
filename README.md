@@ -70,8 +70,8 @@ The configuration is designed around five goals:
 | unzip, gzip, tar  | Extract packages installed by Mason                 |
 | curl              | CodeCompanion HTTP requests and Mason downloads     |
 
-`fd` is optional. The current FzfLua file picker uses `rg --files`, but other
-picker configurations may still benefit from `fd`.
+`fd` is optional. FzfLua prefers it for file listing and falls back to
+`rg --files` when unavailable. Live grep uses `rg`.
 
 A Nerd Font is not required for Neovim itself, but it is strongly recommended.
 Without one, icons in WhichKey, Neo-tree, Trouble, Lualine, and the dashboard
@@ -100,7 +100,7 @@ test Go code.
 | Tool                         | Used by                                   |
 | ---------------------------- | ----------------------------------------- |
 | PowerShell 7 (`pwsh`)        | Improved terminal behavior on Windows     |
-| fd                           | Alternative fast file discovery           |
+| fd                           | Preferred FzfLua file discovery           |
 | uv                           | Python environments and the Python REPL   |
 | Maven                        | Java projects without `mvnw`              |
 | Gradle                       | Java projects without `gradlew`           |
@@ -493,12 +493,9 @@ The Python terminal chooses an interpreter in this order:
 | ---------------------- | ----------------------------------------------- |
 | LSP                    | gopls                                           |
 | Formatting and imports | gofumpt, goimports                              |
-| Code generation        | gopher.nvim, gomodifytags, gotests, impl, iferr |
+| Code generation        | go.nvim, gomodifytags, gotests, impl, iferr     |
 | Debugging              | Delve                                           |
 | Testing                | neotest-golang                                  |
-
-On Windows x86_64, the configuration sets `GOARCH=amd64` only when `GOARCH`
-does not already exist.
 
 ### JavaScript/TypeScript
 
@@ -511,7 +508,7 @@ does not already exist.
 | Testing      | neotest-jest          |
 | JSX/TSX tags | nvim-ts-autotag       |
 
-`ts_ls` owns TypeScript LSP; the optional `typescript-tools.nvim` spec is disabled.
+`ts_ls` owns TypeScript LSP.
 Import and fix mappings are registered when ts_ls attaches.
 
 ### Java
@@ -592,7 +589,6 @@ lives in `stdpath("config")`, and lazy.nvim owns plugin runtime paths.
 - Adds `UV_PYTHON_BIN_DIR` and `UV_TOOL_BIN_DIR` when they exist.
 - Detects Scoop installations of Go, Maven, and Temurin 21 on Windows.
 - Sets `JAVA_HOME` only when the user has not already set it.
-- Sets `GOARCH=amd64` only on Windows x86_64 when the variable is unset.
 
 Environment variables may be set before starting Neovim.
 
@@ -1286,6 +1282,8 @@ completely unhighlighted text.
 ```vim
 :Lazy
 :Lazy sync
+:Lazy update
+:Lazy restore
 :Lazy profile
 :Mason
 :MasonToolsInstall
@@ -1302,7 +1300,8 @@ completely unhighlighted text.
 ### Safe Update Process
 
 1. Commit or back up `lazy-lock.json`.
-2. Run `:Lazy sync`.
+2. Run `:Lazy update` to fetch newer plugin commits and update the lockfile.
+   Use `:Lazy sync` on a new machine to install the recorded versions.
 3. Run `:MasonUpdate` and `:TSUpdate`.
 4. Open Python, Go, TypeScript, and Java projects and verify LSP behavior.
 5. If an update causes a regression, restore `lazy-lock.json` and run
@@ -1562,8 +1561,8 @@ Check:
 :echo executable('fzf')
 ```
 
-FzfLua uses `rg` for files and live grep. Ensure the command is available in
-the environment that starts Neovim.
+FzfLua prefers `fd` for files, falls back to `rg --files`, and uses `rg`
+for live grep. Ensure `rg` is available where Neovim starts.
 
 ### Linux Clipboard Does Not Work
 
@@ -1614,6 +1613,3 @@ To change its color or disable Insert-mode animation, edit the
 - [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)
 - [neotest-java](https://github.com/rcasia/neotest-java)
-
-
-See [CONFIG_AUDIT.md](CONFIG_AUDIT.md) for the full configuration audit, fixes, and verification limits.

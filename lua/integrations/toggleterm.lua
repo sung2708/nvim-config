@@ -16,7 +16,7 @@ if vim.fn.has("win32") == 1 then
         shell_executable = "powershell"
     end
 
-    shell_executable = shell_executable .. " -NoLogo -NoProfile"
+    shell_executable = shell_executable .. " -NoLogo"
 end
 
 -- Force termguicolors for better highlight support
