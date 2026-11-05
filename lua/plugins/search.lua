@@ -30,37 +30,12 @@ return {
         keys = {
             {
                 "<leader>ff",
-                function()
-                    require("fzf-lua").files({
-                        cwd = require("helper.project").root(),
-                        file_icons = true,
-                        git_icons = false,
-                        previewer = "builtin",
-                        winopts = {
-                            preview = {
-                                delay = 100,
-                            },
-                        },
-                    })
-                end,
+                find("files", "project", { file_icons = true, previewer = "builtin" }),
                 desc = "Find: Project Files",
             },
             {
                 "<leader>fg",
-                function()
-                    -- Native reload skips the headless Neovim result-processing wrapper.
-                    require("fzf-lua").live_grep_native({
-                        cwd = require("helper.project").root(),
-                        file_icons = false,
-                        git_icons = false,
-                        previewer = "builtin",
-                        winopts = {
-                            preview = {
-                                delay = 100,
-                            },
-                        },
-                    })
-                end,
+                find("live_grep_native", "project", { file_icons = false, previewer = "builtin" }),
                 desc = "Find: Project Grep",
             },
             {
@@ -85,7 +60,11 @@ return {
             { "<leader>fF", find("files", "cwd"), desc = "Find: Files (CWD)" },
             { "<leader>fG", find("live_grep_native", "cwd"), desc = "Find: Grep (CWD)" },
             { "<leader>fE", find("live_grep_native", "buffer"), desc = "Find: Grep From Buffer Directory" },
-            { "<leader>fN", find("live_grep_native", "project"), desc = "Find: Fast Project Grep (No Icons)" },
+            {
+                "<leader>fN",
+                find("live_grep_native", "project", { file_icons = false, previewer = "builtin" }),
+                desc = "Find: Project Grep (Alias)",
+            },
             { "<leader>fI", find("live_grep", "project"), desc = "Find: Project Grep (Icons / Globs)" },
             { "<leader>fR", find("resume"), desc = "Find: Resume Last Picker" },
             {

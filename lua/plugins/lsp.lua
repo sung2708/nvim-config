@@ -19,14 +19,13 @@ local lsp_filetypes = {
     "typescript",
     "typescriptreact",
     "vim",
-    "vue",
+    -- "vue",
 }
 
 local defer_on_filetype = require("helper.utils").defer_plugin_on_filetype
 local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
 
 local mason_tools = {
-    "clang-format",
     "eslint_d",
     "gomodifytags",
     "gofumpt",
@@ -64,7 +63,7 @@ return {
     },
     {
         "rachartier/tiny-code-action.nvim",
-        event = "LspAttach",
+        lazy = true,
         dependencies = {
             "ibhagwan/fzf-lua",
         },
@@ -130,7 +129,13 @@ return {
             {
                 "<leader>cf",
                 function()
-                    require("conform").format({ async = true, lsp_format = "fallback" })
+                    local conform = require("conform")
+                    local original_ft = vim.b.sungp_bigfile_filetype
+                    conform.format({
+                        async = true,
+                        lsp_format = "fallback",
+                        formatters = original_ft and conform.formatters_by_ft[original_ft] or nil,
+                    })
                 end,
                 mode = { "n", "v" },
                 desc = "Code: Format",
@@ -156,8 +161,21 @@ return {
                 go = { "goimports", "gofumpt" },
                 java = { "google-java-format" },
             },
+            formatters = {
+                clang_format = vim.fn.has("mac") == 1 and {
+                    command = "xcrun",
+                    prepend_args = { "clang-format" },
+                } or nil,
+            },
             format_on_save = function(bufnr)
-                return require("helper.format").on_save(bufnr)
+                if vim.bo[bufnr].filetype ~= "java" then
+                    return require("helper.format").on_save(bufnr)
+                end
+            end,
+            format_after_save = function(bufnr)
+                if vim.bo[bufnr].filetype == "java" then
+                    return require("helper.format").on_save(bufnr)
+                end
             end,
             notify_on_error = true,
             notify_no_formatters = false,

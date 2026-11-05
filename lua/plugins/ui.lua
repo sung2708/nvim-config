@@ -7,7 +7,7 @@ return {
         lazy = false,
         priority = 1000,
         opts = {
-            transparent_background = false,
+            transparent_background = true,
             -- Avoid invoking vim.pack.get() on Neovim 0.12. This repository
             -- uses lazy.nvim exclusively, and the probe creates an empty
             -- site/pack/core tree that both health checks report as a conflict.
@@ -146,37 +146,6 @@ return {
         end,
     },
     {
-        "LunarVim/bigfile.nvim",
-        event = "BufReadPre",
-        opts = {
-            -- Keep the existing 1 MiB policy, but handle it before expensive
-            -- filetype/LSP/Treesitter work starts.
-            filesize = 1,
-            features = {
-                "indent_blankline",
-                "illuminate",
-                "lsp",
-                "treesitter",
-                "syntax",
-                "matchparen",
-                "vimopts",
-                "filetype",
-                {
-                    name = "sungp_bigfile_marker",
-                    disable = function(buf)
-                        vim.b[buf].bigfile = true
-                        vim.b[buf].completion = false
-                        vim.b[buf].minianimate_disable = true
-                        vim.b[buf].minihipatterns_disable = true
-                        vim.opt_local.conceallevel = 0
-                        vim.opt_local.relativenumber = false
-                        vim.opt_local.statuscolumn = ""
-                    end,
-                },
-            },
-        },
-    },
-    {
         "nvim-lualine/lualine.nvim",
         event = "VeryLazy",
         dependencies = {
@@ -194,8 +163,8 @@ return {
             "nvim-tree/nvim-web-devicons",
         },
         keys = {
-            { "<Tab>", "<cmd>BufferLineCycleNext<cr>", desc = "Buffer: Next" },
-            { "<S-Tab>", "<cmd>BufferLineCyclePrev<cr>", desc = "Buffer: Previous" },
+            { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Buffer: Next" },
+            { "[b", "<cmd>BufferLineCyclePrev<cr>", desc = "Buffer: Previous" },
             { "<leader>bp", "<cmd>BufferLineTogglePin<cr>", desc = "Buffer: Pin" },
             { "<leader>be", "<cmd>BufferLineMoveNext<cr>", desc = "Buffer: Move Right" },
             { "<leader>bq", "<cmd>BufferLineMovePrev<cr>", desc = "Buffer: Move Left" },
@@ -228,6 +197,7 @@ return {
         lazy = true,
         init = not vim.g.sungp_low_spec and defer_after_vimenter("hlchunk.nvim", 360) or nil,
         keys = {
+            { "iH", mode = { "x", "o" }, desc = "Inside Highlighted Chunk" },
             {
                 "<leader>ui",
                 function()

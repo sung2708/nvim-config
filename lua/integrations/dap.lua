@@ -10,7 +10,7 @@ dapui.setup({
 
 require("mason-nvim-dap").setup({
     ensure_installed = { "python", "delve", "codelldb" },
-    automatic_installation = true,
+    automatic_installation = false, -- Only install the explicitly selected adapters.
     handlers = {
         function(config)
             require("mason-nvim-dap").default_setup(config)
@@ -96,8 +96,15 @@ vim.keymap.set("n", "<F11>", dap.step_into, { desc = "Debug: Step Into" })
 vim.keymap.set("n", "<F12>", dap.step_out, { desc = "Debug: Step Out" })
 vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Debug: Toggle Breakpoint" })
 vim.keymap.set("n", "<leader>dB", function()
-    dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
+    vim.ui.input({ prompt = "Breakpoint condition: " }, function(condition)
+        if condition and condition:match("%S") then
+            dap.set_breakpoint(condition)
+        end
+    end)
 end, { desc = "Debug: Conditional Breakpoint" })
 vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "Debug: Open REPL" })
 vim.keymap.set("n", "<leader>dl", dap.run_last, { desc = "Debug: Run Last" })
 vim.keymap.set("n", "<leader>du", dapui.toggle, { desc = "Debug: Toggle UI" })
+
+vim.keymap.set("n", "<leader>dc", dap.run_to_cursor, { desc = "Debug: Run to Cursor" })
+vim.keymap.set("n", "<leader>dt", dap.terminate, { desc = "Debug: Terminate" })

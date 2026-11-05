@@ -4,7 +4,7 @@ local opt = vim.opt
 -- opt-in so capable machines retain the full UI/LSP experience.
 vim.g.sungp_low_spec = vim.g.sungp_low_spec == true
 if vim.g.sungp_animations == nil then
-    vim.g.sungp_animations = not vim.g.sungp_low_spec
+    vim.g.sungp_animations = false
 end
 if vim.g.sungp_breadcrumbs == nil then
     vim.g.sungp_breadcrumbs = not vim.g.sungp_low_spec
@@ -26,14 +26,14 @@ local path_separator = vim.fn.has("win32") == 1 and ";" or ":"
 local function prepend_path(directory)
     if directory and vim.fn.isdirectory(directory) == 1 then
         local path_entries = vim.split(vim.env.PATH or "", path_separator, { plain = true, trimempty = true })
-        local normalized_directory = directory:gsub("\\\\", "/"):gsub("/+$", "")
+        local normalized_directory = directory:gsub("\\", "/"):gsub("/+$", "")
         if vim.fn.has("win32") == 1 then
             normalized_directory = normalized_directory:lower()
         end
 
         local remaining_entries = {}
         for _, entry in ipairs(path_entries) do
-            local normalized_entry = entry:gsub("\\\\", "/"):gsub("/+$", "")
+            local normalized_entry = entry:gsub("\\", "/"):gsub("/+$", "")
             if vim.fn.has("win32") == 1 then
                 normalized_entry = normalized_entry:lower()
             end
@@ -72,6 +72,14 @@ end
 -- linting work even when Mason's UI plugin has not been loaded yet.
 prepend_path(vim.fn.stdpath("data") .. "/mason/bin")
 
+if vim.fn.has("mac") == 1 then
+    -- GUI launches may not inherit the package manager's shell PATH.
+    for _, directory in ipairs({ "/usr/local/bin", "/opt/local/bin", "/opt/homebrew/bin" }) do
+        prepend_path(directory)
+    end
+    prepend_path(vim.fn.stdpath("config") .. "/bin")
+end
+
 for _, directory in ipairs({ vim.env.UV_PYTHON_BIN_DIR, vim.env.UV_TOOL_BIN_DIR }) do
     prepend_path(directory)
 end
@@ -100,12 +108,26 @@ if vim.fn.has("win32") == 1 then
         vim.g.python3_host_prog = python_provider
     end
 
-    local scoop_jdk = scoop_home .. "/apps/temurin21-jdk/current"
-    if vim.fn.isdirectory(scoop_jdk) == 1 then
-        vim.env.JAVA_HOME = vim.env.JAVA_HOME or scoop_jdk
-        prepend_path(scoop_jdk .. "/bin")
+    if not vim.env.JAVA_HOME then
+        for _, name in ipairs({ "temurin25-jdk", "temurin21-jdk" }) do
+            local jdk = scoop_home .. "/apps/" .. name .. "/current"
+            if vim.fn.isdirectory(jdk) == 1 then
+                vim.env.JAVA_HOME = jdk
+                break
+            end
+        end
+    end
+    if vim.env.JAVA_HOME then
+        prepend_path(vim.env.JAVA_HOME .. "/bin")
     end
 end
+
+-- Keep installer-managed runtimes ahead of other package-manager shims.
+local toolchain_paths = vim.g.sungp_toolchain_paths or {}
+for index = #toolchain_paths, 1, -1 do
+    prepend_path(toolchain_paths[index])
+end
+prepend_path(vim.fn.stdpath("data") .. "/mason/bin")
 
 opt.number = true
 opt.relativenumber = true
@@ -166,7 +188,7 @@ else
 end
 
 opt.backup = false
-opt.writebackup = false
+opt.writebackup = true
 opt.swapfile = true
 opt.undofile = true
 

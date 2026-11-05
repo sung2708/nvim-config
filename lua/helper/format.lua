@@ -24,7 +24,7 @@ function M.on_save(bufnr)
 
     local timeout = vim.b[bufnr].autoformat_timeout_ms or vim.g.autoformat_timeout_ms
     if type(timeout) ~= "number" or timeout < 1 or timeout ~= timeout or timeout == math.huge then
-        -- JVM cold starts need more time than the smaller native formatters.
+        -- Give Java's background formatter more time to finish on editor exit.
         timeout = vim.bo[bufnr].filetype == "java" and 3000 or 1000
     end
     return { bufnr = bufnr, timeout_ms = math.floor(timeout), lsp_format = "fallback" }

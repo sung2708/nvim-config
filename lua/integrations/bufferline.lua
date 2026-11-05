@@ -2,6 +2,10 @@ local M = require("helper.utils")
 local bufferline = M.safe_require("bufferline")
 if bufferline then
     bufferline.setup({
+        highlights = {
+            background = { bg = "none" },
+            fill = { bg = "none" },
+        },
         options = {
             style_preset = {
                 bufferline.style_preset.no_italic,

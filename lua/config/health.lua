@@ -70,7 +70,14 @@ function M.check()
     check_tool("Python", { "python3", "python" }, false, "Python provider, tests, and REPL")
     check_tool("Ruff", { "ruff" }, false, "Python LSP and formatting")
     check_tool("Go", { "go" }, false, "Go tooling")
-    check_tool("Java", { "java" }, false, "Java tooling")
+    if check_tool("Java", { "java" }, false, "Java tooling") then
+        local java = vim.system({ "java", "-version" }, { text = true }):wait(5000)
+        if java.code == 0 then
+            vim.health.ok((java.stderr or java.stdout or ""):match("[^\r\n]+") or "Java runtime available")
+        else
+            vim.health.warn("java exists but cannot start a runtime; install a JDK and set JAVA_HOME in config.local")
+        end
+    end
 
     if vim.fn.has("mac") == 1 then
         check_tool("pngpaste", { "pngpaste" }, false, "CodeCompanion clipboard images")

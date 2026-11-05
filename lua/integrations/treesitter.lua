@@ -1,183 +1,119 @@
-local M = require("helper.utils")
-
-local config_dir = vim.fn.stdpath("config")
-local required_parsers = {
-    "bash",
-    "c",
-    "cpp",
-    "css",
-    "go",
-    "gomod",
-    "gosum",
-    "gotmpl",
-    "gowork",
-    "html",
-    "javascript",
-    "java",
-    "json",
-    "latex",
-    "lua",
-    "markdown",
-    "markdown_inline",
-    "python",
-    "query",
-    "regex",
-    "toml",
-    "tsx",
-    "typescript",
-    "vim",
-    "vimdoc",
-    "yaml",
-}
+require("config.compiler")
+local required_parsers = require("config.parsers")
 
 local function is_executable(command)
     return vim.fn.executable(command) == 1
 end
 
-local function first_executable(commands)
-    for _, command in ipairs(commands) do
-        if is_executable(command) then
-            return command
-        end
-    end
+local new_treesitter = require("nvim-treesitter")
+new_treesitter.setup()
+
+local installed = {}
+for _, parser in ipairs(new_treesitter.get_installed("parsers")) do
+    installed[parser] = true
 end
 
-if vim.fn.has("win32") == 1 then
-    local zig_cc = config_dir .. "/bin/zig-cc.cmd"
-    local zig_cxx = config_dir .. "/bin/zig-cxx.cmd"
+local missing = vim.tbl_filter(function(parser)
+    return not installed[parser]
+end, required_parsers)
 
-    if not vim.env.CC and is_executable(zig_cc) then
-        vim.env.CC = zig_cc
-    end
-    if not vim.env.CXX and is_executable(zig_cxx) then
-        vim.env.CXX = zig_cxx
-    end
-else
-    vim.env.CC = vim.env.CC or first_executable({ "cc", "clang", "gcc" })
-    vim.env.CXX = vim.env.CXX or first_executable({ "c++", "clang++", "g++" })
-end
+if #missing > 0 and not is_executable("tree-sitter") then
+    vim.schedule(function()
+        vim.notify(
+            "Treesitter: missing tree-sitter CLI. Install tree-sitter-cli (macOS: brew install tree-sitter-cli), then restart Neovim.",
+            vim.log.levels.WARN
+        )
+    end)
+elseif #missing > 0 then
+    vim.defer_fn(function()
+        new_treesitter.install(missing, { force = true, max_jobs = 4 }):await(function(err, success)
+            vim.schedule(function()
+                if err or success == false then
+                    vim.notify(
+                        "Treesitter parser installation failed: " .. tostring(err or "see :TSLog"),
+                        vim.log.levels.ERROR
+                    )
+                    return
+                end
 
-local legacy_install = M.safe_require("nvim-treesitter.install")
-if legacy_install then
-    if vim.fn.has("win32") == 1 then
-        legacy_install.compilers = { "zig", "clang", "gcc", "cl", "cc" }
-    else
-        legacy_install.compilers = { "cc", "clang", "gcc" }
-    end
-end
-
-local ok_new, new_treesitter = pcall(require, "nvim-treesitter")
-if ok_new then
-    new_treesitter.setup()
-
-    local installed = {}
-    for _, parser in ipairs(new_treesitter.get_installed()) do
-        installed[parser] = true
-    end
-
-    local missing = vim.tbl_filter(function(parser)
-        return not installed[parser]
-    end, required_parsers)
-
-    if #missing > 0 then
-        vim.defer_fn(function()
-            new_treesitter.install(missing):await(function(err)
-                vim.schedule(function()
-                    if err then
-                        vim.notify("Treesitter parser installation failed: " .. tostring(err), vim.log.levels.ERROR)
-                        return
+                for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+                    if
+                        vim.api.nvim_buf_is_loaded(bufnr)
+                        and vim.bo[bufnr].filetype ~= ""
+                        and vim.bo[bufnr].filetype ~= "bigfile"
+                        and vim.bo[bufnr].buftype == ""
+                        and not vim.b[bufnr].bigfile
+                        and vim.fn.bufwinid(bufnr) ~= -1
+                    then
+                        pcall(vim.treesitter.start, bufnr)
                     end
-
-                    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-                        if
-                            vim.api.nvim_buf_is_loaded(bufnr)
-                            and vim.bo[bufnr].filetype ~= ""
-                            and vim.bo[bufnr].filetype ~= "bigfile"
-                            and vim.bo[bufnr].buftype == ""
-                            and not vim.b[bufnr].bigfile
-                            and vim.fn.bufwinid(bufnr) ~= -1
-                        then
-                            pcall(vim.treesitter.start, bufnr)
-                        end
-                    end
-                end)
+                end
             end)
-        end, 200)
+        end)
+    end, 200)
+end
+
+local function start_treesitter(bufnr)
+    if
+        vim.api.nvim_buf_is_valid(bufnr)
+        and vim.api.nvim_buf_is_loaded(bufnr)
+        and vim.bo[bufnr].buftype == ""
+        and vim.bo[bufnr].filetype ~= ""
+        and vim.bo[bufnr].filetype ~= "bigfile"
+        and not vim.b[bufnr].bigfile
+    then
+        pcall(vim.treesitter.start, bufnr)
+    end
+end
+
+local pending = {}
+local function schedule_treesitter(bufnr, delay)
+    local timer = pending[bufnr]
+    if timer and not timer:is_closing() then
+        timer:stop()
+        timer:close()
     end
 
-    local function start_treesitter(bufnr)
-        if
-            vim.api.nvim_buf_is_valid(bufnr)
-            and vim.api.nvim_buf_is_loaded(bufnr)
-            and vim.bo[bufnr].buftype == ""
-            and vim.bo[bufnr].filetype ~= ""
-            and vim.bo[bufnr].filetype ~= "bigfile"
-            and not vim.b[bufnr].bigfile
-        then
-            pcall(vim.treesitter.start, bufnr)
+    pending[bufnr] = vim.defer_fn(function()
+        pending[bufnr] = nil
+        if not vim.api.nvim_buf_is_valid(bufnr) or vim.fn.bufwinid(bufnr) == -1 then
+            return
         end
-    end
+        start_treesitter(bufnr)
+    end, delay)
+end
 
-    local pending = {}
-    local function schedule_treesitter(bufnr, delay)
-        local timer = pending[bufnr]
+local treesitter_group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true })
+vim.api.nvim_create_autocmd("BufWipeout", {
+    group = treesitter_group,
+    callback = function(args)
+        local timer = pending[args.buf]
+        pending[args.buf] = nil
         if timer and not timer:is_closing() then
             timer:stop()
             timer:close()
         end
+    end,
+})
+vim.api.nvim_create_autocmd("FileType", {
+    group = treesitter_group,
+    callback = function(args)
+        -- BufWinEnter below normally replaces this fallback. Keeping a
+        -- longer FileType timer also covers :setfiletype on an open buffer.
+        schedule_treesitter(args.buf, 1000)
+    end,
+})
+vim.api.nvim_create_autocmd("BufWinEnter", {
+    group = treesitter_group,
+    callback = function(args)
+        schedule_treesitter(args.buf, 20)
+    end,
+})
 
-        pending[bufnr] = vim.defer_fn(function()
-            pending[bufnr] = nil
-            if not vim.api.nvim_buf_is_valid(bufnr) or vim.fn.bufwinid(bufnr) == -1 then
-                return
-            end
-            start_treesitter(bufnr)
-        end, delay)
-    end
-
-    local treesitter_group = vim.api.nvim_create_augroup("TreesitterStart", { clear = true })
-    vim.api.nvim_create_autocmd("BufWipeout", {
-        group = treesitter_group,
-        callback = function(args)
-            local timer = pending[args.buf]
-            pending[args.buf] = nil
-            if timer and not timer:is_closing() then
-                timer:stop()
-                timer:close()
-            end
-        end,
-    })
-    vim.api.nvim_create_autocmd("FileType", {
-        group = treesitter_group,
-        callback = function(args)
-            -- BufWinEnter below normally replaces this fallback. Keeping a
-            -- longer FileType timer also covers :setfiletype on an open buffer.
-            schedule_treesitter(args.buf, 1000)
-        end,
-    })
-    vim.api.nvim_create_autocmd("BufWinEnter", {
-        group = treesitter_group,
-        callback = function(args)
-            schedule_treesitter(args.buf, 20)
-        end,
-    })
-
-    if vim.bo.filetype ~= "" then
-        -- When the plugin itself was deferred until after VimEnter, the first
-        -- buffer is already visible; start highlighting shortly afterwards.
-        schedule_treesitter(vim.api.nvim_get_current_buf(), 40)
-    end
-else
-    local legacy_treesitter = M.safe_require("nvim-treesitter.configs")
-    if legacy_treesitter then
-        legacy_treesitter.setup({
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = false,
-            },
-            indent = { enable = true },
-        })
-    end
+if vim.bo.filetype ~= "" then
+    -- When the plugin itself was deferred until after VimEnter, the first
+    -- buffer is already visible; start highlighting shortly afterwards.
+    schedule_treesitter(vim.api.nvim_get_current_buf(), 40)
 end
 
 local ok_textobjects, textobjects = pcall(require, "nvim-treesitter-textobjects")
@@ -229,7 +165,7 @@ vim.keymap.set("n", "<leader>mp", function()
 end, { desc = "Swap Next Parameter" })
 
 vim.keymap.set("n", "<leader>mP", function()
-    ts_textobject("nvim-treesitter-textobjects.swap", "swap_previous", "@parameter.outer")
+    ts_textobject("nvim-treesitter-textobjects.swap", "swap_previous", "@parameter.inner")
 end, { desc = "Swap Previous Parameter" })
 
 vim.keymap.set({ "n", "x", "o" }, "]m", function()

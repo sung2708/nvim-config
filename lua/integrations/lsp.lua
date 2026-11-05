@@ -48,10 +48,6 @@ vim.lsp.config("lua_ls", {
             },
             workspace = {
                 checkThirdParty = false,
-                library = {
-                    vim.env.VIMRUNTIME,
-                    "${3rd}/luv/library",
-                },
             },
         },
     },
@@ -97,115 +93,12 @@ vim.lsp.config("ruff", {
     end,
 })
 
-local function clangd_cmd()
-    local cmd = {
-        "clangd",
-        "--log=error",
-        "--completion-style=detailed",
-        "--header-insertion=iwyu",
-    }
-
-    if not vim.g.sungp_low_spec then
-        table.insert(cmd, "--background-index")
-        table.insert(cmd, "--clang-tidy")
-    end
-
-    local candidates = {
-        vim.fn.exepath("g++"),
-        vim.fn.exepath("clang++"),
-        vim.fn.expand("~/scoop/apps/gcc/current/bin/g++.exe"),
-        vim.fn.expand("~/scoop/apps/llvm/current/bin/clang++.exe"),
-    }
-
-    local seen = {}
-    local drivers = {}
-    for _, path in ipairs(candidates) do
-        if path:find("*", 1, true) then
-            table.insert(drivers, path)
-        elseif path ~= "" and vim.fn.executable(path) == 1 then
-            path = vim.fn.fnamemodify(path, ":p"):gsub("\\", "/")
-            if not seen[path] then
-                seen[path] = true
-                table.insert(drivers, path)
-            end
-        end
-    end
-
-    if #drivers > 0 then
-        table.insert(cmd, "--query-driver=" .. table.concat(drivers, ","))
-    end
-
-    return cmd
-end
-
-local function clangd_fallback_flags()
-    local flags = {
-        "--target=x86_64-w64-windows-gnu",
-        "-std=c++20",
-        "-D_REENTRANT",
-    }
-
-    local gcc_root = vim.fn.expand("~/scoop/apps/gcc/current")
-    local cpp_root = gcc_root .. "/include/c++"
-    local cpp_versions = vim.fn.glob(cpp_root .. "/*", false, true)
-
-    if #cpp_versions == 0 then
-        return flags
-    end
-
-    table.sort(cpp_versions)
-    local cpp_include = cpp_versions[#cpp_versions]:gsub("\\", "/")
-    local version = vim.fn.fnamemodify(cpp_include, ":t")
-    local target = "x86_64-w64-mingw32"
-    local gcc_lib = (gcc_root .. "/lib/gcc/" .. target .. "/" .. version):gsub("\\", "/")
-
-    local includes = {
-        cpp_include,
-        cpp_include .. "/" .. target,
-        cpp_include .. "/backward",
-        gcc_lib .. "/include",
-        gcc_lib .. "/include-fixed",
-        gcc_root .. "/" .. target .. "/include",
-        gcc_root .. "/include",
-    }
-
-    for _, include in ipairs(includes) do
-        if vim.fn.isdirectory(include) == 1 then
-            table.insert(flags, "-isystem")
-            table.insert(flags, include)
-        end
-    end
-
-    return flags
-end
-
-local clangd_enabled = false
-local function enable_clangd()
-    if clangd_enabled then
-        return
-    end
-    clangd_enabled = true
-
-    vim.lsp.config("clangd", {
-        cmd = clangd_cmd(),
-        init_options = {
-            fallbackFlags = clangd_fallback_flags(),
-        },
-    })
-    vim.lsp.enable("clangd")
-end
-
-vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("SungpClangd", { clear = true }),
-    pattern = { "c", "cpp" },
-    callback = enable_clangd,
+-- clangd 23 removed the deprecated offsetEncoding client capability.
+vim.lsp.config("clangd", {
+    before_init = function(params)
+        params.capabilities.offsetEncoding = nil
+    end,
 })
-
-vim.schedule(function()
-    if vim.bo.filetype == "c" or vim.bo.filetype == "cpp" then
-        enable_clangd()
-    end
-end)
 
 vim.lsp.config("gopls", {
     settings = {
@@ -373,10 +266,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
                         end
 
                         if not has_highlight_client then
-                            -- The buffer can disappear between the validity
-                            -- check above and this scheduled callback. When
-                            -- that happens, its namespaces are destroyed with
-                            -- the buffer, so there is nothing to clear.
+                            vim.lsp.util.buf_clear_references(bufnr)
                             pcall(vim.api.nvim_del_augroup_by_id, highlight_group)
                         end
                     end)
@@ -430,6 +320,7 @@ end, {
 })
 
 local servers = {
+    "clangd",
     "cssls",
     "eslint",
     "gopls",
@@ -443,10 +334,9 @@ local servers = {
 }
 
 require("mason-lspconfig").setup({
-    ensure_installed = vim.list_extend({ "clangd" }, vim.deepcopy(servers)),
+    ensure_installed = vim.deepcopy(servers),
     automatic_enable = false,
 })
 
--- Enabling the list in one call makes Neovim replay FileType only once,
--- instead of once per server through mason-lspconfig's automatic loop.
+-- Native enable also checks buffers already opened before lazy loading.
 vim.lsp.enable(servers)

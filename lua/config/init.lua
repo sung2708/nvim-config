@@ -3,6 +3,16 @@ vim.loader.enable()
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+local toolchain = vim.fs.joinpath(vim.fn.stdpath("config"), "lua", "config", "toolchain.lua")
+if vim.uv.fs_stat(toolchain) then
+    local ok, err = pcall(require, "config.toolchain")
+    if not ok then
+        vim.schedule(function()
+            vim.notify("Failed to load config.toolchain: " .. tostring(err), vim.log.levels.ERROR)
+        end)
+    end
+end
+
 local local_config = vim.fs.joinpath(vim.fn.stdpath("config"), "lua", "config", "local.lua")
 if vim.uv.fs_stat(local_config) then
     local ok, err = pcall(require, "config.local")

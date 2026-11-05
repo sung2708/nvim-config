@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Continue"
 
-$required = @("nvim", "git", "curl", "rg")
+$required = @("nvim", "git", "curl", "rg", "fzf")
 $optional = @("tree-sitter", "make", "zig", "g++", "node", "codex", "codex-acp", "python", "go", "java")
 if ($IsMacOS) {
     $optional += "pngpaste"

@@ -21,7 +21,7 @@ check_optional() {
 }
 
 printf '%s\n' 'Neovim environment check'
-for command_name in nvim git curl rg; do
+for command_name in nvim git curl rg fzf; do
     check_required "$command_name"
 done
 

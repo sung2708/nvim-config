@@ -93,7 +93,7 @@ local python = python_cmd
         hidden = true,
     })
 
-function _PYTHON_TOGGLE()
+local function toggle_python()
     if not python then
         vim.notify("Python REPL unavailable: install uv, python3, or python", vim.log.levels.WARN)
         return
@@ -108,17 +108,11 @@ if vim.fn.executable("lazydocker") == 1 then
         direction = "float",
         hidden = true,
     })
-
-    function _lazydocker_toggle()
-        lazydocker:toggle()
-    end
 end
 
 -- =============================================================================
 -- 4. KEYMAPS (Normal Mode)
 -- =============================================================================
-local opts = { noremap = true, silent = true }
-
 local function is_sidebar(win)
     local filetype = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
     return filetype == "neo-tree" or filetype == "oil" or filetype == "NvimTree"
@@ -155,11 +149,11 @@ local function open_horizontal_terminal()
 end
 
 -- Custom Apps
-vim.keymap.set("n", "<leader>py", _PYTHON_TOGGLE, { desc = "Terminal: Python REPL" })
--- Disabled temporarily: Windows terminal input/ConPTY issue with LazyGit.
--- vim.keymap.set("n", "<leader>gg", _lazygit_toggle, { desc = "Terminal: Lazygit" })
+vim.keymap.set("n", "<leader>py", toggle_python, { desc = "Terminal: Python REPL" })
 if lazydocker then
-    vim.keymap.set("n", "<leader>ld", _lazydocker_toggle, { desc = "Terminal: Lazydocker" })
+    vim.keymap.set("n", "<leader>ld", function()
+        lazydocker:toggle()
+    end, { desc = "Terminal: Lazydocker" })
 end
 
 -- Toggle different directions
@@ -175,7 +169,7 @@ end, { desc = "Terminal: Send Selection" })
 -- =============================================================================
 -- 5. TERMINAL MODE MAPPINGS & AUTOCMDS
 -- =============================================================================
-function _G.set_terminal_keymaps()
+local function set_terminal_keymaps()
     local t_opts = { buffer = 0 }
     vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], t_opts)
 
@@ -198,4 +192,4 @@ vim.api.nvim_create_autocmd("TermOpen", {
 -- 6. CUSTOM COMMANDS
 -- =============================================================================
 vim.cmd([[command! -count=1 TermGitPush  lua require'toggleterm'.exec("git push",    <count>, 12)]])
-vim.cmd([[command! -count=1 TermGitPushF lua require'toggleterm'.exec("git push -f", <count>, 12)]])
+vim.cmd([[command! -count=1 TermGitPushF lua require'toggleterm'.exec("git push --force-with-lease", <count>, 12)]])

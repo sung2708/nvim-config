@@ -7,8 +7,6 @@ return {
             local keys = {
                 { "<C-\\>", mode = { "n", "t" }, desc = "Terminal: Toggle" },
                 { "<leader>py", desc = "Terminal: Python REPL" },
-                -- Disabled temporarily: Windows terminal/ConPTY issue with LazyGit.
-                -- { "<leader>gg", desc = "Terminal: Lazygit" },
                 { "<leader>th", desc = "Terminal: Horizontal" },
                 { "<leader>tv", desc = "Terminal: Vertical" },
                 { "<leader>tf", desc = "Terminal: Float" },

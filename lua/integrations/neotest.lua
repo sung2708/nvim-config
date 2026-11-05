@@ -53,6 +53,7 @@ vim.keymap.set("n", "<leader>ns", neotest.summary.toggle, { desc = "Test: Summar
 vim.keymap.set("n", "<leader>no", neotest.output.open, { desc = "Test: Output" })
 vim.keymap.set("n", "<leader>nO", neotest.output_panel.toggle, { desc = "Test: Output Panel" })
 vim.keymap.set("n", "<leader>nw", neotest.watch.toggle, { desc = "Test: Watch" })
+vim.keymap.set("n", "<leader>nx", neotest.run.stop, { desc = "Test: Stop Nearest" })
 
 local function debug_test(target)
     -- Keep DAP lazy; load it only when a test is explicitly debugged.

@@ -1,6 +1,23 @@
 vim.opt.rtp:prepend(vim.fn.getcwd())
 vim.g.mapleader = " "
 local rows, keys, duplicates = {}, {}, {}
+local modes = { "n", "x", "s", "o", "i", "t", "c" }
+local builtin = {}
+for _, mode in ipairs(modes) do
+    builtin[mode] = {}
+    for _, mapping in ipairs(vim.api.nvim_get_keymap(mode)) do
+        builtin[mode][mapping.lhs] = mapping
+    end
+end
+require("config.keymaps")
+for _, mode in ipairs(modes) do
+    for _, mapping in ipairs(vim.api.nvim_get_keymap(mode)) do
+        if not vim.deep_equal(mapping, builtin[mode][mapping.lhs]) then
+            local lhs = vim.api.nvim_replace_termcodes(mapping.lhs, true, true, true)
+            keys[mode .. lhs] = "core: " .. (mapping.desc or mapping.lhs)
+        end
+    end
+end
 for _, path in ipairs(vim.fn.glob("lua/plugins/*.lua", false, true)) do
     local module = path:gsub("\\", "/"):gsub("^lua/", ""):gsub("%.lua$", ""):gsub("/", ".")
     for _, spec in ipairs(require(module)) do
@@ -40,4 +57,4 @@ end
 assert(#duplicates == 0, table.concat(duplicates, "\n"))
 vim.fn.mkdir(".nvim-data", "p")
 vim.fn.writefile({ vim.json.encode(rows) }, ".nvim-data/config-inventory.json")
-print(("PASS %d direct plugin specs: no duplicate declared key ownership"):format(#rows))
+print(("PASS %d direct plugin specs: no duplicate core/plugin declared key ownership"):format(#rows))

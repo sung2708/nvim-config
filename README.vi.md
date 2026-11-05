@@ -14,8 +14,99 @@ Cấu hình này tập trung vào năm mục tiêu:
 - Một cấu hình dùng được trên Windows, Linux và macOS.
 - Phân chia rõ trách nhiệm giữa file khai báo plugin và file tích hợp chi tiết.
 
+## Cài bằng một lệnh
+
+Chạy **đúng một dòng cho hệ điều hành của bạn**, bằng tài khoản thường.
+Bộ cài dùng Homebrew trên macOS/Linux và Scoop trên Windows. Linux cần tài
+khoản có quyền sudo; macOS có thể hỏi quyền cài Command Line Tools/Homebrew.
+Windows dùng cửa sổ **PowerShell 64-bit thông thường**; Visual C++ runtime có
+thể hiện hộp thoại UAC. Cần Internet, vài phút đến lâu hơn tùy mạng/máy và
+vài GB dung lượng trống.
+
+### macOS
+
+```bash
+bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Ubuntu / Debian / WSL2
+
+```bash
+sudo apt-get update && sudo apt-get install -y curl && bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Fedora
+
+```bash
+sudo dnf install -y curl && bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Arch Linux
+
+```bash
+sudo pacman -Syu --needed --noconfirm curl && bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Windows 10/11 x64 — PowerShell
+
+```powershell
+& { $ErrorActionPreference = 'Stop'; Set-ExecutionPolicy Bypass -Scope Process -Force; $p = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetRandomFileName() + '.ps1'); Invoke-WebRequest 'https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.ps1' -UseBasicParsing -OutFile $p; try { & $p } finally { Remove-Item $p } }
+```
+
+Sau đó mở **terminal mới** và chạy `nvim .`. Bộ cài cấu hình PATH cho Bash/Zsh
+trên macOS/Linux. Shell khác cần làm theo
+[hướng dẫn Homebrew](https://docs.brew.sh/Installation#installation).
+Chọn Nerd Font trong terminal để icon hiển thị đúng.
+Lệnh Arch cập nhật toàn hệ thống để tránh nâng cấp package không đồng bộ.
+
+Nếu đang có cấu hình khác, bộ cài sao lưu thành `nvim.backup-<thời gian>` và
+giữ dữ liệu Neovim. Nếu đã cài đúng repository này, bộ cài dùng lại checkout,
+không tự pull đè thay đổi của bạn. Chạy lại cùng lệnh để tiếp tục khi mạng/cài
+đặt bị gián đoạn; tool Mason đã cài sẽ được giữ nguyên.
+
+Xem [chi tiết cài đặt](#cài-công-cụ-hệ-thống) để biết phạm vi được cài tự động.
+
+## Quy trình IDE hằng ngày
+
+Phím leader là `Space`. Mở từ thư mục dự án bằng `nvim .`.
+
+| Công việc | Phím / lệnh |
+| --- | --- |
+| Tìm file / tìm trong dự án | `Space ff` / `Space fg` |
+| Định nghĩa / tham chiếu / đổi tên | `gd` / `grr` / `Space rn` |
+| Gợi ý / chấp nhận / chữ ký hàm | `Ctrl-Space` / `Tab` / `Ctrl-l` trong Insert |
+| Code action / format | `Space ca` / `Space cf` |
+| Lỗi toàn dự án | `Space xx` |
+| Test gần nhất / cả file | `Space nt` / `Space nf` |
+| Breakpoint / debug | `Space db` / `F5` |
+| Kiểm tra môi trường | `:ConfigHealth`, `:LspInfo`, `:ConformInfo` |
+
+Đã bật Python, Go, TypeScript/React, C/C++, Java, Lua, HTML/CSS, JSON và
+Vimscript theo filetype. Java do nvim-jdtls quản lý riêng để tránh hai server;
+Lua dùng LazyDev cho kiểu dữ liệu Neovim. Conform quản lý format khi lưu;
+ESLint LSP/Ruff báo lỗi ngôn ngữ, nvim-lint kiểm tra Shell/Markdown.
+Dùng `:FormatDisable!` để tắt format riêng buffer. Đã bật undo qua lần mở,
+swap recovery và `writebackup` bảo vệ file gốc khi ghi thất bại.
+
+Ưu tiên cấu hình trong dự án: `pyproject.toml`, `tsconfig.json`, ESLint,
+Prettier, `compile_commands.json`, Maven/Gradle wrapper. Cài thư viện test
+trong dự án. Các lệnh AI là tùy chọn.
+
+Bộ cài cung cấp JDK 25 cho jdtls hiện tại và cài sẵn JUnit Console.
+JDK của dự án có thể khác; khai báo theo build của dự án. Cấu hình máy riêng
+đặt trong `lua/config/local.lua` được Git bỏ qua.
+
+`tests/ide.lua` mở file tạm, chờ LSP thật, kiểm tra formatter ngoài cho tám
+ngôn ngữ và ShellCheck sau khi lưu. Cần cài tool và JDK trước khi chạy.
+
+Tham khảo: [LSP native](https://neovim.io/doc/user/lsp/),
+[Conform](https://github.com/stevearc/conform.nvim),
+[nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls),
+[lockfile lazy.nvim](https://lazy.folke.io/usage/lockfile).
+
 ## Mục Lục
 
+- [Cài bằng một lệnh](#cài-bằng-một-lệnh)
 - [Tính Năng](#tính-năng)
 - [Yêu Cầu](#yêu-cầu)
 - [Cài Công Cụ Hệ Thống](#cài-công-cụ-hệ-thống)
@@ -51,7 +142,6 @@ Cấu hình này tập trung vào năm mục tiêu:
 | Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
 | Test           | Neotest cho Python, Go, Jest và Java                           |
 | UI             | Catppuccin, Snacks dashboard, WhichKey, Noice, Notify          |
-| Cursor         | smear-cursor.nvim ở Normal mode; tắt khi đang nhập             |
 
 ## Yêu Cầu
 
@@ -85,7 +175,7 @@ Chỉ cần cài runtime cho ngôn ngữ bạn dùng:
 | Python                | Python 3; `uv` là tùy chọn                             |
 | Go                    | Go toolchain                                           |
 | JavaScript/TypeScript | Node.js và npm                                         |
-| Java                  | JDK 21; Maven hoặc Gradle nếu project không có wrapper |
+| Java                  | JDK 25 cho jdtls; Maven/Gradle hoặc wrapper của dự án   |
 | C/C++                 | Clang, GCC hoặc Zig                                    |
 | Lua                   | Không cần runtime riêng để sửa cấu hình Neovim         |
 
@@ -95,270 +185,79 @@ nhưng bạn vẫn cần Go toolchain để build và test code Go.
 
 ## Cài Công Cụ Hệ Thống
 
-### Windows 10/11
+[Bộ cài một lệnh](#cài-bằng-một-lệnh) tự cài:
 
-Cấu hình hỗ trợ tốt [Scoop](https://github.com/ScoopInstaller/Install).
-Mở PowerShell thường, không cần quyền Administrator:
+- Neovim stable (kiểm tra `>= 0.12`), Git, curl, ripgrep, fd, fzf, make và công cụ giải nén.
+- Node.js LTS, Python 3.13, Go, JDK 25, Maven, bộ biên dịch C/C++ và clang-format.
+- Tree-sitter CLI **0.26.11** riêng trong thư mục dữ liệu Neovim, không cài npm toàn cục.
+- Python provider riêng với **pynvim 0.6.0**, không dùng pip toàn cục.
+- Công cụ clipboard Linux và pngpaste trên macOS.
+- Visual C++ runtime, GCC, LLVM và Zig trên Windows.
 
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-irm get.scoop.sh | iex
+Linux hỗ trợ distro apt/dnf/pacman, x86_64/ARM64, dùng glibc và đáp ứng yêu cầu
+Homebrew. Không hỗ trợ Alpine/musl, hệ 32-bit hoặc WSL1. macOS cần nền tảng còn
+được Homebrew hỗ trợ. Windows native hỗ trợ x64; Windows ARM có thể dùng Linux
+ARM64 trong WSL2.
 
-scoop bucket add java
-scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip curl
-scoop install java/temurin21-jdk
-npm install --global tree-sitter-cli@0.26.11
-```
-
-Khuyến nghị cài PowerShell 7:
-
-```powershell
-scoop install pwsh
-```
-
-Kiểm tra cài đặt:
-
-```powershell
-nvim --version
-git --version
-rg --version
-fzf --version
-zig version
-g++ --version
-node --version
-python --version
-go version
-java -version
-mvn --version
-```
-
-Khi có Scoop, cấu hình tự nhận:
-
-- `%USERPROFILE%\scoop\apps\go\current\bin`
-- `%USERPROFILE%\scoop\apps\maven\current\bin`
-- `%USERPROFILE%\scoop\apps\temurin21-jdk\current`
-- `%USERPROFILE%\scoop\apps\gcc\current\bin\g++.exe`
-
-`JAVA_HOME` chỉ được gán từ Scoop nếu biến này chưa tồn tại. Nếu người dùng đã
-tự đặt `JAVA_HOME`, giá trị đó luôn được ưu tiên.
-
-### Provider và công cụ xem tài liệu trên Windows
-
-Cấu hình dùng `uv` cho Python provider của Neovim và Volta/npm cho Node
-provider. Cài bằng PowerShell:
-
-```powershell
-$provider = "$env:LOCALAPPDATA\nvim-data\python-provider"
-uv venv --python 3.13 $provider
-uv pip install --python "$provider\Scripts\python.exe" pynvim
-
-volta install node yarn
-npm install --global neovim @mermaid-js/mermaid-cli
-```
-
-Kiểm tra hai provider sau khi cài:
-
-```powershell
-nvim --headless -i NONE `
-  +'lua print("Python provider: " .. (vim.g.python3_host_prog or "missing"))' `
-  +'lua print("Node provider: " .. (vim.g.node_host_prog or "missing"))' +qa
-& "$env:LOCALAPPDATA\nvim-data\python-provider\Scripts\python.exe" -c "import pynvim; print(pynvim.__version__)"
-neovim-node-host --version
-```
-
-Kết quả cần có đường dẫn Python tới `nvim-data\python-provider` và cả hai
-lệnh provider chạy được.
-
-Để Snacks xem ảnh, PDF, công thức và Mermaid:
-
-```powershell
-scoop install imagemagick ghostscript tectonic
-```
-
-Sau khi cài, hãy mở PowerShell và Neovim mới để nhận PATH mới. Neovim sẽ tự
-dùng Python provider ở `%LOCALAPPDATA%\nvim-data\python-provider` nếu thư mục
-này tồn tại.
-
-### Ubuntu/Debian
-
-```bash
-sudo apt update
-sudo apt install git ripgrep fd-find fzf make gcc g++ \
-  nodejs npm python3 python3-venv python3-pip golang-go \
-  openjdk-21-jdk maven unzip gzip curl
-```
-
-Một số bản Debian/Ubuntu cài `fd` dưới tên `fdfind`:
-
-```bash
-mkdir -p ~/.local/bin
-ln -s "$(command -v fdfind)" ~/.local/bin/fd
-```
-
-Đảm bảo `~/.local/bin` có trong `PATH`. Nếu package của distro cung cấp
-Neovim thấp hơn `0.12`, hãy cài bản mới theo
-[hướng dẫn chính thức](https://github.com/neovim/neovim/blob/master/INSTALL.md).
-
-Clipboard tùy chọn:
-
-```bash
-# Wayland
-sudo apt install wl-clipboard
-
-# X11
-sudo apt install xclip
-```
-
-Nếu distro không có `openjdk-21-jdk`, cài một bản JDK 21 khác và export:
-
-```bash
-export JAVA_HOME=/path/to/jdk-21
-export PATH="$JAVA_HOME/bin:$PATH"
-```
-
-### macOS
-
-Cài Xcode Command Line Tools và các package Homebrew:
-
-```bash
-xcode-select --install
-brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven pngpaste
-```
-
-Thêm JDK 21 vào shell profile:
-
-```bash
-export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
-export PATH="$JAVA_HOME/bin:$PATH"
-```
-
-macOS đã có `pbcopy` và `pbpaste`, nên không cần package clipboard riêng.
+Gói hệ thống dùng bản stable và cơ chế kiểm tra toàn vẹn của package manager.
+Plugin được khôi phục theo `lazy-lock.json`. Mason cài từ registry hiện tại
+**chỉ khi tool còn thiếu**, chưa khóa phiên bản tất cả tool. Phiên bản đã cài
+được ghi tại `stdpath("data")/nvim-config/install-report.json`.
 
 ## Cài Cấu Hình
 
-### 1. Sao Lưu Cấu Hình Cũ
+Bộ cài clone `sung2708/nvim-config` vào `stdpath("config")`, ghi đường dẫn máy
+vào `lua/config/toolchain.lua` đã được Git bỏ qua. File này tải trước
+`lua/config/local.lua` để cấu hình cá nhân của bạn được ưu tiên. Không sao chép
+file toolchain đã sinh giữa các hệ điều hành.
 
-Windows PowerShell:
+Với checkout đã có, tự cập nhật repository trước khi chạy bộ cài nếu muốn lấy
+cấu hình mới. Bộ cài không commit, reset hoặc pull các thay đổi của bạn; phiên
+bản plugin được khôi phục theo lockfile của checkout đang dùng.
 
-```powershell
-Rename-Item "$env:LOCALAPPDATA\nvim" "nvim.backup" -ErrorAction SilentlyContinue
-Rename-Item "$env:LOCALAPPDATA\nvim-data" "nvim-data.backup" -ErrorAction SilentlyContinue
-```
-
-Linux/macOS:
-
-```bash
-mv "${XDG_CONFIG_HOME:-$HOME/.config}/nvim" \
-  "${XDG_CONFIG_HOME:-$HOME/.config}/nvim.backup" 2>/dev/null || true
-mv "${XDG_DATA_HOME:-$HOME/.local/share}/nvim" \
-  "${XDG_DATA_HOME:-$HOME/.local/share}/nvim-data.backup" 2>/dev/null || true
-```
-
-### 2. Clone Repository
-
-Windows PowerShell:
-
-```powershell
-git clone https://github.com/sung2708/nvim-config.git "$env:LOCALAPPDATA\nvim"
-```
-
-Linux/macOS:
-
-```bash
-git clone https://github.com/sung2708/nvim-config.git \
-  "${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
-```
-
-### 3. Mở Neovim
-
-```bash
-nvim README.md
-```
-
-`lazy.nvim` sẽ tự bootstrap vào thư mục dữ liệu của Neovim. Vì plugin được
-lazy-load, dashboard có thể hiện trước khi Mason cài xong công cụ phát triển.
-Mở `README.md` cũng kích hoạt các tích hợp dành riêng cho Markdown.
+Không tự cài CLI AI, Docker, thư viện/test runner của dự án hoặc chọn font
+terminal. Dùng pytest/Jest trong dự án và Maven/Gradle wrapper khi có. Provider
+Node/Perl/Ruby và tính năng ảnh/PDF Snacks đã tắt nên không cần cài thêm gói.
 
 ## Lần Chạy Đầu
 
-Chạy các lệnh này trong Neovim:
+Bộ cài chờ hoàn tất từng bước và báo lỗi nếu xác minh thất bại:
 
-```vim
-:Lazy sync
-:MasonToolsInstall
-:TSUpdate
-:Lazy load nvim-dap
-:Lazy load neotest
-:NeotestJava setup
-:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
-```
+1. Cài plugin, khôi phục và kiểm tra từng commit trong lockfile.
+2. Làm mới Mason; cài các LSP, formatter, linter và debug adapter đã cấu hình.
+3. Build và kiểm tra toàn bộ Treesitter parser đã khai báo.
+4. Cài JUnit Console theo phiên bản neotest-java đã khóa, kiểm tra SHA-256.
+5. Chỉ ghi báo cáo cài đặt khi các bước bắt buộc đã thành công.
 
-Ý nghĩa:
+Lần mở đầu không cần chạy tay `Lazy sync`, `MasonToolsInstall` hoặc `TSUpdate`.
+Chạy lại có thể cập nhật gói hệ thống/runtime; xem thông báo của package manager.
+Bộ cài dừng khi lỗi để bạn sửa và chạy lại.
 
-1. `Lazy sync` cài plugin theo commit trong `lazy-lock.json`.
-2. `MasonToolsInstall` cài LSP server, formatter, linter và Java/JS debug adapter.
-3. `TSUpdate` cài hoặc cập nhật Treesitter parser.
-4. Load `nvim-dap` để Mason cài debugpy, Delve và codelldb.
-5. `NeotestJava setup` tải JUnit Console cần cho test Java.
-6. Lệnh `checkhealth` theo từng mục kiểm tra Neovim, LSP, Treesitter và plugin
-   manager, không chạy health-check của module Snacks đã tắt hoặc trình quản lý
-   `vim.pack` không được sử dụng.
+### Kiểm Tra Sau Cài
 
-Có thể bootstrap plugin không cần mở UI:
-
-```bash
-nvim --headless "+Lazy! sync" +qa
-```
-
-Sau khi cài, mở thử một file cho từng ngôn ngữ bạn dùng. LSP server và plugin
-theo ngôn ngữ chỉ khởi động khi mở buffer phù hợp.
-
-### Kiểm Tra Cuối
-
-Sau khi khởi động lại Neovim, chạy:
+Mở `nvim .` từ thư mục dự án và chạy:
 
 ```vim
 :ConfigHealth
+:LspInfo
+:ConformInfo
 :messages
-:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
-`:messages` không nên chứa lỗi startup. Báo cáo health theo từng mục không nên
-có lỗi; cảnh báo có bản Neovim mới hơn chỉ mang tính thông tin. Với
-CodeCompanion qua Codex ACP, chạy thêm trong terminal:
-
-```powershell
-codex login
-codex login status
-codex doctor --summary
-```
-
-`codex doctor` cần báo authentication đã cấu hình và database khỏe. Nếu báo
-lỗi đăng nhập, chạy lại `codex login` trước khi mở CodeCompanion.
-
-Trên Windows, kiểm tra dependency trước khi mở Neovim:
-
-```powershell
-.\\bin\\check-environment.ps1
-```
-
-Trên Linux hoặc macOS:
+Kiểm tra checkout mà không cài lại công cụ hệ thống:
 
 ```bash
-sh ./bin/check-environment.sh
+nvim --headless -u NONE -i NONE -l tests/ide.lua
 ```
 
-Nếu `tree-sitter` không được tìm thấy, mở PowerShell mới sau khi cài bằng npm
-để PATH được cập nhật. Trong Neovim, kiểm tra bằng
-`:echo executable('tree-sitter')`.
+Bài kiểm tra chạy LSP thật, format, kiểm tra nội dung đã lưu và ShellCheck;
+cần tool/runtime đã được cài. Xác minh bộ cài không bảo đảm mọi dự án build
+được hoặc các dịch vụ AI đã đăng nhập.
 
-Repo dùng `nvim-treesitter` nhánh `main`, nên cần Tree-sitter CLI từ dòng
-`0.26.x`. Hiện dùng `0.26.11`, đáp ứng yêu cầu tối thiểu `0.26.1` của
-`:checkhealth nvim-treesitter`.
-
-Trên Windows dùng Volta, cấu hình tự ưu tiên binary thật của Tree-sitter thay
-vì shim `Volta\\bin\\tree-sitter.cmd`, vì shim này có thể lỗi khi parser được
-build trong thư mục grammar tạm.
+Tài liệu chính thức: [Homebrew](https://docs.brew.sh/Installation),
+[Homebrew trên Linux](https://docs.brew.sh/Homebrew-on-Linux),
+[Scoop](https://github.com/ScoopInstaller/Install),
+[lockfile lazy.nvim](https://lazy.folke.io/usage/lockfile).
 
 ## Phụ Thuộc Được Quản Lý
 
@@ -438,13 +337,11 @@ Linux và macOS dùng `CC`/`CXX` nếu có, rồi fallback sang `cc`, `clang`, `
 | Format   | clang-format        |
 | Compiler | GCC, Clang hoặc Zig |
 
-Trên Windows, Scoop GCC được hỗ trợ trực tiếp. Cấu hình `clangd` cho phép
-Scoop GCC qua `--query-driver` và có fallback include path cho file C/C++ lẻ
-không có `compile_commands.json`.
-
-Với project thật, nên tạo `compile_commands.json` bằng build system. Với file
-luyện tập một file, cấu hình vẫn nên tìm được header chuẩn như `<iostream>`
-khi Scoop GCC đã được cài.
+clangd dùng lệnh biên dịch của dự án và toolchain hệ thống. Tạo
+`compile_commands.json` bằng build system để dùng đúng compiler, kiến trúc và
+header. File lẻ dùng mặc định của clangd; GCC/MinGW tùy chỉnh có thể cần khai
+báo include path trong dự án. Xem
+[hướng dẫn header của clangd](https://clangd.llvm.org/guides/system-headers).
 
 ### Python
 
@@ -498,7 +395,7 @@ Khi LSP đã gắn vào buffer: `Space+Ti` sắp xếp import, `Space+Ta` thêm 
 | Debug      | java-debug-adapter            |
 | Test       | neotest-java và JUnit Console |
 
-Cấu hình chạy JDTLS với JDK 21. Project nên có ít nhất một root marker:
+Cấu hình chạy JDTLS với JDK 25. Project nên có ít nhất một root marker:
 `.git`, `mvnw`, `pom.xml`, `gradlew`, `build.gradle` hoặc `settings.gradle`.
 
 ## Bố Cục Cấu Hình
@@ -546,7 +443,15 @@ khi mở và khôi phục khi rời dashboard. Snacks sở hữu `vim.ui.select`
 Các thông báo diagnostic dùng icon từ Nerd Font. Nếu icon bị lỗi, kiểm tra
 font terminal trước khi debug plugin.
 
+Hlchunk bật đường nối khối, đường thụt lề, tô số dòng và dấu chấm trên dòng
+trống. Treesitter nhận diện khối; đường dẫn thụt lề theo khoảng trắng thực tế. `viH` chọn khối hiện tại; `Space ui` bật/tắt
+đường thụt lề, `Space uc` bật/tắt đường nối khối. Animation vẫn tắt; file lớn
+và buffer phụ được loại trừ.
+
 ## Phím Tắt
+
+Normal mode: `]b` / `[b` đổi buffer; `Ctrl-i` giữ thao tác nhảy tiến trong
+lịch sử vị trí. `Tab` trong Insert vẫn dùng cho completion/snippet.
 
 Leader mặc định là `Space`.
 
@@ -614,6 +519,10 @@ Neotest cũng nối với DAP: `Space+nt`/`Space+nf` chạy test bình thường
 `Space+nd`/`Space+nD` chạy test gần con trỏ hoặc cả file dưới debugger. DAP vẫn
 được lazy-load và chỉ tải khi dùng luồng debug test này.
 
+Dùng `Space+dc` để chạy tới con trỏ, `Space+dt` để kết thúc debug, và
+`Space+nx` để dừng test đang chạy gần con trỏ. Hộp nhập breakpoint điều kiện
+dùng giao diện chung; hủy hoặc để trống sẽ không tạo breakpoint.
+
 Quicker cải thiện quickfix chuẩn mà không thay thế Trouble. Dùng `Space+qf`
 để bật/tắt quickfix, hoặc `Space+qF` để bật/tắt và đưa focus vào đó. Trong
 cửa sổ quickfix, nhấn `>` để mở thêm hai dòng ngữ cảnh quanh kết quả và `<` để
@@ -639,7 +548,7 @@ Fugitive, Gitsigns và Diffview vẫn hoạt động bình thường.
 | --- | --- |
 | `Space+fF` / `Space+fG` | Tìm file / grep theo thư mục hiện hành (cwd) |
 | `Space+fe` / `Space+fE` | Tìm file / grep theo thư mục file đang mở |
-| `Space+fN` | Grep nhanh trong project, bỏ icon file/Git |
+| `Space+fN` | Alias của `Space+fg` |
 | `Space+fR` | Mở lại picker trước, giữ query và phạm vi cũ |
 | `Space+fw` | Tìm từ dưới con trỏ; ở Visual mode, tìm vùng chọn |
 | `Space+fl` | Tìm dòng trong buffer hiện tại |
@@ -667,7 +576,6 @@ quy tắc ignore của ripgrep, nhưng bỏ icon và bước xử lý kết qu�
 | `Space+u.` / `Space+uS` | Ghi chú Markdown nhanh / chọn scratch đã lưu |
 | `Space+uw` | Bật/tắt wrap cho cửa sổ hiện tại |
 | `Space+ud` | Bật/tắt diagnostics toàn cục |
-| `Space+ua` | Bật/tắt hiệu ứng con trỏ |
 | `Space+ui` / `Space+uc` | Bật/tắt đường indent / highlight khối |
 | `Space+ub` | Bật/tắt breadcrumbs |
 | `Space+uf` / `Space+uF` | Bật/tắt autoformat toàn cục / buffer |
@@ -676,15 +584,16 @@ quy tắc ignore của ripgrep, nhưng bỏ icon và bước xử lý kết qu�
 
 Phím `Space+ci` hiện có vẫn bật/tắt inlay hints khi LSP hỗ trợ. Scratch lưu
 trong thư mục data của Neovim, phân theo cwd, nhánh Git và count; copy config
-không tự copy ghi chú. Zen không bật hiệu ứng dim. Máy chậm có thể đặt
-`vim.g.sungp_animations = false` trong `lua/config/local.lua` (được Git bỏ qua);
-vẫn có thể bật hiệu ứng con trỏ trong phiên bằng `ua`.
+không tự copy ghi chú. Zen không bật hiệu ứng dim.
 
-Autoformat khi lưu có timeout 1000 ms, riêng Java 3000 ms để khởi động JVM.
+Autoformat thông thường chờ tối đa 1000 ms. Java format nền sau khi lưu;
+khi thoát Neovim, chờ tối đa 3000 ms để công việc nền hoàn tất.
 Bỏ qua buffer đặc biệt/không cho sửa, cờ `bigfile`, file trên 1 MiB hoặc
 trung bình trên 500 byte/dòng, kể cả file lớn lên sau khi mở. `Space+cf`
-vẫn format thủ công bất đồng bộ cho file lớn. Autoformat khi lưu vẫn đồng bộ,
-để công cụ theo dõi file nhận nội dung đã format.
+vẫn format thủ công bất đồng bộ cho file lớn. Ngôn ngữ khác format trước khi
+ghi. Java ghi ngay rồi ghi lại sau khi format, nên file watcher có thể chạy
+hai lần. Nếu bạn sửa tiếp khi Java đang format, Conform bỏ kết quả cũ để
+giữ nguyên các thay đổi mới.
 
 Nếu formatter timeout, xem `:ConformInfo`, dùng format thủ công hoặc đặt
 `vim.g.autoformat_timeout_ms = 2000` trong `lua/config/local.lua`.
@@ -694,8 +603,8 @@ toàn cục có ưu tiên hơn toggle buffer; `:FormatEnable` xóa cả hai cờ
 ### Trợ Lý AI
 
 CodeCompanion v19 dùng Codex qua ACP cho buffer chat. Bảo đảm `curl`, `codex` và
-`codex-acp` đều có trong `PATH`, rồi chạy `codex login` một lần trên mỗi máy
-trước khi bắt đầu chat.
+`codex-acp` đều có trong `PATH`. Chat local qua Ollama không cần đăng nhập web;
+chỉ chạy `codex login` nếu dùng provider Codex qua ChatGPT.
 
 | Phím       | Chế độ        | Hành động                                       |
 | ---------- | ------------- | ----------------------------------------------- |
@@ -776,7 +685,8 @@ Codex Desktop mà không sao chép token hoặc đặt `CODEX_HOME`.
 ### CodeCompanion v19 Với Codex ACP
 
 Để dùng CodeCompanion v19, cần có `curl`. Cài Codex CLI và bản `codex-acp` hiện
-hành, bảo đảm cả ba lệnh có trong `PATH`, sau đó chạy:
+hành, bảo đảm cả ba lệnh có trong `PATH`. Chỉ chạy `codex login` nếu dùng
+provider Codex qua ChatGPT:
 
 ```powershell
 npm install --global @openai/codex @agentclientprotocol/codex-acp
@@ -785,8 +695,10 @@ codex login status
 ```
 
 Mở Neovim và dùng `Space+an` để tạo chat mới hoặc `Space+ai` để bật/tắt chat.
-Nếu CodeCompanion yêu cầu đăng nhập provider ACP, hoàn tất yêu cầu đó một lần.
-Codex ACP chỉ dùng cho chat và không cần đặt biến môi trường `CODEX_HOME`.
+Chat local qua Ollama không cần đăng nhập ACP trong trình duyệt. CodeCompanion
+tắt web search tích hợp và tăng ngân sách danh sách skills chỉ trong các phiên
+này; chat Codex thông thường giữ cấu hình riêng. Codex ACP chỉ dùng cho chat và
+không cần đặt biến môi trường `CODEX_HOME`.
 
 Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow tương
 ứng. Tích hợp Lazygit hiện bị tắt trên Windows.
@@ -795,13 +707,22 @@ Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow
 
 Phần lõi khi startup chỉ gồm lazy.nvim, options/keymaps/autocmd, Catppuccin,
 Treesitter (yêu cầu của nhánh `main`) và dashboard Snacks.
-Plugin nặng load theo filetype, command, event hoặc keymap. Devicons và Smear
-Cursor được hoãn tới sau frame đầu; animation Insert mode bị tắt.
+Plugin nặng load theo filetype, command, event hoặc keymap. Devicons
+được hoãn tới sau frame đầu.
 
 Với file lớn, cấu hình tắt hoặc không khởi động Treesitter, LSP, completion và
 một số tính năng nặng để giữ editor phản hồi tốt. LSP attach muộn cũng được
 detach khỏi buffer bigfile; buffer ảo như Diffview cũng không nhận LSP để tránh
 URI không hợp lệ.
+
+Autocmd trong cấu hình xử lý file trên 1 MiB trước khi nhận diện filetype. Bộ kiểm tra
+bổ sung nhận file trên 10.000 dòng hoặc có dòng dài trên 2.000 byte; Snacks
+bigfile đã tắt để tránh xử lý trùng. Chế độ này tắt cả syntax highlighting,
+nhưng giữ undo và swap recovery. File lớn lên vượt ngưỡng dung lượng/số dòng
+trong lúc sửa cũng được bảo vệ.
+Autoformat còn bỏ qua file trung bình trên 500 byte/dòng.
+Phím TODO tải plugin ngay lần nhấn đầu ở cả hai profile; tự lưu session cũng
+hoạt động ở profile máy yếu, còn khôi phục session vẫn do bạn chủ động.
 
 Mason tool installation chạy sau startup và được giới hạn tần suất để tránh
 kiểm tra quá thường xuyên.
@@ -811,11 +732,18 @@ Hoãn tải plugin chỉ chuyển công việc sang sau frame đầu. `Space+uP`
 lại lời gọi Lua khi được bật và có thêm overhead; dùng để tìm hàm tốn thời
 gian, không xem đó là benchmark độ trễ tuyệt đối. Profiler không tự chạy.
 
+Giao diện code action chỉ tải khi dùng; Copilot tải lúc vào Insert lần đầu.
+Exa MCP chỉ tự khởi động khi có `EXA_API_KEY`; nếu chưa đặt, có thể chọn qua
+`/mcp` trong chat. Nhấn Stop khi ACP đang kết nối sẽ hủy câu hỏi đang chờ.
+`TermGitPushF` dùng `--force-with-lease` để từ chối ghi đè nhánh remote đã có
+thay đổi mới kể từ lần fetch cuối.
+
 ## Bảo Trì
 
 Kiểm tra hồi quy từ thư mục config:
 
 ```sh
+nvim --headless -u NONE -i NONE -l tests/ide.lua
 nvim --headless -u NONE -i NONE -l tests/upgrades.lua
 nvim --headless -u NONE -i NONE -l tests/startup.lua
 nvim --headless -u NONE -i NONE -l tests/dashboard_pick.lua
@@ -842,7 +770,7 @@ Cập nhật plugin và tool:
 ```
 
 Khi cập nhật plugin, chạy `:Lazy update` để lấy commit mới và cập nhật
-`lazy-lock.json`. Trên máy mới, dùng `:Lazy sync` để cài theo lockfile.
+`lazy-lock.json`. Trên máy mới, dùng `:Lazy install` rồi `:Lazy restore` để cài theo lockfile.
 Giữ lockfile trong Git để môi trường có thể tái lập. Nếu có lỗi parser
 Treesitter sau cập nhật, thử gỡ và cài lại parser bị lỗi.
 
@@ -850,7 +778,7 @@ Treesitter sau cập nhật, thử gỡ và cài lại parser bị lỗi.
 
 ### `:checkhealth` Chung Báo Lỗi Snacks Hoặc `vim.pack`
 
-Cấu hình dùng dashboard, bigfile, quickfile, input và picker của Snacks; picker
+Cấu hình dùng dashboard, quickfile, input và picker của Snacks; picker
 sở hữu `vim.ui.select`. Snacks image và notifier riêng bị tắt, còn Notify xử lý
 thông báo. Cấu hình dùng lazy.nvim thay cho `vim.pack`. `:checkhealth` không có
 tham số vẫn kiểm tra các thành phần đã tắt. Trong terminal headless, nó có thể
@@ -1024,7 +952,7 @@ Kiểm tra:
 :Mason
 ```
 
-Cấu hình này yêu cầu JDK 21. Hãy mở Neovim từ project root có `pom.xml`,
+Cấu hình này yêu cầu JDK 25. Hãy mở Neovim từ project root có `pom.xml`,
 `build.gradle`, `mvnw`, `gradlew` hoặc `.git`.
 
 ### Java Test Không Chạy
@@ -1089,17 +1017,6 @@ kiểm tra:
 Dashboard buffer nên có `filetype=snacks_dashboard`; event mở và đóng của nó
 sẽ ẩn/khôi phục Lualine và Bufferline.
 
-### Smear Cursor Quá Sáng Hoặc Gây Mất Tập Trung
-
-Bật/tắt tạm thời:
-
-```vim
-:SmearCursorToggle
-```
-
-Animation trong Insert mode đã tắt mặc định. Để đổi màu hoặc bật lại, sửa option
-của `sphamba/smear-cursor.nvim` trong `lua/plugins/editor.lua`.
-
 ## Tham Khảo
 
 - [Neovim installation](https://github.com/neovim/neovim/blob/master/INSTALL.md)
@@ -1110,7 +1027,6 @@ của `sphamba/smear-cursor.nvim` trong `lua/plugins/editor.lua`.
 - [Tài liệu CodeCompanion](https://codecompanion.olimorris.dev/)
 - [codex-acp](https://github.com/agentclientprotocol/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
-- [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [Dial](https://github.com/monaqa/dial.nvim)
 - [IncRename](https://github.com/smjonas/inc-rename.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)

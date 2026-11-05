@@ -1,10 +1,7 @@
-local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
-
 return {
     {
         "folke/persistence.nvim",
-        lazy = true,
-        init = not vim.g.sungp_low_spec and defer_after_vimenter("persistence.nvim", 520) or nil,
+        event = { "BufReadPre", "BufNewFile" },
         keys = {
             {
                 "<leader>qs",

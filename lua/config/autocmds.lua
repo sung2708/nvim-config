@@ -1,13 +1,53 @@
 local core_group = vim.api.nvim_create_augroup("SungpCore", { clear = true })
 
--- Registered before plugin/filetype detection: catch dense or many-line files
--- that fall below the disk-size cutoff without reading the file a second time.
-vim.api.nvim_create_autocmd("BufReadPost", {
+-- Reduce rendering work without sacrificing undo, swap or recovery.
+local function mark_bigfile(buf)
+    if vim.bo[buf].filetype ~= "bigfile" then
+        vim.b[buf].sungp_bigfile_filetype = vim.bo[buf].filetype ~= "" and vim.bo[buf].filetype
+            or vim.filetype.match({ filename = vim.api.nvim_buf_get_name(buf) })
+    end
+    vim.b[buf].bigfile = true
+    vim.b[buf].completion = false
+    vim.bo[buf].filetype = "bigfile"
+    vim.bo[buf].syntax = "OFF"
+    vim.diagnostic.enable(false, { bufnr = buf })
+    pcall(vim.treesitter.stop, buf)
+    for _, client in ipairs(vim.lsp.get_clients({ bufnr = buf })) do
+        vim.lsp.buf_detach_client(buf, client.id)
+        if not next(client.attached_buffers) then
+            client:stop()
+        end
+    end
+    vim.api.nvim_buf_call(buf, function()
+        vim.opt_local.foldmethod = "manual"
+        vim.opt_local.cursorcolumn = false
+        vim.opt_local.cursorline = false
+        vim.opt_local.relativenumber = false
+        vim.opt_local.statuscolumn = ""
+        vim.opt_local.conceallevel = 0
+    end)
+end
+
+vim.api.nvim_create_autocmd("BufReadPre", {
+    group = core_group,
+    callback = function(args)
+        local stat = vim.uv.fs_stat(vim.api.nvim_buf_get_name(args.buf))
+        if stat and stat.size > 1024 * 1024 then
+            mark_bigfile(args.buf)
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd({ "BufReadPost", "TextChanged", "TextChangedI" }, {
     group = core_group,
     callback = function(args)
         local buf = args.buf
+        if vim.bo[buf].buftype ~= "" or vim.b[buf].bigfile then
+            return
+        end
         local count = vim.api.nvim_buf_line_count(buf)
-        local large = vim.b[buf].bigfile or count > (vim.g.sungp_bigfile_lines or 10000)
+        local large = count > (vim.g.sungp_bigfile_lines or 10000)
+            or vim.api.nvim_buf_get_offset(buf, count) > 1024 * 1024
         if not large then
             for first = 0, count - 1, 256 do
                 for _, line in ipairs(vim.api.nvim_buf_get_lines(buf, first, math.min(first + 256, count), false)) do
@@ -21,23 +61,9 @@ vim.api.nvim_create_autocmd("BufReadPost", {
                 end
             end
         end
-        if not large then
-            return
+        if large then
+            mark_bigfile(buf)
         end
-        vim.b[buf].bigfile = true
-        vim.b[buf].completion = false
-        vim.b[buf].minianimate_disable = true
-        vim.b[buf].minihipatterns_disable = true
-        vim.bo[buf].filetype = "bigfile"
-        vim.bo[buf].syntax = "OFF"
-        vim.diagnostic.enable(false, { bufnr = buf })
-        vim.api.nvim_buf_call(buf, function()
-            vim.opt_local.foldmethod = "manual"
-            vim.opt_local.cursorcolumn = false
-            vim.opt_local.cursorline = false
-            vim.opt_local.relativenumber = false
-            vim.opt_local.statuscolumn = ""
-        end)
     end,
 })
 
@@ -122,13 +148,13 @@ vim.api.nvim_create_autocmd("InsertLeave", {
     group = core_group,
     callback = function()
         local win = vim.api.nvim_get_current_win()
-        if vim.w[win].sungp_restore_cursorcolumn then
+        if not vim.b.bigfile and vim.w[win].sungp_restore_cursorcolumn then
             vim.wo[win].cursorcolumn = true
         end
-        if vim.w[win].sungp_restore_cursorline then
+        if not vim.b.bigfile and vim.w[win].sungp_restore_cursorline then
             vim.wo[win].cursorline = true
         end
-        if vim.w[win].sungp_restore_relativenumber then
+        if not vim.b.bigfile and vim.w[win].sungp_restore_relativenumber then
             vim.wo[win].relativenumber = true
         end
         vim.w[win].sungp_restore_cursorcolumn = nil

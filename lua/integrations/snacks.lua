@@ -141,8 +141,7 @@ if snacks then
 
     snacks.setup({
         bigfile = {
-            -- bigfile.nvim handles this before BufRead to avoid duplicate
-            -- detection and conflicting buffer-local state.
+            -- Core autocmds own file-size and line-count protection.
             enabled = false,
         },
         quickfile = { enabled = true },

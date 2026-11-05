@@ -10,6 +10,7 @@ local fixture = vim.fn.tempname() .. "-nvim-upgrades"
 assert(not vim.uv.fs_stat(fixture))
 vim.fn.mkdir(fixture, "p")
 local fixture_real = assert(vim.uv.fs_realpath(fixture))
+fixture = fixture_real
 local passed = 0
 local function check(name, fn)
     fn()
@@ -149,7 +150,7 @@ local ok, err = xpcall(function()
     end)
 
     local plugin_root = vim.env.SUNGP_TEST_PLUGIN_ROOT or (vim.fn.stdpath("data") .. "/lazy")
-    for _, plugin in ipairs({ "snacks.nvim", "hlchunk.nvim", "smear-cursor.nvim", "dropbar.nvim", "nvim-web-devicons" }) do
+    for _, plugin in ipairs({ "snacks.nvim", "hlchunk.nvim", "dropbar.nvim", "nvim-web-devicons" }) do
         local path = plugin_root .. "/" .. plugin
         assert(vim.fn.isdirectory(path) == 1, "Install locked plugins first: " .. path)
         vim.opt.runtimepath:append(path)
@@ -157,9 +158,149 @@ local ok, err = xpcall(function()
     local snacks = require("snacks")
     snacks.setup({ scratch = { root = fixture .. "/scratch" } })
     local ui = require("plugins.ui")
-    local editor = require("plugins.editor")
+    local hlchunk = require("hlchunk")
+    local setup, hlchunk_opts = hlchunk.setup, nil
+    hlchunk.setup = function(opts)
+        hlchunk_opts = opts
+        return setup(opts)
+    end
+    vim.loader.enable()
     require("integrations.hlchunk")
-    require("smear_cursor").setup({ enabled = false })
+    hlchunk.setup = setup
+    check("all hlchunk modules, Treesitter and chunk textobject", function()
+        for _, name in ipairs({ "chunk", "indent" }) do
+            assert(hlchunk_opts[name].enable, name)
+            assert(hlchunk_opts[name].exclude_filetypes.bigfile, name .. " must exclude big files")
+            assert(#vim.api.nvim_get_autocmds({ group = "hlchunk_" .. name }) > 0, name .. " did not enable")
+        end
+        assert(hlchunk_opts.chunk.use_treesitter)
+        assert(not hlchunk_opts.indent.use_treesitter)
+        assert(#vim.api.nvim_get_autocmds({ group = "hlchunk_blank" }) > 0)
+        assert(#vim.api.nvim_get_autocmds({ group = "hlchunk_line_num" }) > 0, "line numbers did not enable")
+        assert(hlchunk_opts.chunk.delay == 0, "unstable animation must remain disabled")
+        assert(vim.fn.maparg("iH", "o", false, true).callback)
+        assert(vim.fn.maparg("iH", "x", false, true).callback)
+        vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
+        local python = buffer(
+            fixture .. "/chunk.py",
+            { "def example():", "    if True:", "        print('hello')", "    return 1" }
+        )
+        vim.bo.filetype = "python"
+        vim.bo.shiftwidth = 4
+        vim.treesitter.start(python, "python")
+        vim.treesitter.get_parser(python):parse()
+        local helper = require("hlchunk.utils.chunkHelper")
+        local code, range =
+            helper.get_chunk_range({ pos = { bufnr = python, row = 2, col = 10 }, use_treesitter = true })
+        assert(code == helper.CHUNK_RANGE_RET.OK, "Python block was not found")
+        assert(range.start == 1 and range.finish == 2, "wrong Python if-block range")
+        vim.api.nvim_win_set_cursor(0, { 3, 10 })
+        vim.fn.maparg("iH", "x", false, true).callback()
+        assert(vim.api.nvim_get_mode().mode == "V", "chunk textobject did not select lines")
+        vim.cmd("normal! \27")
+    end)
+
+    check("hlchunk renders guides and reuses unchanged line-number marks", function()
+        local buf = buffer(fixture .. "/guides.py", {
+            "def example():",
+            "    value = 1",
+            "",
+            "    return value",
+            "",
+            "def other():",
+            "    return 2",
+        })
+        vim.bo.filetype = "python"
+        vim.bo.shiftwidth = 4
+        vim.treesitter.start(buf, "python")
+        vim.treesitter.get_parser(buf):parse()
+        vim.api.nvim_exec_autocmds("BufWinEnter", { buffer = buf })
+        vim.wait(250)
+        local namespaces = vim.api.nvim_get_namespaces()
+        local function marks(name)
+            return vim.api.nvim_buf_get_extmarks(buf, namespaces[name], 0, -1, {})
+        end
+        assert(#marks("indent") > 0, "indent guides did not render")
+        local blanks = marks("blank")
+        assert(#blanks > 0, "blank guides did not render")
+        for _, mark in ipairs(blanks) do
+            assert(vim.api.nvim_buf_get_lines(buf, mark[2], mark[2] + 1, false)[1]:match("^%s*$"))
+        end
+        local function move(row)
+            vim.api.nvim_win_set_cursor(0, { row, 4 })
+            vim.api.nvim_exec_autocmds("CursorMoved", { buffer = buf, group = "hlchunk_line_num" })
+        end
+        move(2)
+        local before = marks("line_num")
+        assert(#before > 0, "line numbers did not render")
+        move(4)
+        equal(marks("line_num"), before)
+        move(7)
+        assert(not vim.deep_equal(marks("line_num"), before), "new block reused stale marks")
+        vim.cmd("DisableHLLineNum")
+        equal(marks("line_num"), {})
+        vim.cmd("EnableHLLineNum")
+        move(2)
+        assert(#marks("line_num") > 0)
+        vim.bo.filetype = "bigfile"
+        move(4)
+        equal(marks("line_num"), {})
+    end)
+
+    check("hlchunk scroll caches stay separate and bigfile clears every module", function()
+        require("config.autocmds")
+        local lines = { "def example():" }
+        for i = 2, 300 do
+            lines[i] = i % 2 == 0 and "    value = 1" or ""
+        end
+        local buf = buffer(fixture .. "/scroll.py", lines)
+        vim.bo.filetype = "python"
+        vim.bo.shiftwidth = 4
+        vim.api.nvim_exec_autocmds("BufWinEnter", { buffer = buf })
+        vim.wait(250)
+        local namespaces = vim.api.nvim_get_namespaces()
+        local function marks(name, row)
+            return vim.api.nvim_buf_get_extmarks(
+                buf,
+                namespaces[name],
+                row and { row, 0 } or 0,
+                row and { row, 100 } or -1,
+                {}
+            )
+        end
+        local function scroll(row)
+            vim.api.nvim_win_set_cursor(0, { row, 4 })
+            vim.cmd("normal! zt")
+            vim.api.nvim_exec_autocmds("User", { pattern = "WinScrolledY" })
+            vim.wait(250)
+            assert(#marks("indent", row - 1) == 1, "indent missing or duplicated after scroll")
+            assert(#marks("blank", row) == 1, "blank missing or duplicated after scroll")
+        end
+        scroll(180)
+        scroll(40)
+        scroll(180)
+        vim.cmd("DisableHLIndent")
+        equal(marks("indent"), {})
+        assert(#marks("blank", 180) == 1, "indent toggle cleared blank guides")
+        vim.cmd("EnableHLIndent")
+        vim.api.nvim_exec_autocmds("BufWinEnter", { buffer = buf })
+        vim.wait(250)
+        assert(#marks("indent", 179) == 1 and #marks("blank", 180) == 1)
+        -- Include all namespaces so cleanup is tested even without a parser.
+        for _, name in ipairs({ "chunk", "line_num" }) do
+            vim.api.nvim_buf_set_extmark(buf, namespaces[name], 0, 0, {})
+        end
+        vim.api.nvim_buf_set_lines(buf, 20, 21, false, { string.rep("x", 50000) })
+        vim.api.nvim_exec_autocmds("TextChanged", { buffer = buf })
+        assert(vim.b.bigfile)
+        vim.wait(250)
+        for _, name in ipairs({ "chunk", "indent", "blank", "line_num" }) do
+            equal(marks(name), {})
+        end
+        buffer(fixture .. "/after-scroll.lua", { "local value = 1" })
+        vim.bo.filetype = "lua"
+    end)
+
     check("UI toggles can be repeatedly disabled and enabled", function()
         for _, spec in ipairs(ui) do
             for _, mapping in ipairs(spec.keys or {}) do
@@ -180,11 +321,6 @@ local ok, err = xpcall(function()
             action()
             action()
         end
-        local animation = key(editor, "sphamba/smear-cursor.nvim", "<leader>ua")
-        animation()
-        assert(require("smear_cursor").enabled)
-        animation()
-        assert(not require("smear_cursor").enabled)
     end)
     check("breadcrumbs preserve other window bars and honor bigfile", function()
         local dropbar = require("integrations.dropbar")

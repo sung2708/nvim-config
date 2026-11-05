@@ -11,6 +11,8 @@ return {
             { "<leader>dr", desc = "Debug: Open REPL" },
             { "<leader>dl", desc = "Debug: Run Last" },
             { "<leader>du", desc = "Debug: Toggle UI" },
+            { "<leader>dc", desc = "Debug: Run to Cursor" },
+            { "<leader>dt", desc = "Debug: Terminate" },
         },
         dependencies = {
             "nvim-neotest/nvim-nio",
@@ -37,6 +39,7 @@ return {
             { "<leader>no", desc = "Test: Output" },
             { "<leader>nO", desc = "Test: Output Panel" },
             { "<leader>nw", desc = "Test: Watch" },
+            { "<leader>nx", desc = "Test: Stop Nearest" },
         },
         dependencies = {
             "nvim-lua/plenary.nvim",

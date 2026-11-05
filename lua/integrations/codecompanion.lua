@@ -127,8 +127,13 @@ local function submit_when_ready(chat)
 
     local attempts = 0
     local max_attempts = 400
+    chat._sungp_submit_request = (chat._sungp_submit_request or 0) + 1
+    local request = chat._sungp_submit_request
 
     local function try_submit()
+        if chat._sungp_submit_request ~= request then
+            return
+        end
         if not vim.api.nvim_buf_is_valid(chat.bufnr) or chat.current_request then
             return
         end

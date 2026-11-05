@@ -161,7 +161,11 @@ local function start(bufnr)
         init_options = {
             bundles = java_bundles(),
         },
-        on_attach = function(_, attached_bufnr)
+        on_attach = function(client, attached_bufnr)
+            -- Conform owns save edits; the native JDTLS save hook can block for a second.
+            if type(client.server_capabilities.textDocumentSync) == "table" then
+                client.server_capabilities.textDocumentSync.willSaveWaitUntil = false
+            end
             map_java(attached_bufnr)
             local jdtls = require("jdtls")
             pcall(jdtls.setup_dap, { hotcodereplace = "auto" })

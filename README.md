@@ -15,8 +15,102 @@ The configuration is designed around five goals:
 - One configuration for Windows, Linux, and macOS.
 - Clear ownership boundaries between plugin specifications and integrations.
 
+## One-command install
+
+Run **one line for your operating system**, as your regular user. The installer
+uses Homebrew on macOS/Linux and Scoop on Windows. Linux requires a sudo-capable
+account; macOS may prompt for Command Line Tools/Homebrew access. On Windows,
+use a regular **64-bit PowerShell** window; the Visual C++ runtime may show a
+UAC prompt. Internet access is required. Package installation can take several
+minutes and several GB of disk space.
+
+### macOS
+
+```bash
+bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Ubuntu / Debian / WSL2
+
+```bash
+sudo apt-get update && sudo apt-get install -y curl && bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Fedora
+
+```bash
+sudo dnf install -y curl && bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Arch Linux
+
+```bash
+sudo pacman -Syu --needed --noconfirm curl && bash -c 'p=$(mktemp) && curl --fail --location --retry 3 https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.sh -o "$p" && bash "$p"; s=$?; rm -f "$p"; exit "$s"'
+```
+
+### Windows 10/11 x64 — PowerShell
+
+```powershell
+& { $ErrorActionPreference = 'Stop'; Set-ExecutionPolicy Bypass -Scope Process -Force; $p = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetRandomFileName() + '.ps1'); Invoke-WebRequest 'https://raw.githubusercontent.com/sung2708/nvim-config/main/bin/install.ps1' -UseBasicParsing -OutFile $p; try { & $p } finally { Remove-Item $p } }
+```
+
+Then open a **new terminal** and run `nvim .`. On macOS/Linux, Bash and Zsh
+startup files are configured to find Homebrew. Other shells need Homebrew's
+[shell setup](https://docs.brew.sh/Installation#installation).
+Select a Nerd Font in your terminal for correct icons.
+The Arch command performs a full system upgrade to avoid partial upgrades.
+
+The installer backs up a different existing config as `nvim.backup-<timestamp>`
+and preserves Neovim's data. If this repository is already installed, it reuses
+the checkout without pulling over local edits. Rerun the same command to retry
+an interrupted install; already installed Mason tools are retained.
+
+See [installation details](#install-system-tools) for what is installed and
+what remains project-specific.
+
+## Daily IDE workflow
+
+`Space` is the leader key. Open Neovim from your project directory with `nvim .`.
+
+| Task | Keys / command |
+| --- | --- |
+| Find files / search project | `Space ff` / `Space fg` |
+| Definition / references / rename | `gd` / `grr` / `Space rn` |
+| Completion / accept / signature | `Ctrl-Space` / `Tab` / `Ctrl-l` in Insert mode |
+| Code action / format | `Space ca` / `Space cf` |
+| Project diagnostics | `Space xx` |
+| Nearest test / test file | `Space nt` / `Space nf` |
+| Breakpoint / start debugger | `Space db` / `F5` |
+| Tooling status | `:ConfigHealth`, `:LspInfo`, `:ConformInfo` |
+
+Python, Go, TypeScript/React, C/C++, Java, Lua, HTML/CSS, JSON and Vimscript
+load their servers on demand. Java uses nvim-jdtls as its single server owner;
+Lua uses LazyDev for Neovim API types. Conform owns formatting on save;
+ESLint LSP and Ruff provide language diagnostics, while nvim-lint covers
+Shell/Markdown. `:FormatDisable!` disables formatting for the current buffer.
+Persistent undo and swap recovery are enabled; `writebackup` protects the
+original file if writing fails.
+
+Prefer project configuration (`pyproject.toml`, `tsconfig.json`, ESLint and
+Prettier config, `compile_commands.json`, Maven/Gradle wrappers). Install
+project test dependencies in the project, not globally. AI commands are optional.
+
+The installer supplies JDK 25 for current jdtls bundles. Your project JDK
+can differ; use project build settings. JUnit Console is installed automatically.
+Put personal runtime overrides in ignored `lua/config/local.lua`.
+
+The integration check in `tests/ide.lua` opens temporary files, waits for real
+servers, checks external formatting for eight languages and ShellCheck on save.
+It requires the managed tools and JDK to be installed first.
+
+Design references: [native LSP](https://neovim.io/doc/user/lsp/),
+[Conform](https://github.com/stevearc/conform.nvim),
+[nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls), and
+[lazy.nvim lockfile](https://lazy.folke.io/usage/lockfile).
+
 ## Table of Contents
 
+- [One-command install](#one-command-install)
 - [Features](#features)
 - [Requirements](#requirements)
 - [Install System Tools](#install-system-tools)
@@ -52,7 +146,6 @@ The configuration is designed around five goals:
 | Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
 | Testing        | Neotest for Python, Go, Jest, and Java                            |
 | UI             | Catppuccin, Snacks dashboard, WhichKey, Noice, Notify             |
-| Cursor         | smear-cursor.nvim in Normal mode; disabled while inserting        |
 
 ## Requirements
 
@@ -86,7 +179,7 @@ Install only the runtimes for the languages you use:
 | Python                | Python 3; `uv` is optional                                   |
 | Go                    | Go toolchain                                                 |
 | JavaScript/TypeScript | Node.js and npm                                              |
-| Java                  | JDK 21; Maven or Gradle when the project has no wrapper      |
+| Java                  | JDK 25 for jdtls; Maven/Gradle or a project wrapper           |
 | C/C++                 | Clang, GCC, or Zig                                           |
 | Lua                   | No separate runtime is required to edit Neovim configuration |
 
@@ -111,277 +204,80 @@ test Go code.
 
 ## Install System Tools
 
-### Windows 10/11
+The [one-command installer](#one-command-install) installs:
 
-The configuration has first-class support for
-[Scoop](https://github.com/ScoopInstaller/Install). Open a regular PowerShell
-session; Administrator privileges are not required:
+- Stable Neovim (checks `>= 0.12`), Git, curl, ripgrep, fd, fzf, make and archive tools.
+- Node.js LTS, Python 3.13, Go, JDK 25 and Maven, plus C/C++ build tools and clang-format.
+- Tree-sitter CLI **0.26.11** in Neovim's data directory, rather than a global npm install.
+- An isolated Python provider with **pynvim 0.6.0**; no global pip writes.
+- Clipboard tools on Linux and pngpaste on macOS.
+- Visual C++ runtime, GCC, LLVM and Zig on Windows.
 
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-irm get.scoop.sh | iex
+Linux supports apt/dnf/pacman distributions on x86_64/ARM64 with glibc and
+Homebrew support; Alpine/musl, 32-bit systems and WSL1 are not supported.
+macOS requires a currently supported Homebrew platform. Native Windows is x64;
+Windows ARM users can use an ARM64 Linux distribution under WSL2.
 
-scoop bucket add java
-scoop install git neovim ripgrep fd fzf make zig gcc nodejs python go maven unzip gzip curl
-scoop install java/temurin21-jdk
-npm install --global tree-sitter-cli@0.26.11
-```
-
-PowerShell 7 is recommended:
-
-```powershell
-scoop install pwsh
-```
-
-Verify the installation:
-
-```powershell
-nvim --version
-git --version
-rg --version
-fzf --version
-zig version
-g++ --version
-node --version
-python --version
-go version
-java -version
-mvn --version
-```
-
-When Scoop is present, the configuration automatically detects:
-
-- `%USERPROFILE%\scoop\apps\go\current\bin`
-- `%USERPROFILE%\scoop\apps\maven\current\bin`
-- `%USERPROFILE%\scoop\apps\temurin21-jdk\current`
-- `%USERPROFILE%\scoop\apps\gcc\current\bin\g++.exe`
-
-`JAVA_HOME` is assigned from Scoop only when the variable is not already set.
-An existing user-defined value always takes precedence.
-
-### Providers and document preview tools (Windows)
-
-This configuration uses `uv` for Neovim's Python provider and Volta/npm for
-the Node provider. Install them with:
-
-```powershell
-$provider = "$env:LOCALAPPDATA\nvim-data\python-provider"
-uv venv --python 3.13 $provider
-uv pip install --python "$provider\Scripts\python.exe" pynvim
-
-volta install node yarn
-npm install --global neovim @mermaid-js/mermaid-cli
-```
-
-Verify both providers after installation:
-
-```powershell
-nvim --headless -i NONE `
-  +'lua print("Python provider: " .. (vim.g.python3_host_prog or "missing"))' `
-  +'lua print("Node provider: " .. (vim.g.node_host_prog or "missing"))' +qa
-& "$env:LOCALAPPDATA\nvim-data\python-provider\Scripts\python.exe" -c "import pynvim; print(pynvim.__version__)"
-neovim-node-host --version
-```
-
-The Python path should point to `nvim-data\python-provider`, and both provider
-commands should run successfully.
-
-For Snacks image, PDF, math, and Mermaid previews:
-
-```powershell
-scoop install imagemagick ghostscript tectonic
-```
-
-Restart PowerShell and Neovim after installation so the updated PATH is
-available. Neovim automatically uses the Python provider at
-`%LOCALAPPDATA%\nvim-data\python-provider` when it exists.
-
-### Ubuntu/Debian
-
-```bash
-sudo apt update
-sudo apt install git ripgrep fd-find fzf make gcc g++ \
-  nodejs npm python3 python3-venv python3-pip golang-go \
-  openjdk-21-jdk maven unzip gzip curl
-```
-
-Some Debian and Ubuntu releases install `fd` as `fdfind`:
-
-```bash
-mkdir -p ~/.local/bin
-ln -s "$(command -v fdfind)" ~/.local/bin/fd
-```
-
-Ensure `~/.local/bin` is in `PATH`. Distribution packages may provide an older
-Neovim release. If it is below `0.12`, install a current build using the
-[official Neovim instructions](https://github.com/neovim/neovim/blob/master/INSTALL.md).
-
-Optional clipboard packages:
-
-```bash
-# Wayland
-sudo apt install wl-clipboard
-
-# X11
-sudo apt install xclip
-```
-
-If the distribution does not provide `openjdk-21-jdk`, install another JDK 21
-distribution and export:
-
-```bash
-export JAVA_HOME=/path/to/jdk-21
-export PATH="$JAVA_HOME/bin:$PATH"
-```
-
-### macOS
-
-Install Xcode Command Line Tools and Homebrew packages:
-
-```bash
-xcode-select --install
-brew install neovim git ripgrep fd fzf zig node python go openjdk@21 maven pngpaste
-```
-
-Add JDK 21 to the shell profile:
-
-```bash
-export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
-export PATH="$JAVA_HOME/bin:$PATH"
-```
-
-macOS already provides `pbcopy` and `pbpaste`, so no separate clipboard package
-is required.
+Package managers supply stable releases and their integrity checks. Neovim
+plugins use `lazy-lock.json`; Mason packages are installed from the current
+registry **only when missing**, rather than all being version-pinned. Installed
+versions are recorded in `stdpath("data")/nvim-config/install-report.json`.
 
 ## Install the Configuration
 
-### 1. Back Up an Existing Configuration
+The installer clones `sung2708/nvim-config` into `stdpath("config")` and writes
+machine-specific paths to ignored `lua/config/toolchain.lua`. It loads before
+`lua/config/local.lua`, so your personal settings take precedence. Do not copy
+the generated toolchain file between operating systems.
 
-Windows PowerShell:
+For an existing checkout, update it yourself before rerunning the installer if
+you want newer config changes. The installer does not commit, reset, or pull
+local changes. Existing plugin versions are restored to the checkout's lockfile.
 
-```powershell
-Rename-Item "$env:LOCALAPPDATA\nvim" "nvim.backup" -ErrorAction SilentlyContinue
-Rename-Item "$env:LOCALAPPDATA\nvim-data" "nvim-data.backup" -ErrorAction SilentlyContinue
-```
-
-Linux/macOS:
-
-```bash
-mv "${XDG_CONFIG_HOME:-$HOME/.config}/nvim" \
-  "${XDG_CONFIG_HOME:-$HOME/.config}/nvim.backup" 2>/dev/null || true
-mv "${XDG_DATA_HOME:-$HOME/.local/share}/nvim" \
-  "${XDG_DATA_HOME:-$HOME/.local/share}/nvim-data.backup" 2>/dev/null || true
-```
-
-### 2. Clone the Repository
-
-Windows PowerShell:
-
-```powershell
-git clone https://github.com/sung2708/nvim-config.git "$env:LOCALAPPDATA\nvim"
-```
-
-Linux/macOS:
-
-```bash
-git clone https://github.com/sung2708/nvim-config.git \
-  "${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
-```
-
-### 3. Open Neovim
-
-```bash
-nvim README.md
-```
-
-`lazy.nvim` bootstraps itself into Neovim's data directory. Because plugins
-are lazy-loaded, the dashboard may appear before Mason has finished installing
-development tools. Opening `README.md` also loads the Markdown-specific
-Treesitter and rendering integrations.
+AI CLIs, Docker, project packages/test runners, and terminal font selection are
+optional and are not installed. Use project-local pytest/Jest and Maven/Gradle
+wrappers where provided. Remote Node/Perl/Ruby providers and disabled Snacks
+image/PDF features need no extra packages.
 
 ## First Start
 
-Run these commands inside Neovim:
+The installer waits for each stage and exits with an error if verification fails:
 
-```vim
-:Lazy sync
-:MasonToolsInstall
-:TSUpdate
-:Lazy load nvim-dap
-:Lazy load neotest
-:NeotestJava setup
-:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
-```
+1. Install plugins and restore their locked commits; verify each checkout.
+2. Refresh Mason and install all configured LSP servers, formatters, linters and debug adapters.
+3. Build every configured Treesitter parser and verify installation.
+4. Install the JUnit Console version pinned by neotest-java and verify its SHA-256.
+5. Write the installation report only after the required stages succeed.
 
-What each command does:
-
-1. `Lazy sync` installs plugins at the commits recorded in `lazy-lock.json`.
-2. `MasonToolsInstall` installs LSP servers, formatters, linters, and Java/JS
-   debug adapters.
-3. `TSUpdate` installs or updates Treesitter parsers.
-4. Loading `nvim-dap` allows Mason to install debugpy, Delve, and codelldb.
-5. `NeotestJava setup` downloads the JUnit Console required by Java tests.
-6. The targeted `checkhealth` command validates Neovim, LSP, Treesitter, and
-   the plugin manager without running checks for disabled Snacks modules or
-   Neovim's unused built-in `vim.pack` manager.
-
-Plugins can also be bootstrapped without opening the UI:
-
-```bash
-nvim --headless "+Lazy! sync" +qa
-```
-
-After installation, open one file for each language you use. LSP servers and
-language-specific plugins start only when a matching buffer is opened.
+You do not need to run `Lazy sync`, `MasonToolsInstall`, or `TSUpdate` manually
+on the first start. System/runtime packages may change on a rerun; review the
+package-manager output. The installer stops on errors rather than hiding them.
 
 ### Final Validation
 
-After restarting Neovim, run:
+Open `nvim .` from a project and run:
 
 ```vim
 :ConfigHealth
+:LspInfo
+:ConformInfo
 :messages
-:checkhealth lazy vim.lsp vim.provider vim.deprecated vim.treesitter
 ```
 
-`:messages` should not contain startup errors. The targeted health report
-should show no errors; warnings about a newer Neovim release are informational.
-For CodeCompanion with Codex ACP, also run this in a terminal:
-
-```powershell
-codex login
-codex login status
-codex doctor --summary
-```
-
-`codex doctor` should report configured authentication and healthy databases.
-If it reports an authentication problem, run `codex login` again before
-opening CodeCompanion.
-
-On Windows, check dependencies before opening Neovim:
-
-```powershell
-.\\bin\\check-environment.ps1
-```
-
-On Linux or macOS:
+To verify the local checkout without reinstalling system tools:
 
 ```bash
-sh ./bin/check-environment.sh
+nvim --headless -u NONE -i NONE -l tests/ide.lua
 ```
 
-If `tree-sitter` is missing, open a new PowerShell after installing it with npm
-so the updated PATH is inherited. Inside Neovim, verify it with
-`:echo executable('tree-sitter')`.
+This checks real LSP startup, formatting, saved output and ShellCheck; it needs
+the installed runtimes and tools. Installation verification does not guarantee
+that every project builds or that authenticated AI integrations work.
 
-This repository uses the `main` branch of `nvim-treesitter`, so it requires the
-`0.26.x` Tree-sitter CLI line. The documented version is `0.26.11`, which meets
-the `0.26.1` minimum reported by `:checkhealth nvim-treesitter`.
-
-On Windows with Volta, the configuration automatically prefers the real
-Tree-sitter binary over Volta's `Volta\\bin\\tree-sitter.cmd` shim. The shim can
-fail when a parser is built inside a temporary grammar directory.
-language-specific plugins start only when a matching buffer is opened.
+Official installation references: [Homebrew](https://docs.brew.sh/Installation),
+[Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux),
+[Scoop](https://github.com/ScoopInstaller/Install),
+[lazy.nvim lockfile](https://lazy.folke.io/usage/lockfile).
 
 ## Managed Dependencies
 
@@ -462,13 +358,11 @@ macOS use `CC`/`CXX` when set, then fall back to `cc`, `clang`, `gcc`, `c++`,
 | Formatting | clang-format         |
 | Compiler   | GCC, Clang, or Zig   |
 
-On Windows, Scoop GCC is supported directly. The `clangd` configuration allows
-Scoop GCC through `--query-driver` and provides fallback include paths for
-single C/C++ files that do not have `compile_commands.json`.
-
-For regular projects, prefer generating `compile_commands.json` with the build
-system. For one-file practice programs, this configuration should still find
-standard headers such as `<iostream>` when Scoop GCC is installed.
+clangd uses the project's compile commands and the platform toolchain. Generate
+`compile_commands.json` with your build system so the correct compiler, target
+and system headers are used. Single-file fallback uses clangd's defaults;
+custom GCC/MinGW installations may need project-specific include flags.
+See the [clangd system-header guide](https://clangd.llvm.org/guides/system-headers).
 
 ### Python
 
@@ -521,13 +415,13 @@ Import and fix mappings are registered when ts_ls attaches.
 | Debugging   | java-debug-adapter             |
 | Testing     | neotest-java and JUnit Console |
 
-This configuration runs JDTLS with JDK 21. A project should contain at least
+This configuration runs JDTLS with JDK 25. A project should contain at least
 one recognized root marker: `.git`, `mvnw`, `pom.xml`, `gradlew`,
 `build.gradle`, or `settings.gradle`.
 
 The first Java project open may take longer while JDTLS indexes the workspace
-and downloads sources. Run `:NeotestJava setup` once for each new Neovim data
-directory.
+and downloads sources. The installer sets up JUnit Console; manual installs
+can use `:NeotestJava setup` for a new Neovim data directory.
 
 ### Filetype Indentation
 
@@ -682,21 +576,10 @@ The menu is positioned below the Noice border with a visible row of separation.
 - Trouble adds top and left spacing to result views.
 - Notify uses its wrapped renderer for message padding.
 
-### Smear Cursor
-
-Smear Cursor is loaded after the first frame and animates Normal-mode cursor
-movement. Insert-mode smearing is disabled to keep typing visually stable:
-
-```lua
-smear_insert_mode = false
-vertical_bar_cursor_insert_mode = true
-```
-
-Toggle it at runtime with:
-
-```vim
-:SmearCursorToggle
-```
+Hlchunk enables chunk outlines, indent guides, highlighted line numbers and
+blank-line dots. Treesitter identifies blocks; guides follow actual indentation. Use `viH` to select the current
+chunk, `Space ui` to toggle indent guides and `Space uc` to toggle its outline.
+Animation remains disabled; big files and auxiliary buffers are excluded.
 
 ## Keymaps
 
@@ -716,7 +599,7 @@ descriptions and icons.
 | `Ctrl+d/u`          | Normal          | Half-page scroll and center            |
 | `n` / `N`           | Normal          | Next/previous search result and center |
 | `Esc`               | Normal          | Clear search highlighting              |
-| `Tab` / `Shift+Tab` | Normal          | Next/previous buffer                   |
+| `]b` / `[b`        | Normal          | Next/previous buffer                   |
 | `Space+bc`          | Normal          | Close buffer while preserving layout   |
 | `Space+bp`          | Normal          | Pin or unpin buffer                    |
 | `Space+be/bq`       | Normal          | Move buffer right/left                 |
@@ -761,7 +644,7 @@ Dashboard keys:
 | `Space+fy` | Open yank history                        |
 | `Space+fF` / `Space+fG` | Files / grep in the current working directory |
 | `Space+fE` | Grep from the buffer directory |
-| `Space+fN` | Fast project grep without file/git icons |
+| `Space+fN` | Alias of `Space+fg` |
 | `Space+fR` | Resume the last picker, including query and original scope |
 | `Space+fw` | Grep the word under the cursor; in Visual mode, the selection |
 | `Space+fl` | Search lines in the current buffer |
@@ -797,7 +680,6 @@ Inside FzfLua:
 | `Space+u.` / `Space+uS` | Markdown scratch notes / select a saved scratch |
 | `Space+uw` | Toggle wrap in this window |
 | `Space+ud` | Toggle diagnostics globally |
-| `Space+ua` | Toggle cursor animation |
 | `Space+ui` / `Space+uc` | Toggle indent guides / chunk highlighting |
 | `Space+ub` | Toggle breadcrumbs |
 | `Space+uf` / `Space+uF` | Toggle autoformat globally / for this buffer |
@@ -807,8 +689,8 @@ Inside FzfLua:
 The existing `Space+ci` toggles LSP inlay hints when supported. Scratch notes
 are saved under Neovim's data directory, keyed by cwd, Git branch, and count;
 copying this config does not copy the notes. Zen does not enable dim animation.
-For a slower machine, set `vim.g.sungp_animations = false` in the ignored
-`lua/config/local.lua`; `ua` can still enable cursor animation during a session.
+
+`Ctrl-i` keeps Neovim's native jump-forward action; Normal-mode `Tab` is not mapped.
 
 ### Flash and Treesitter
 
@@ -849,8 +731,8 @@ lists, old files, quickfix entries, windows, and Git conflict markers.
 ### AI Assistant
 
 CodeCompanion v19 uses Codex through ACP for chat buffers. Ensure `curl`,
-`codex`, and `codex-acp` are on `PATH`, then run `codex login` once on each
-machine before starting a chat.
+`codex`, and `codex-acp` are on `PATH`. Local Ollama chats need no browser login;
+run `codex login` once only when using a ChatGPT-backed Codex provider.
 
 | Key        | Mode          | Action                                        |
 | ---------- | ------------- | --------------------------------------------- |
@@ -996,11 +878,15 @@ manually.
 | `:FormatEnable`   | Re-enable format-on-save                      |
 | `:ConformInfo`    | Show active formatter information             |
 
-Autoformat waits up to 1000 ms (3000 ms for Java's JVM startup). It skips
+Autoformat normally waits up to 1000 ms. Java runs asynchronously after save,
+with up to 3000 ms allowed to finish on editor exit. Autoformat skips
 special/unmodifiable buffers, buffers marked `bigfile`, files over 1 MiB,
 and buffers averaging over 500 bytes per line, including files that grow after
 opening. Manual `Space+cf` remains asynchronous and available for large files.
-Saving remains synchronous with formatting so watchers see the formatted file.
+Other languages format before writing. Java writes once immediately and again
+when formatting completes, so file watchers can run twice. If you edit while
+Java formatting is running, Conform discards the stale result and preserves
+your newer edits.
 If a formatter times out, inspect `:ConformInfo`, format manually, or set
 `vim.g.autoformat_timeout_ms = 2000` in `lua/config/local.lua`. A buffer-local
 `vim.b.autoformat_timeout_ms` overrides that setting. A global autoformat disable
@@ -1093,6 +979,8 @@ Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 | `Space+dr` | Open debug REPL                      |
 | `Space+dl` | Run the previous debug configuration |
 | `Space+du` | Toggle DAP UI                        |
+| `Space+dc` | Run to cursor                        |
+| `Space+dt` | Terminate debugging                  |
 
 ### Testing
 
@@ -1105,6 +993,7 @@ Recognized tags: `TODO:`, `FIX:`, `FIXME:`, `HACK:`, `WARN:`, `PERF:`, and
 | `Space+no` | Open test output              |
 | `Space+nO` | Toggle output panel           |
 | `Space+nw` | Toggle watch mode             |
+| `Space+nx` | Stop nearest running test     |
 
 ### Python Keymaps
 
@@ -1177,8 +1066,8 @@ Git terminal commands:
 :TermGitPushF
 ```
 
-`TermGitPushF` performs a force push. Use it only when the branch history and
-remote impact are understood.
+`TermGitPushF` uses `git push --force-with-lease`, which refuses to overwrite
+remote history that advanced since your last fetch.
 
 ### Comments, Surround, and Multiple Cursors
 
@@ -1205,8 +1094,8 @@ mappings above instead of its defaults.
 ### CodeCompanion v19 with Codex ACP
 
 CodeCompanion requires `curl`. Install the Codex CLI and the current
-`codex-acp`, ensure all three commands are on `PATH`, then authenticate on each
-machine:
+`codex-acp`, and ensure all three commands are on `PATH`. Authenticate with
+`codex login` only when using a ChatGPT-backed Codex provider:
 
 ```powershell
 npm install --global @openai/codex @agentclientprotocol/codex-acp
@@ -1214,13 +1103,15 @@ codex login
 codex login status
 ```
 
-Open Neovim and use `Space+an` for a new chat or `Space+ai` to toggle it. If
-CodeCompanion asks to authenticate the ACP provider, complete that prompt once.
+Open Neovim and use `Space+an` for a new chat or `Space+ai` to toggle it. Local
+Ollama chats do not need an ACP browser login. CodeCompanion disables built-in
+web search and allows a larger skill catalog only for these sessions; regular
+Codex sessions keep their own settings.
 Codex ACP is chat-only, and no `CODEX_HOME` environment variable is required.
 
 ### Catppuccin
 
-The default colorscheme is `catppuccin-frappe`. Change `M.name` in
+The default colorscheme is `catppuccin-macchiato`. Change `M.name` in
 `lua/config/theme.lua` to another Catppuccin flavor if desired.
 
 ### Lazydocker
@@ -1246,7 +1137,7 @@ UV_TOOL_BIN_DIR
 Enabled optimizations:
 
 - Startup loads core configuration, lazy.nvim, Catppuccin, Snacks, and
-  nvim-treesitter. Devicons and Smear Cursor load later.
+  nvim-treesitter. Devicons load later.
 - LSP and language plugins load when matching files are opened.
 - Blink loads on Insert or command-line entry.
 - LazyDev loads only for Lua; SchemaStore loads only for JSON and JSONC.
@@ -1260,20 +1151,26 @@ Enabled optimizations:
 - LSP document highlights are cleared and suspended in Insert mode.
 - LSP detaches from big files and virtual plugin buffers such as Diffview.
 - Cursor line, cursor column, and relative numbers are hidden in Insert mode.
-- Smear Cursor is disabled in Insert mode.
 - `lazyredraw` is not enabled because it can conflict with Noice.
 - Dashboard statusline and tabline are hidden and restored automatically.
 
-Snacks marks a buffer as a big file when:
+Core autocmds handle files larger than 1 MiB before filetype detection.
+An additional guard marks buffers with more than 10,000 lines or any line
+longer than 2,000 bytes. Snacks bigfile detection is disabled to keep one owner.
 
-- The file is larger than 1 MB; or
-- The average line length exceeds 500 characters, which commonly indicates a
-  minified file.
+Big files skip Treesitter, LSP, completion, syntax highlighting and expensive
+UI features while preserving swap recovery and undo. Files that grow beyond
+the size/line-count limits during editing are protected too. Autoformat also skips buffers averaging more than 500 bytes per
+line, including files that grow after opening. These limits favor responsiveness;
+manual formatting remains available through `Space+cf`.
 
-For big files, the configuration disables Treesitter, LSP, completion, and
-hlchunk rendering. Relative numbers, cursor line, and cursor column are also
-disabled. Basic filetype syntax remains enabled so the file does not become
-completely unhighlighted text.
+TODO keys load their plugin on first use in both profiles. Session saving starts
+automatically in both profiles; restoring a session remains explicit.
+
+Code-action UI loads only when requested; Copilot loads on first Insert.
+Exa MCP starts automatically only when `EXA_API_KEY` is set; otherwise it
+remains available through the chat's `/mcp` command. A stopped queued ACP
+question is cancelled before the connection becomes ready.
 
 ## Maintenance
 
@@ -1301,7 +1198,7 @@ completely unhighlighted text.
 
 1. Commit or back up `lazy-lock.json`.
 2. Run `:Lazy update` to fetch newer plugin commits and update the lockfile.
-   Use `:Lazy sync` on a new machine to install the recorded versions.
+   Use `:Lazy install` then `:Lazy restore` on a new machine to install the recorded versions.
 3. Run `:MasonUpdate` and `:TSUpdate`.
 4. Open Python, Go, TypeScript, and Java projects and verify LSP behavior.
 5. If an update causes a regression, restore `lazy-lock.json` and run
@@ -1331,6 +1228,7 @@ unbiased latency benchmark. No profiler runs automatically.
 Regression checks (from the configuration directory):
 
 ```sh
+nvim --headless -u NONE -i NONE -l tests/ide.lua
 nvim --headless -u NONE -i NONE -l tests/upgrades.lua
 nvim --headless -u NONE -i NONE -l tests/startup.lua
 nvim --headless -u NONE -i NONE -l tests/dashboard_pick.lua
@@ -1348,7 +1246,7 @@ verify first insert/completion and dashboard selection after plugin updates.
 
 ### Generic `:checkhealth` Shows Snacks or `vim.pack` Errors
 
-This configuration uses Snacks dashboard, bigfile, quickfile, input, and
+This configuration uses Snacks dashboard, quickfile, input, and
 picker modules with Snacks as the single `vim.ui.select` owner. It does not
 enable Snacks image rendering or notifier, and it uses lazy.nvim instead of
 Neovim's built-in `vim.pack`. A generic `:checkhealth` still checks disabled
@@ -1524,7 +1422,7 @@ Check:
 :Mason
 ```
 
-JDK 21 is required by this configuration. Start Neovim from a project root
+JDK 25 is required by this configuration. Start Neovim from a project root
 containing `pom.xml`, `build.gradle`, `mvnw`, `gradlew`, or `.git`.
 
 ### Java Tests Do Not Run
@@ -1589,17 +1487,6 @@ plugin forces them back on, check:
 The dashboard buffer should use `filetype=snacks_dashboard`; its open and close
 events then hide and restore Lualine and Bufferline.
 
-### Smear Cursor Is Too Bright or Distracting
-
-Toggle it temporarily:
-
-```vim
-:SmearCursorToggle
-```
-
-To change its color or disable Insert-mode animation, edit the
-`sphamba/smear-cursor.nvim` options in `lua/plugins/editor.lua`.
-
 ## References
 
 - [Neovim installation](https://github.com/neovim/neovim/blob/master/INSTALL.md)
@@ -1610,6 +1497,5 @@ To change its color or disable Insert-mode animation, edit the
 - [CodeCompanion documentation](https://codecompanion.olimorris.dev/)
 - [codex-acp](https://github.com/agentclientprotocol/codex-acp)
 - [Snacks dashboard](https://github.com/folke/snacks.nvim)
-- [Smear Cursor](https://github.com/sphamba/smear-cursor.nvim)
 - [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls)
 - [neotest-java](https://github.com/rcasia/neotest-java)

@@ -257,35 +257,20 @@ return {
         end,
     },
     {
-        "sphamba/smear-cursor.nvim",
-        lazy = true,
-        init = not vim.g.sungp_low_spec and vim.g.sungp_animations ~= false and defer_after_vimenter(
-            "smear-cursor.nvim",
-            800
-        ) or nil,
-        keys = {
-            {
-                "<leader>ua",
-                function()
-                    require("smear_cursor").toggle()
-                end,
-                desc = "UI: Toggle Cursor Animation",
-            },
-        },
-        opts = {
-            enabled = vim.g.sungp_animations ~= false,
-            -- A dashboard has no meaningful cursor position. Avoid the
-            -- startup buffer-switch smear across the top of the screen.
-            filetypes_disabled = { "snacks_dashboard" },
-            smear_insert_mode = false,
-            vertical_bar_cursor_insert_mode = true,
-        },
-    },
-    {
         "folke/todo-comments.nvim",
         lazy = true,
         init = not vim.g.sungp_low_spec and defer_after_vimenter("todo-comments.nvim", 420) or nil,
         cmd = { "TodoTrouble", "TodoFzfLua", "TodoQuickFix", "TodoLocList" },
+        keys = {
+            { "]t", desc = "Todo: Next" },
+            { "[t", desc = "Todo: Previous" },
+            { "<leader>xt", desc = "Todo: Trouble" },
+            { "<leader>xf", desc = "Todo: FzfLua" },
+            { "<leader>xq", desc = "Todo: Quickfix" },
+            { "<leader>xl", desc = "Todo: Location List" },
+            { "<leader>xF", desc = "Todo/Fix: FzfLua" },
+            { "<leader>xR", desc = "Todo/Fix: Trouble" },
+        },
         dependencies = {
             "nvim-lua/plenary.nvim",
         },
@@ -420,6 +405,7 @@ return {
                 },
             })
             require("mini.bracketed").setup({
+                buffer = { suffix = "" },
                 comment = { suffix = "" },
                 diagnostic = { suffix = "" },
                 quickfix = { suffix = "" },

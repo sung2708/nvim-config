@@ -11,6 +11,7 @@ local function stop_last_chat()
         return
     end
 
+    chat._sungp_submit_request = (chat._sungp_submit_request or 0) + 1
     chat:stop()
 end
 
@@ -259,19 +260,40 @@ return {
         config = function(_, opts)
             vim.fn.mkdir(codex_sqlite_home, "p")
             require("codecompanion").setup(opts)
+            vim.api.nvim_create_autocmd("User", {
+                pattern = "CodeCompanionChatModel",
+                callback = function(event)
+                    local data = event.data
+                    if not data or not data.bufnr or not vim.api.nvim_buf_is_valid(data.bufnr) then
+                        return
+                    end
+
+                    local adapter = data.adapter or {}
+                    local model = data.model or "default"
+                    local current = string.format("%s / %s", adapter.formatted_name or adapter.name or "Codex", model)
+                    local previous = vim.b[data.bufnr].sungp_codecompanion_model
+                    vim.b[data.bufnr].sungp_codecompanion_model = current
+                    if not previous or previous == current then
+                        return
+                    end
+                    vim.notify("Đã chuyển model: " .. current, vim.log.levels.INFO)
+                end,
+            })
         end,
         opts = {
             mcp = {
                 servers = {
                     exa = {
-                        cmd = { "npx", "-y", "exa-mcp-server" },
+                        cmd = vim.fn.has("win32") == 1
+                                and { "cmd.exe", "/d", "/s", "/c", "npx", "-y", "exa-mcp-server" }
+                            or { "npx", "-y", "exa-mcp-server" },
                         env = {
                             EXA_API_KEY = vim.env.EXA_API_KEY,
                         },
                     },
                 },
                 opts = {
-                    default_servers = { "exa" },
+                    default_servers = (vim.env.EXA_API_KEY or "") ~= "" and { "exa" } or {},
                 },
             },
             adapters = {
@@ -287,8 +309,41 @@ return {
                             },
                             env = {
                                 NODE_NO_WARNINGS = "1",
+                                CODEX_CONFIG = vim.json.encode({
+                                    skills = { max_context_tokens = 10000 },
+                                }),
                                 -- Keep authentication/configuration in ~/.codex,
                                 -- but isolate ACP's live SQLite files from Codex Desktop.
+                                CODEX_SQLITE_HOME = codex_sqlite_home,
+                            },
+                        })
+                    end,
+                    qwen = function()
+                        return require("codecompanion.adapters").extend("codex", {
+                            commands = {
+                                default = codex_command,
+                            },
+                            defaults = {
+                                mcpServers = "inherit_from_config",
+                            },
+                            handlers = {
+                                auth = function()
+                                    return true
+                                end,
+                            },
+                            env = {
+                                NODE_NO_WARNINGS = "1",
+                                CODEX_CONFIG = vim.json.encode({
+                                    model = "qwen2.5-coder:3b",
+                                    model_provider = "ollama-launch",
+                                    model_catalog_json = vim.fs.joinpath(
+                                        vim.fn.expand("~"),
+                                        ".codex",
+                                        "qwen-models.json"
+                                    ),
+                                    web_search = "disabled",
+                                    skills = { max_context_tokens = 10000 },
+                                }),
                                 CODEX_SQLITE_HOME = codex_sqlite_home,
                             },
                         })
@@ -426,7 +481,7 @@ return {
     {
         "github/copilot.vim",
         cmd = "Copilot",
-        event = { "BufReadPost", "BufNewFile" },
+        event = "InsertEnter",
         init = function()
             vim.g.copilot_no_tab_map = true
             vim.g.copilot_hide_during_completion = false

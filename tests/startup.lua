@@ -19,6 +19,7 @@ vim.opt.runtimepath:prepend(%q)
 vim.opt.runtimepath:prepend(%q)
 vim.opt.runtimepath:append(%q)
 vim.g.sungp_animations = false
+vim.g.sungp_low_spec = vim.env.SUNGP_TEST_LOW_SPEC == "1"
 _G.smoke_errors = {}
 local notify = vim.notify
 vim.notify = function(message, level, opts)
@@ -102,7 +103,7 @@ local function lua(job, code)
     assert(result.ok, result.result)
     return result.result
 end
-local function launch(file)
+local function launch(file, low_spec)
     local args = { vim.v.progpath, "--embed", "--headless", "-i", "NONE", "-n", "-u", fixture .. "/init.lua" }
     if file then
         table.insert(args, file)
@@ -123,6 +124,7 @@ local function launch(file)
             XDG_STATE_HOME = fixture .. "/state",
             XDG_CACHE_HOME = fixture .. "/cache",
             NVIM_APPNAME = "nvim",
+            SUNGP_TEST_LOW_SPEC = low_spec and "1" or "0",
             NVIM_LOG_FILE = fixture .. "/nvim.log",
         },
     })
@@ -154,7 +156,7 @@ local ok, err = xpcall(function()
         job,
         [[
       for _, key in ipairs({ 'ff', 'fg', 'fF', 'fG', 'fE', 'fN', 'fR', 'fw', 'fl', 'fO', 'fk',
-          'uz', 'uZ', 'u.', 'uS', 'uw', 'ud', 'uf', 'uF', 'up', 'uP', 'ua', 'ui', 'uc', 'ub' }) do
+          'uz', 'uZ', 'u.', 'uS', 'uw', 'ud', 'uf', 'uF', 'up', 'uP', 'ui', 'uc', 'ub' }) do
         local mapping = vim.fn.maparg(' ' .. key, 'n', false, true)
         assert(mapping.desc, 'missing key: ' .. key)
       end
@@ -245,9 +247,52 @@ local ok, err = xpcall(function()
         assert(vim.fn.maparg(' nD', 'n', false, true).desc == 'Test: Debug File')
         assert(vim.fn.maparg(']q', 'n', false, true).desc == 'Quickfix: Next')
         assert(vim.fn.maparg(' fw', 'n', false, true).desc == 'Find: Word in Project')
+        assert(vim.fn.maparg('<C-i>', 'n') == '', 'buffer switching shadows native jump-forward')
+        assert(vim.fn.maparg(']b', 'n', false, true).rhs == '<cmd>BufferLineCycleNext<cr>')
+        assert(vim.fn.maparg('[b', 'n', false, true).rhs == '<cmd>BufferLineCyclePrev<cr>')
+        assert(vim.fn.maparg(' dc', 'n', false, true).callback == require('dap').run_to_cursor)
+        assert(vim.fn.maparg(' dt', 'n', false, true).callback == require('dap').terminate)
+        assert(vim.fn.maparg(' nx', 'n', false, true).callback == require('neotest').run.stop)
+        local input, set_breakpoint = vim.ui.input, require('dap').set_breakpoint
+        local conditions = {}
+        require('dap').set_breakpoint = function(value) conditions[#conditions + 1] = value end
+        for _, value in ipairs({ false, '', '   ', 'value > 1' }) do
+            vim.ui.input = function(_, callback) callback(value or nil) end
+            vim.fn.maparg(' dB', 'n', false, true).callback()
+        end
+        vim.ui.input, require('dap').set_breakpoint = input, set_breakpoint
+        assert(#conditions == 1 and conditions[1] == 'value > 1', 'breakpoint cancel/empty input changed breakpoints')
     ]]
     )
     print("PASS setup of all enabled plugin specs (installers disabled)")
+    local low = launch(project_dir .. "/sample.txt", true)
+    lua(low, "return true")
+    lua(
+        low,
+        [[
+        assert(vim.g.sungp_low_spec)
+        local plugins = require('lazy.core.config').plugins
+        assert(not plugins['todo-comments.nvim']._.loaded, 'TODO should remain lazy in low-spec mode')
+        for _, lhs in ipairs({ ']t', '[t', ' xt', ' xf', ' xq', ' xl', ' xF', ' xR' }) do
+            assert(vim.fn.maparg(lhs, 'n', false, true).desc, 'missing low-spec key: ' .. lhs)
+        end
+        assert(vim.wait(3000, function() return plugins['persistence.nvim']._.loaded ~= nil end))
+        local persistence = require('persistence')
+        assert(persistence.active(), 'low-spec session saving is inactive')
+        persistence.save()
+        assert(vim.fn.filereadable(persistence.current()) == 1, 'session was not saved')
+    ]]
+    )
+    request(low, "nvim_input", "]t")
+    vim.wait(200)
+    lua(
+        low,
+        [[
+        assert(require('lazy.core.config').plugins['todo-comments.nvim']._.loaded, 'first TODO key did not load plugin')
+        assert(#_G.smoke_errors == 0, table.concat(_G.smoke_errors, '\n'))
+    ]]
+    )
+    print("PASS low-spec first-use TODO keys and automatic session saving")
     for _, provider in ipairs({ "files", "live_grep", "live_grep_native" }) do
         job = launch()
         lua(job, "return true")

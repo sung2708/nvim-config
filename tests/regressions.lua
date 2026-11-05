@@ -42,8 +42,11 @@ check("terminal setup leaves global shell unchanged", function()
     for _, name in ipairs(names) do
         before[name] = vim.o[name]
     end
-    local config
+    local config, executed
     package.loaded.toggleterm = {
+        exec = function(command)
+            executed = command
+        end,
         setup = function(opts)
             config = opts
         end,
@@ -59,6 +62,8 @@ check("terminal setup leaves global shell unchanged", function()
         assert(vim.o[name] == before[name], name)
     end
     assert(config.size({ direction = "vertical" }) % 1 == 0)
+    vim.cmd.TermGitPushF()
+    assert(executed == "git push --force-with-lease")
 end)
 check("LSP completion takes precedence over AI when the menu is visible", function()
     local mapping = require("plugins.completion")[1].opts.keymap["<Tab>"]
