@@ -115,3 +115,5 @@ require("noice").setup({
         },
     },
 })
+
+require("config.theme").apply_ui_highlights()

@@ -1,7 +1,7 @@
 local M = {}
 
 -- Chỉ cần đổi dòng này để chọn theme.
-M.name = "catppuccin-macchiato"
+M.name = "kanagawa-wave"
 
 local function get_hl(name)
     local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
@@ -238,8 +238,27 @@ function M.apply_ui_highlights()
     local search_accent = get_hl("DiagnosticWarn").fg or float_border.fg
     vim.api.nvim_set_hl(0, "NoiceCmdlinePopupBorderSearch", {
         fg = search_accent,
-        bg = normal_float.bg,
     })
+
+    for _, group in ipairs({
+        "NoiceMini",
+        "NoiceCmdlinePopup",
+        "NoiceCmdlinePopupBorder",
+        "NoiceCmdlinePopupTitle",
+        "NoiceCmdlinePopupBorderSearch",
+        "NoiceConfirm",
+        "NoiceConfirmBorder",
+        "NoicePopup",
+        "NoicePopupBorder",
+        "NoicePopupmenu",
+        "NoicePopupmenuBorder",
+        "NoiceSplit",
+        "NoiceSplitBorder",
+    }) do
+        local hl = get_hl(group)
+        hl.bg, hl.ctermbg = nil, nil
+        vim.api.nvim_set_hl(0, group, hl)
+    end
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {

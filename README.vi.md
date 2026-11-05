@@ -141,7 +141,7 @@ Tham khảo: [LSP native](https://neovim.io/doc/user/lsp/),
 | Git            | Gitsigns, Fugitive, Diffview                                   |
 | Debug          | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug    |
 | Test           | Neotest cho Python, Go, Jest và Java                           |
-| UI             | Catppuccin, Snacks dashboard, WhichKey, Noice, Notify          |
+| UI             | Kanagawa, Catppuccin, Snacks dashboard, WhichKey, Noice, Notify |
 
 ## Yêu Cầu
 
@@ -436,7 +436,7 @@ Neovim từ đúng terminal đó để đảm bảo `PATH` giống nhau.
 
 ## Giao Diện
 
-Theme mặc định là Catppuccin Frappe; giao diện còn dùng Lualine, Bufferline, Neo-tree,
+Theme mặc định là Kanagawa Wave trong suốt; Catppuccin vẫn được giữ lại. Giao diện còn dùng Lualine, Bufferline, Neo-tree,
 Noice, Notify, WhichKey và Snacks dashboard. Dashboard tự ẩn statusline/tabline
 khi mở và khôi phục khi rời dashboard. Snacks sở hữu `vim.ui.select`.
 
@@ -574,6 +574,7 @@ quy tắc ignore của ripgrep, nhưng bỏ icon và bước xử lý kết qu�
 | --- | --- |
 | `Space+uz` / `Space+uZ` | Zen / phóng to cửa sổ; thoát để khôi phục bố cục |
 | `Space+u.` / `Space+uS` | Ghi chú Markdown nhanh / chọn scratch đã lưu |
+| `Space+ut` | Chọn theme và xem trước trực tiếp |
 | `Space+uw` | Bật/tắt wrap cho cửa sổ hiện tại |
 | `Space+ud` | Bật/tắt diagnostics toàn cục |
 | `Space+ui` / `Space+uc` | Bật/tắt đường indent / highlight khối |
@@ -705,7 +706,7 @@ Lazydocker, Docker, Maven, Gradle và `uv` chỉ cần cài nếu dùng workflow
 
 ## Hiệu Năng
 
-Phần lõi khi startup chỉ gồm lazy.nvim, options/keymaps/autocmd, Catppuccin,
+Phần lõi khi startup chỉ gồm lazy.nvim, options/keymaps/autocmd, Kanagawa,
 Treesitter (yêu cầu của nhánh `main`) và dashboard Snacks.
 Plugin nặng load theo filetype, command, event hoặc keymap. Devicons
 được hoãn tới sau frame đầu.

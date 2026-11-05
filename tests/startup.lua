@@ -156,7 +156,7 @@ local ok, err = xpcall(function()
         job,
         [[
       for _, key in ipairs({ 'ff', 'fg', 'fF', 'fG', 'fE', 'fN', 'fR', 'fw', 'fl', 'fO', 'fk',
-          'uz', 'uZ', 'u.', 'uS', 'uw', 'ud', 'uf', 'uF', 'up', 'uP', 'ui', 'uc', 'ub' }) do
+          'ut', 'uz', 'uZ', 'u.', 'uS', 'uw', 'ud', 'uf', 'uF', 'up', 'uP', 'ui', 'uc', 'ub' }) do
         local mapping = vim.fn.maparg(' ' .. key, 'n', false, true)
         assert(mapping.desc, 'missing key: ' .. key)
       end
@@ -262,6 +262,15 @@ local ok, err = xpcall(function()
         end
         vim.ui.input, require('dap').set_breakpoint = input, set_breakpoint
         assert(#conditions == 1 and conditions[1] == 'value > 1', 'breakpoint cancel/empty input changed breakpoints')
+        vim.cmd.colorscheme('habamax')
+        vim.wait(20)
+        for _, group in ipairs({
+            'NoiceMini', 'NoiceCmdlinePopup', 'NoiceCmdlinePopupBorder', 'NoiceCmdlinePopupTitle',
+            'NoiceCmdlinePopupBorderSearch', 'NoiceConfirm', 'NoiceConfirmBorder', 'NoicePopup',
+            'NoicePopupBorder', 'NoicePopupmenu', 'NoicePopupmenuBorder', 'NoiceSplit', 'NoiceSplitBorder',
+        }) do
+            assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == nil, group .. ' is not transparent')
+        end
     ]]
     )
     print("PASS setup of all enabled plugin specs (installers disabled)")

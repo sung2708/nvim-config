@@ -2,6 +2,14 @@ local defer_after_vimenter = require("helper.utils").defer_plugin_after_vimenter
 
 return {
     {
+        "rebelot/kanagawa.nvim",
+        lazy = false,
+        priority = 1000,
+        opts = {
+            transparent = true,
+        },
+    },
+    {
         "catppuccin/nvim",
         name = "catppuccin",
         lazy = false,
@@ -70,6 +78,13 @@ return {
         event = vim.g.sungp_low_spec and "VeryLazy" or nil,
         priority = vim.g.sungp_low_spec and nil or 1000,
         keys = {
+            {
+                "<leader>ut",
+                function()
+                    Snacks.picker.colorschemes()
+                end,
+                desc = "UI: Select Colorscheme",
+            },
             {
                 "<leader>uz",
                 function()

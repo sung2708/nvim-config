@@ -145,7 +145,7 @@ Design references: [native LSP](https://neovim.io/doc/user/lsp/),
 | Git            | Gitsigns, Fugitive, Diffview                                      |
 | Debugging      | nvim-dap, nvim-dap-ui, debugpy, Delve, JS Debug, Java Debug       |
 | Testing        | Neotest for Python, Go, Jest, and Java                            |
-| UI             | Catppuccin, Snacks dashboard, WhichKey, Noice, Notify             |
+| UI             | Kanagawa, Catppuccin, Snacks dashboard, WhichKey, Noice, Notify   |
 
 ## Requirements
 
@@ -678,6 +678,7 @@ Inside FzfLua:
 | --- | --- |
 | `Space+uz` / `Space+uZ` | Toggle Zen / zoom, restoring the previous layout on exit |
 | `Space+u.` / `Space+uS` | Markdown scratch notes / select a saved scratch |
+| `Space+ut` | Select a colorscheme with live preview |
 | `Space+uw` | Toggle wrap in this window |
 | `Space+ud` | Toggle diagnostics globally |
 | `Space+ui` / `Space+uc` | Toggle indent guides / chunk highlighting |
@@ -1109,10 +1110,10 @@ web search and allows a larger skill catalog only for these sessions; regular
 Codex sessions keep their own settings.
 Codex ACP is chat-only, and no `CODEX_HOME` environment variable is required.
 
-### Catppuccin
+### Colorschemes
 
-The default colorscheme is `catppuccin-macchiato`. Change `M.name` in
-`lua/config/theme.lua` to another Catppuccin flavor if desired.
+The default colorscheme is transparent `kanagawa-wave`. Catppuccin remains
+installed. Change `M.name` in `lua/config/theme.lua` to switch themes.
 
 ### Lazydocker
 
@@ -1136,7 +1137,7 @@ UV_TOOL_BIN_DIR
 
 Enabled optimizations:
 
-- Startup loads core configuration, lazy.nvim, Catppuccin, Snacks, and
+- Startup loads core configuration, lazy.nvim, Kanagawa, Snacks, and
   nvim-treesitter. Devicons load later.
 - LSP and language plugins load when matching files are opened.
 - Blink loads on Insert or command-line entry.
